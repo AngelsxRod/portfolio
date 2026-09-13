@@ -1,13 +1,12 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory } from '@nestjs/core';
+import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import type { Environment } from './config/environment';
 
-export async function createApp() {
-  const app = await NestFactory.create(AppModule);
+export async function configureApp(app: INestApplication) {
   const config = app.get(ConfigService<Environment, true>);
   const origins = config
     .get('CORS_ORIGINS', { infer: true })
@@ -29,3 +28,5 @@ export async function createApp() {
 
   return { app, port: config.get('PORT', { infer: true }) };
 }
+
+export { AppModule };
