@@ -1,0 +1,31 @@
+import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import { AppModule } from './app.module';
+import type { Environment } from './config/environment';
+
+export async function createApp() {
+  const app = await NestFactory.create(AppModule);
+  const config = app.get(ConfigService<Environment, true>);
+  const origins = config
+    .get('CORS_ORIGINS', { infer: true })
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  app.use(helmet());
+  app.enableCors({ credentials: true, origin: origins });
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+
+  const swagger = new DocumentBuilder()
+    .setTitle('Portfolio API')
+    .setDescription('API del portafolio profesional de Angel Rodriguez')
+    .setVersion('0.1.0')
+    .build();
+  SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, swagger));
+
+  return { app, port: config.get('PORT', { infer: true }) };
+}

@@ -1,0 +1,3 @@
+export default {
+  '*.{js,mjs,cjs,ts,tsx,json,md,css,yml,yaml}': 'prettier --write',
+};
