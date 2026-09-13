@@ -25,8 +25,18 @@ pnpm install
 docker compose up -d postgres
 cp .env.example apps/api/.env.local
 printf 'API_URL=http://localhost:3001\n' > apps/web/.env.local
+pnpm db:push
 pnpm dev
 ```
+
+Después de crear los archivos de entorno por primera vez, el flujo diario puede iniciarse con:
+
+```bash
+pnpm dev:local
+```
+
+El comando levanta PostgreSQL, sincroniza el esquema local y arranca API y web. Para
+detener únicamente los servicios Docker usa `pnpm dev:services:down`.
 
 - Web: <http://localhost:3000>
 - API: <http://localhost:3001/api/health>
