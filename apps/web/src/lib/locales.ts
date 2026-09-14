@@ -15,6 +15,8 @@ export const messages = {
     apiOffline: 'API o base de datos sin conexión',
     checking: 'Comprobando servicios',
     switchLanguage: 'English',
+    themeToLight: 'Cambiar a tema claro',
+    themeToDark: 'Cambiar a tema oscuro',
   },
   en: {
     eyebrow: 'Technical foundation deployed',
@@ -25,5 +27,7 @@ export const messages = {
     apiOffline: 'API or database is unavailable',
     checking: 'Checking services',
     switchLanguage: 'Español',
+    themeToLight: 'Switch to light theme',
+    themeToDark: 'Switch to dark theme',
   },
 } satisfies Record<Locale, Record<string, string>>;
