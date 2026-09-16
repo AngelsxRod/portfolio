@@ -25,7 +25,7 @@ export function ThemeToggle({ toLight, toDark }: ThemeToggleProps) {
   const mounted = useMounted();
 
   if (!mounted) {
-    return <Button aria-hidden className="opacity-0" disabled size="icon" variant="ghost" />;
+    return <span aria-hidden className="size-8" />;
   }
 
   const isDark = resolvedTheme === 'dark';

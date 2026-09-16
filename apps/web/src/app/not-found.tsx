@@ -10,7 +10,7 @@ export default function NotFound() {
           404
         </Badge>
         <h1 className="mt-4 text-5xl font-semibold tracking-tight sm:text-6xl">Page not found</h1>
-        <Button className="mt-8" render={<Link href="/es" />}>
+        <Button className="mt-8" nativeButton={false} render={<Link href="/es" />}>
           Volver al inicio
         </Button>
       </section>

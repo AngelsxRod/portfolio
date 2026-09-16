@@ -1,11 +1,21 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['400', '700'],
+});
 
 export const metadata: Metadata = {
   title: 'Angel Rodriguez — Portfolio',
@@ -14,7 +24,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html suppressHydrationWarning className={cn('font-sans', geist.variable)} lang="es">
+    <html
+      suppressHydrationWarning
+      className={cn('font-sans', spaceGrotesk.variable, spaceMono.variable)}
+      lang="es"
+    >
       <body>
         <ThemeProvider
           attribute="class"
