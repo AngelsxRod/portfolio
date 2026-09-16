@@ -39,7 +39,7 @@ export function Nav({ locale }: NavProps) {
   const isContactoActive = pathname === contactoHref;
 
   return (
-    <nav className="relative border-b border-border">
+    <nav className="site-nav sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-xl">
       <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-6 sm:h-[88px] sm:px-12 lg:px-24">
         <Link className="col-start-1 justify-self-start" href={`/${locale}`}>
           <Logo />

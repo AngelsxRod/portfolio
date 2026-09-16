@@ -18,7 +18,8 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
     <span
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-[3px] font-mono text-[11px] tracking-[0.05em] uppercase',
-        status === 'destacado' && 'bg-primary font-bold text-primary-foreground',
+        status === 'destacado' &&
+          'bg-primary font-bold text-primary-foreground shadow-[0_0_18px_-7px_var(--primary)]',
         status === 'publicado' && 'bg-cyan font-bold text-cyan-foreground',
         status === 'borrador' && 'border border-border-secondary text-muted-foreground',
       )}

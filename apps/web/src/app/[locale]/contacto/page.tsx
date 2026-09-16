@@ -16,7 +16,7 @@ export default async function ContactoPage({ params }: PageProps) {
   return (
     <>
       <main className="flex flex-1 flex-col items-center justify-center gap-10 px-6 py-12 sm:gap-16 sm:px-12 sm:py-20 lg:flex-row lg:px-24">
-        <div className="flex w-full max-w-[560px] flex-col gap-6">
+        <div className="reveal-up flex w-full max-w-[560px] flex-col gap-6">
           <NumberedEyebrow label={copy['contacto.eyebrow']} number="04" />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
             <AccentBar />
@@ -31,6 +31,7 @@ export default async function ContactoPage({ params }: PageProps) {
         </div>
 
         <ContactCard
+          className="reveal-up reveal-delay-1"
           items={[
             {
               label: copy['contacto.emailLabel'],

@@ -9,15 +9,21 @@ interface ContactItem {
 
 interface ContactCardProps {
   items: ContactItem[];
+  className?: string;
 }
 
 /**
  * Siempre oscura, en ambos temas (igual que TerminalWindow) — los colores
  * internos van hardcodeados, no usan tokens que cambian con el tema.
  */
-export function ContactCard({ items }: ContactCardProps) {
+export function ContactCard({ items, className }: ContactCardProps) {
   return (
-    <div className="w-full max-w-[440px] shrink-0 overflow-hidden rounded-[10px] border border-[oklch(0.26_0.03_300)] bg-surface-deep">
+    <div
+      className={cn(
+        'motion-card w-full max-w-[440px] shrink-0 overflow-hidden rounded-[10px] border border-[oklch(0.26_0.03_300)] bg-surface-deep',
+        className,
+      )}
+    >
       {items.map((item, index) => (
         <a
           className={cn(

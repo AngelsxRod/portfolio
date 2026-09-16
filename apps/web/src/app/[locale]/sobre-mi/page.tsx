@@ -72,7 +72,7 @@ export default async function SobreMiPage({ params }: PageProps) {
   return (
     <>
       <main className="flex flex-1 flex-col">
-        <section className="flex max-w-[640px] flex-col gap-3 px-6 pt-12 sm:px-12 sm:pt-16 lg:px-24">
+        <section className="reveal-up flex max-w-[640px] flex-col gap-3 px-6 pt-12 sm:px-12 sm:pt-16 lg:px-24">
           <NumberedEyebrow label={copy['sobreMi.eyebrow']} number="03" />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
             <AccentBar />
@@ -86,7 +86,7 @@ export default async function SobreMiPage({ params }: PageProps) {
         </section>
 
         {/* STACK */}
-        <section className="flex flex-col gap-6 px-6 py-12 sm:px-12 sm:py-16 lg:px-24">
+        <section className="reveal-up reveal-delay-1 flex flex-col gap-6 px-6 py-12 sm:px-12 sm:py-16 lg:px-24">
           <NumberedEyebrow label={copy['sobreMi.stackLabel']} />
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-4">
             {stackColumns.map((column) => (
@@ -116,7 +116,7 @@ export default async function SobreMiPage({ params }: PageProps) {
         </section>
 
         {/* TRAYECTORIA */}
-        <section className="flex flex-col gap-10 bg-muted px-6 py-12 sm:px-12 sm:py-16 lg:px-24">
+        <section className="reveal-up reveal-delay-2 flex flex-col gap-10 bg-muted/90 px-6 py-12 backdrop-blur-sm sm:px-12 sm:py-16 lg:px-24">
           <NumberedEyebrow label={copy['sobreMi.trajectoryLabel']} />
           <ol className="flex max-w-[760px] flex-col gap-10 border-l border-border-secondary pl-7 sm:gap-12 sm:pl-9">
             {timeline.map((entry) => (

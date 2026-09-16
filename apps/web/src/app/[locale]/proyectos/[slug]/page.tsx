@@ -36,13 +36,13 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
     <>
       <main className="flex flex-1 flex-col gap-8 px-6 py-10 sm:gap-10 sm:px-12 sm:py-14 lg:px-24">
         <Link
-          className="w-fit font-mono text-[13px] text-muted-foreground"
+          className="reveal-up w-fit font-mono text-[13px] text-muted-foreground"
           href={`/${locale}/proyectos`}
         >
           {copy['detalle.back']}
         </Link>
 
-        <div className="flex max-w-[860px] flex-col gap-3">
+        <div className="reveal-up reveal-delay-1 flex max-w-[860px] flex-col gap-3">
           <div className="flex items-baseline gap-2.5 font-mono">
             <span className="text-sm font-bold text-purple-text">
               {copy['detalle.eyebrowLabel']}
@@ -62,7 +62,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-6">
+        <div className="reveal-up reveal-delay-2 flex flex-wrap items-center justify-between gap-6">
           <div className="grid w-full grid-cols-3 gap-4 font-mono text-xs text-muted-foreground sm:flex sm:w-auto sm:items-center sm:gap-8">
             <div>
               <span className="tracking-[0.05em] uppercase">{copy['detalle.roleLabel']}</span>
@@ -95,7 +95,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="flex h-56 w-full items-center justify-center rounded-xl border border-dashed border-border-secondary bg-muted sm:h-[360px] lg:h-[480px]">
+        <div className="reveal-up reveal-delay-3 motion-card flex h-56 w-full items-center justify-center rounded-xl border border-dashed border-border-secondary bg-muted/90 sm:h-[360px] lg:h-[480px]">
           <span className="font-mono text-[13px] text-muted-foreground">
             {copy['detalle.heroPlaceholder']}
           </span>

@@ -24,7 +24,7 @@ export default async function HomePage({ params }: PageProps) {
     <>
       <main className="flex flex-1 flex-col">
         {/* HERO */}
-        <section className="flex flex-col items-center gap-12 px-6 py-12 sm:px-12 sm:py-16 lg:flex-row lg:justify-center lg:gap-16 lg:px-24 lg:py-32">
+        <section className="reveal-up flex flex-col items-center gap-12 px-6 py-12 sm:px-12 sm:py-16 lg:flex-row lg:justify-center lg:gap-16 lg:px-24 lg:py-32">
           <div className="flex w-full max-w-[600px] flex-col gap-6">
             <NumberedEyebrow label={copy['home.eyebrow']} number="01" />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
@@ -90,7 +90,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
         {/* PROYECTOS DESTACADOS */}
-        <section className="flex flex-col gap-8 bg-muted px-6 py-16 sm:gap-10 sm:px-12 sm:py-24 lg:px-24">
+        <section className="reveal-up reveal-delay-1 flex flex-col gap-8 bg-muted/90 px-6 py-16 backdrop-blur-sm sm:gap-10 sm:px-12 sm:py-24 lg:px-24">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-3">
               <NumberedEyebrow label={copy['home.featuredLabel']} />
@@ -116,7 +116,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
         {/* ESTADISTICAS */}
-        <section className="grid grid-cols-2 gap-3 px-6 py-14 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-8 sm:px-12 sm:py-20 lg:px-24">
+        <section className="reveal-up reveal-delay-2 grid grid-cols-2 gap-3 px-6 py-14 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-8 sm:px-12 sm:py-20 lg:px-24">
           <StatItem color="purple" label={copy['home.statsProjects']} value="[X]+" />
           <StatItem color="cyan" label={copy['home.statsYears']} value="[X]" />
           <StatItem color="purple" label={copy['home.statsTech']} value="[X]+" />

@@ -21,10 +21,10 @@ export function FilterPills({ options, active, onChange }: FilterPillsProps) {
         return (
           <button
             className={cn(
-              'rounded-full px-[18px] py-2',
+              'rounded-full px-[18px] py-2 transition-all duration-200 hover:-translate-y-0.5',
               isActive
                 ? 'bg-primary font-bold text-primary-foreground'
-                : 'border border-border-secondary text-muted-foreground',
+                : 'border border-border-secondary bg-background/40 text-muted-foreground hover:border-primary/60 hover:text-foreground',
             )}
             key={option.value}
             onClick={() => onChange(option.value)}
