@@ -32,7 +32,7 @@ export function ContactCard({ items }: ContactCardProps) {
           </span>
           <span
             className={cn(
-              'text-[17px] font-semibold',
+              'break-words text-[15px] font-semibold sm:text-[17px]',
               item.accent ? 'text-[oklch(0.75_0.15_225)]' : 'text-[oklch(0.97_0_0)]',
             )}
           >

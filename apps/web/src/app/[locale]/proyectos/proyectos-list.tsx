@@ -41,7 +41,7 @@ export function ProyectosList({ copy, locale, projects }: ProyectosListProps) {
   );
 
   return (
-    <div className="flex flex-col gap-14">
+    <div className="flex flex-col gap-8 sm:gap-14">
       <FilterPills
         active={filter}
         onChange={(value) => setFilter(value as FilterValue)}
@@ -53,16 +53,16 @@ export function ProyectosList({ copy, locale, projects }: ProyectosListProps) {
         ) : (
           filtered.map((project, index) => (
             <div
-              className="flex flex-col gap-4 border-b border-border py-10 last:border-b-0 sm:flex-row sm:items-start sm:gap-10"
+              className="flex flex-col gap-5 border-b border-border py-8 last:border-b-0 sm:flex-row sm:items-start sm:gap-10 sm:py-10"
               key={project.slug}
             >
-              <div className="flex gap-6 sm:gap-10">
+              <div className="flex gap-4 sm:gap-10">
                 <PhantomNumber color={phantomColors[index % phantomColors.length]}>
                   {String(index + 1).padStart(2, '0')}
                 </PhantomNumber>
                 <div className="flex min-w-0 flex-1 flex-col gap-2.5">
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="text-2xl font-bold">{project.title}</div>
+                    <div className="text-xl font-bold sm:text-2xl">{project.title}</div>
                     {project.featured ? (
                       <StatusBadge label={copy['proyectos.badgeFeatured']} status="destacado" />
                     ) : null}

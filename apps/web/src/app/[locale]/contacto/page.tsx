@@ -15,12 +15,12 @@ export default async function ContactoPage({ params }: PageProps) {
 
   return (
     <>
-      <main className="flex flex-1 flex-col items-center justify-center gap-16 px-6 py-20 sm:px-12 lg:flex-row lg:px-24">
+      <main className="flex flex-1 flex-col items-center justify-center gap-10 px-6 py-12 sm:gap-16 sm:px-12 sm:py-20 lg:flex-row lg:px-24">
         <div className="flex w-full max-w-[560px] flex-col gap-6">
           <NumberedEyebrow label={copy['contacto.eyebrow']} number="04" />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
             <AccentBar />
-            <h1 className="order-1 text-6xl leading-none font-bold tracking-tight sm:order-2">
+            <h1 className="order-1 text-5xl leading-none font-bold tracking-tight sm:order-2 sm:text-6xl">
               {copy['contacto.title']}
               <span className="text-purple-text">.</span>
             </h1>

@@ -34,7 +34,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
 
   return (
     <>
-      <main className="flex flex-1 flex-col gap-10 px-6 py-14 sm:px-12 lg:px-24">
+      <main className="flex flex-1 flex-col gap-8 px-6 py-10 sm:gap-10 sm:px-12 sm:py-14 lg:px-24">
         <Link
           className="w-fit font-mono text-[13px] text-muted-foreground"
           href={`/${locale}/proyectos`}
@@ -53,7 +53,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
             <AccentBar />
-            <h1 className="order-1 text-[48px] font-bold tracking-tight sm:order-2">
+            <h1 className="order-1 text-4xl leading-tight font-bold tracking-tight sm:order-2 sm:text-[48px]">
               {project.title}
             </h1>
           </div>
@@ -63,7 +63,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-8 font-mono text-xs text-muted-foreground">
+          <div className="grid w-full grid-cols-3 gap-4 font-mono text-xs text-muted-foreground sm:flex sm:w-auto sm:items-center sm:gap-8">
             <div>
               <span className="tracking-[0.05em] uppercase">{copy['detalle.roleLabel']}</span>
               <br />
@@ -80,7 +80,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
               <span className="text-sm text-foreground">{categoryLabels[project.category]}</span>
             </div>
           </div>
-          <div className="flex gap-4">
+          <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:gap-4">
             <Button nativeButton={false} render={<Link href={project.siteUrl ?? '#'} />}>
               {copy['detalle.viewSite']}
             </Button>
@@ -95,7 +95,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="flex h-[480px] w-full items-center justify-center rounded-xl border border-dashed border-border-secondary bg-muted">
+        <div className="flex h-56 w-full items-center justify-center rounded-xl border border-dashed border-border-secondary bg-muted sm:h-[360px] lg:h-[480px]">
           <span className="font-mono text-[13px] text-muted-foreground">
             {copy['detalle.heroPlaceholder']}
           </span>
@@ -153,13 +153,13 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between border-t border-border pt-8">
+        <div className="mt-6 flex items-start justify-between gap-6 border-t border-border pt-8">
           {prev ? (
             <Link className="flex flex-col gap-1" href={`/${locale}/proyectos/${prev.slug}`}>
               <span className="font-mono text-[11px] tracking-[0.1em] text-muted-foreground uppercase">
                 {copy['detalle.prev']}
               </span>
-              <span className="text-base font-semibold">{prev.title}</span>
+              <span className="text-sm font-semibold sm:text-base">{prev.title}</span>
             </Link>
           ) : (
             <span />
@@ -172,7 +172,7 @@ export default async function ProyectoDetallePage({ params }: PageProps) {
               <span className="font-mono text-[11px] tracking-[0.1em] text-muted-foreground uppercase">
                 {copy['detalle.next']}
               </span>
-              <span className="text-base font-semibold">{next.title}</span>
+              <span className="text-right text-sm font-semibold sm:text-base">{next.title}</span>
             </Link>
           ) : (
             <span />

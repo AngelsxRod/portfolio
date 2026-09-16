@@ -24,20 +24,20 @@ export default async function HomePage({ params }: PageProps) {
     <>
       <main className="flex flex-1 flex-col">
         {/* HERO */}
-        <section className="flex flex-col items-center gap-16 px-6 py-16 sm:px-12 lg:flex-row lg:justify-center lg:px-24 lg:py-32">
+        <section className="flex flex-col items-center gap-12 px-6 py-12 sm:px-12 sm:py-16 lg:flex-row lg:justify-center lg:gap-16 lg:px-24 lg:py-32">
           <div className="flex w-full max-w-[600px] flex-col gap-6">
             <NumberedEyebrow label={copy['home.eyebrow']} number="01" />
             <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">
               <AccentBar />
-              <h1 className="order-1 text-6xl leading-[0.98] font-bold tracking-tight sm:order-2">
+              <h1 className="order-1 text-5xl leading-[0.98] font-bold tracking-tight sm:order-2 sm:text-6xl">
                 <span className="block font-normal text-muted-foreground">Angel</span>
                 <span className="block">Rodriguez</span>
               </h1>
             </div>
-            <p className="max-w-[460px] text-lg leading-relaxed text-muted-foreground">
+            <p className="max-w-[460px] text-base leading-relaxed text-muted-foreground sm:text-lg">
               {copy['home.heroDescription']}
             </p>
-            <div className="mt-2 flex gap-4">
+            <div className="mt-2 flex flex-wrap gap-3 sm:gap-4">
               <Button nativeButton={false} render={<Link href={`/${locale}/proyectos`} />}>
                 {copy['home.ctaProjects']}
               </Button>
@@ -90,7 +90,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
         {/* PROYECTOS DESTACADOS */}
-        <section className="flex flex-col gap-10 bg-muted px-6 py-24 sm:px-12 lg:px-24">
+        <section className="flex flex-col gap-8 bg-muted px-6 py-16 sm:gap-10 sm:px-12 sm:py-24 lg:px-24">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-3">
               <NumberedEyebrow label={copy['home.featuredLabel']} />
@@ -116,7 +116,7 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
         {/* ESTADISTICAS */}
-        <section className="grid grid-cols-2 gap-8 px-6 py-20 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:px-12 lg:px-24">
+        <section className="grid grid-cols-2 gap-3 px-6 py-14 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-8 sm:px-12 sm:py-20 lg:px-24">
           <StatItem color="purple" label={copy['home.statsProjects']} value="[X]+" />
           <StatItem color="cyan" label={copy['home.statsYears']} value="[X]" />
           <StatItem color="purple" label={copy['home.statsTech']} value="[X]+" />
@@ -124,8 +124,8 @@ export default async function HomePage({ params }: PageProps) {
         </section>
 
         {/* CTA FINAL */}
-        <section className="flex flex-col items-center gap-6 bg-muted px-6 py-28 text-center sm:px-12 lg:px-24">
-          <h2 className="text-4xl font-bold tracking-tight">
+        <section className="flex flex-col items-center gap-6 bg-muted px-6 py-20 text-center sm:px-12 sm:py-28 lg:px-24">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             {copy['home.ctaFinalTitlePrefix']}
             <span className="text-primary">?</span>
           </h2>

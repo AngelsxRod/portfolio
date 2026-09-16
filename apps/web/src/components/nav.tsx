@@ -40,7 +40,7 @@ export function Nav({ locale }: NavProps) {
 
   return (
     <nav className="relative border-b border-border">
-      <div className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center px-6 sm:px-12 lg:px-24">
+      <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-6 sm:h-[88px] sm:px-12 lg:px-24">
         <Link className="col-start-1 justify-self-start" href={`/${locale}`}>
           <Logo />
         </Link>
@@ -98,7 +98,7 @@ export function Nav({ locale }: NavProps) {
             <SheetContent
               className="!w-[88vw] max-w-sm gap-0 border-border bg-background p-0"
               closeLabel={copy['nav.closeMenu']}
-              side="right"
+              side="left"
             >
               <SheetHeader className="border-b border-border px-6 py-7">
                 <SheetTitle className="flex items-center justify-between pr-10">

@@ -10,7 +10,7 @@ export function PhantomNumber({ children, color = 'purple' }: PhantomNumberProps
   return (
     <div
       className={cn(
-        'w-24 shrink-0 font-mono text-[56px] leading-none font-bold',
+        'w-16 shrink-0 font-mono text-4xl leading-none font-bold sm:w-24 sm:text-[56px]',
         color === 'purple' ? 'text-purple-ghost' : 'text-cyan-ghost',
       )}
     >

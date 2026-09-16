@@ -16,7 +16,7 @@ export default async function ProyectosPage({ params }: PageProps) {
 
   return (
     <>
-      <main className="flex flex-1 flex-col gap-14 px-6 py-16 sm:px-12 lg:px-24">
+      <main className="flex flex-1 flex-col gap-10 px-6 py-12 sm:gap-14 sm:px-12 sm:py-16 lg:px-24">
         <div className="flex max-w-[640px] flex-col gap-3">
           <NumberedEyebrow label={copy['proyectos.eyebrow']} number="02" />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-5">

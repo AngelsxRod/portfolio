@@ -19,7 +19,7 @@ export function TerminalWindow({ title, children }: TerminalWindowProps) {
         <span className="size-2.5 rounded-full bg-[oklch(0.46_0.03_300)]" />
         <span className="ml-2 font-mono text-xs text-[oklch(0.5_0.03_300)]">{title}</span>
       </div>
-      <div className="p-6 font-mono text-sm leading-[1.85] text-[oklch(0.82_0.02_300)]">
+      <div className="overflow-x-auto p-4 font-mono text-xs leading-[1.85] whitespace-nowrap text-[oklch(0.82_0.02_300)] sm:p-6 sm:text-sm">
         {children}
       </div>
     </div>

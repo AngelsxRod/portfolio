@@ -8,7 +8,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
   return (
     <footer
       className={cn(
-        'flex shrink-0 items-center justify-between border-t px-6 py-8 sm:px-12 lg:px-24',
+        'flex shrink-0 flex-col items-start justify-between gap-4 border-t px-6 py-7 sm:flex-row sm:items-center sm:px-12 sm:py-8 lg:px-24',
         variant === 'muted' ? 'border-border-secondary bg-muted' : 'border-border',
       )}
     >

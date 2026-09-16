@@ -8,10 +8,10 @@ interface StatItemProps {
 
 export function StatItem({ value, label, color }: StatItemProps) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1 rounded-lg border border-border p-4 sm:border-0 sm:p-0">
       <div
         className={cn(
-          'font-mono text-4xl font-bold',
+          'font-mono text-3xl font-bold sm:text-4xl',
           color === 'purple' ? 'text-primary' : 'text-cyan',
         )}
       >

@@ -10,7 +10,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project, locale }: ProjectCardProps) {
   return (
     <Link
-      className="flex flex-col gap-3 rounded-[10px] border border-border-secondary p-8"
+      className="flex flex-col gap-3 rounded-[10px] border border-border-secondary p-5 transition-colors hover:bg-background/60 sm:p-8"
       href={`/${locale}/proyectos/${project.slug}`}
     >
       <div className="text-xl font-bold">{project.title}</div>
