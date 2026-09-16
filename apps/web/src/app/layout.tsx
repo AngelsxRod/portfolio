@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, Space_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { MotionOrchestrator } from '@/components/motion-orchestrator';
 import { ThemeProvider } from '@/components/theme-provider';
 import { cn } from '@/lib/utils';
 import './globals.css';
@@ -36,7 +37,8 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           disableTransitionOnChange
           enableSystem={false}
         >
-          {children}
+          <MotionOrchestrator />
+          <div className="relative z-10">{children}</div>
         </ThemeProvider>
       </body>
     </html>

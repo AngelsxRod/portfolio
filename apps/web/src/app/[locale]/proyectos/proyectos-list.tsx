@@ -55,7 +55,6 @@ export function ProyectosList({ copy, locale, projects }: ProyectosListProps) {
             <div
               className="group reveal-up flex flex-col gap-5 border-b border-border py-8 last:border-b-0 sm:flex-row sm:items-start sm:gap-10 sm:py-10"
               key={project.slug}
-              style={{ animationDelay: `${index * 90}ms` }}
             >
               <div className="flex gap-4 sm:gap-10">
                 <PhantomNumber color={phantomColors[index % phantomColors.length]}>
