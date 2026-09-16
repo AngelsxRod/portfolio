@@ -1,12 +1,20 @@
 'use client';
 
-import { Menu, X } from 'lucide-react';
+import { ArrowUpRight, Languages, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Logo } from '@/components/logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/lib/locales';
 import { messages } from '@/lib/locales';
@@ -36,7 +44,7 @@ export function Nav({ locale }: NavProps) {
         <Link className="col-start-1 justify-self-start" href={`/${locale}`}>
           <Logo />
         </Link>
-        <div className="col-start-2 hidden items-center justify-self-center gap-10 md:flex">
+        <div className="col-start-2 hidden items-center justify-self-center gap-10 lg:flex">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -55,7 +63,7 @@ export function Nav({ locale }: NavProps) {
         </div>
         <div className="col-start-3 flex items-center justify-self-end gap-2 sm:gap-3">
           <Button
-            className={cn(!isContactoActive && 'border-border-secondary')}
+            className={cn('hidden lg:inline-flex', !isContactoActive && 'border-border-secondary')}
             nativeButton={false}
             render={<Link href={contactoHref} />}
             variant={isContactoActive ? 'default' : 'outline'}
@@ -63,7 +71,7 @@ export function Nav({ locale }: NavProps) {
             {copy['nav.contacto']}
           </Button>
           <Button
-            className="hidden sm:inline-flex"
+            className="hidden lg:inline-flex"
             nativeButton={false}
             render={<Link href={`/${alternateLocale}`} />}
             size="sm"
@@ -71,47 +79,105 @@ export function Nav({ locale }: NavProps) {
           >
             {copy.switchLanguage}
           </Button>
-          <ThemeToggle toDark={copy.themeToDark} toLight={copy.themeToLight} />
-          <Button
-            aria-expanded={menuOpen}
-            aria-label={menuOpen ? copy['nav.closeMenu'] : copy['nav.openMenu']}
-            className="md:hidden"
-            onClick={() => setMenuOpen((open) => !open)}
-            size="icon"
-            variant="ghost"
-          >
-            {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
-          </Button>
+          <div className="hidden lg:block">
+            <ThemeToggle toDark={copy.themeToDark} toLight={copy.themeToLight} />
+          </div>
+          <Sheet onOpenChange={setMenuOpen} open={menuOpen}>
+            <SheetTrigger
+              render={
+                <Button
+                  aria-label={copy['nav.openMenu']}
+                  className="lg:hidden"
+                  size="icon"
+                  variant="outline"
+                />
+              }
+            >
+              <Menu className="size-4" />
+            </SheetTrigger>
+            <SheetContent
+              className="!w-[88vw] max-w-sm gap-0 border-border bg-background p-0"
+              closeLabel={copy['nav.closeMenu']}
+              side="right"
+            >
+              <SheetHeader className="border-b border-border px-6 py-7">
+                <SheetTitle className="flex items-center justify-between pr-10">
+                  <Logo />
+                  <span className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase">
+                    Menu
+                  </span>
+                </SheetTitle>
+                <SheetDescription className="sr-only">{copy['nav.openMenu']}</SheetDescription>
+              </SheetHeader>
+
+              <div className="flex flex-1 flex-col px-6 py-8">
+                <div className="flex flex-col">
+                  {links.map((link, index) => {
+                    const isActive =
+                      link.href === `/${locale}`
+                        ? pathname === link.href
+                        : pathname.startsWith(link.href);
+
+                    return (
+                      <Link
+                        className={cn(
+                          'group flex items-center gap-4 border-b border-border py-5 text-xl font-medium transition-colors',
+                          isActive
+                            ? 'text-foreground'
+                            : 'text-muted-foreground hover:text-foreground',
+                        )}
+                        href={link.href}
+                        key={link.href}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span
+                          className={cn(
+                            'font-mono text-[11px] text-muted-foreground',
+                            isActive && 'text-purple-text',
+                          )}
+                        >
+                          0{index + 1}
+                        </span>
+                        <span className="flex-1">{link.label}</span>
+                        <span
+                          className={cn(
+                            'size-1.5 rounded-full bg-transparent transition-colors',
+                            isActive && 'bg-primary',
+                          )}
+                        />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  className="mt-8 h-11 w-full justify-between px-4"
+                  nativeButton={false}
+                  render={<Link href={contactoHref} onClick={() => setMenuOpen(false)} />}
+                >
+                  {copy['nav.contacto']}
+                  <ArrowUpRight className="size-4" />
+                </Button>
+
+                <div className="mt-auto flex items-center justify-between border-t border-border pt-5">
+                  <Button
+                    className="gap-2"
+                    nativeButton={false}
+                    render={
+                      <Link href={`/${alternateLocale}`} onClick={() => setMenuOpen(false)} />
+                    }
+                    variant="ghost"
+                  >
+                    <Languages className="size-4" />
+                    {copy.switchLanguage}
+                  </Button>
+                  <ThemeToggle toDark={copy.themeToDark} toLight={copy.themeToLight} />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
-
-      {menuOpen ? (
-        <div className="flex flex-col border-t border-border bg-background px-6 py-4 md:hidden">
-          {links.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                className={cn(
-                  'py-2.5 text-sm text-muted-foreground',
-                  isActive && 'font-medium text-foreground',
-                )}
-                href={link.href}
-                key={link.href}
-                onClick={() => setMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-          <Link
-            className="py-2.5 text-sm text-muted-foreground sm:hidden"
-            href={`/${alternateLocale}`}
-            onClick={() => setMenuOpen(false)}
-          >
-            {copy.switchLanguage}
-          </Link>
-        </div>
-      ) : null}
     </nav>
   );
 }
