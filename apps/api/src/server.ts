@@ -29,3 +29,5 @@ export const createServer = (): Express => {
 
   return app;
 };
+
+export default createServer();
