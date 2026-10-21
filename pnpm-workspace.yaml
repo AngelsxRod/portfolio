@@ -1,9 +1,7 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
-
+  - "apps/*"
+  - "packages/*"
 allowBuilds:
-  '@parcel/watcher': true
-  '@scarf/scarf': false
+  "@parcel/watcher": true
   esbuild: true
-  unrs-resolver: false
+  unrs-resolver: true

@@ -1,11 +1,11 @@
 {
-  "extends": "@portfolio/typescript-config/nestjs.json",
+  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "incremental": false,
-    "outDir": "dist",
-    "rootDir": "src"
+    "lib": ["ES2015"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strictNullChecks": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
+  "exclude": ["node_modules"],
+  "include": ["src"]
 }

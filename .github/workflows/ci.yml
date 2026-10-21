@@ -1,23 +1,23 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches: [main]
+  pull_request:
 
 jobs:
-  verify:
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    env:
+      HUSKY: "0"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          run_install: false
-          version: 11.18.0
+          version: 11.25.0
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 24.21.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check

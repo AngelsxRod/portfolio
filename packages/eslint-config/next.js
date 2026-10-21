@@ -1,13 +1,17 @@
-import nextPlugin from '@next/eslint-plugin-next';
-import react from './react.js';
+const nextPlugin = require("@next/eslint-plugin-next");
+const libraryConfig = require("./library");
 
-export default [
-  ...react,
+/** @type {import("eslint").Linter.Config[]} */
+module.exports = [
+  ...libraryConfig,
   {
-    plugins: { '@next/next': nextPlugin },
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    plugins: {
+      "@next/next": nextPlugin,
+    },
     rules: {
       ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs['core-web-vitals'].rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
     },
   },
 ];

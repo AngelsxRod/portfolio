@@ -1,35 +1,34 @@
 {
   "name": "portfolio",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "private": true,
-  "engines": {
-    "node": "24.x"
-  },
-  "packageManager": "pnpm@11.18.0",
+  "packageManager": "pnpm@11.25.0",
   "scripts": {
     "build": "turbo run build",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "db:generate": "pnpm --filter @portfolio/database db:generate",
-    "db:migrate": "pnpm --filter @portfolio/database db:migrate",
-    "db:push": "pnpm --filter @portfolio/database db:push",
+    "check": "pnpm format:check && pnpm lint && pnpm test && pnpm build",
+    "clean": "turbo run clean",
     "dev": "turbo run dev",
-    "dev:local": "docker compose up -d --wait postgres && pnpm db:push && pnpm dev",
-    "dev:services": "docker compose up -d --wait postgres",
-    "dev:services:down": "docker compose down",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "prepare": "husky",
-    "test": "turbo run test",
-    "typecheck": "turbo run typecheck"
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.1",
-    "@commitlint/config-conventional": "^21.2.0",
-    "eslint": "^9.39.5",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.8",
-    "prettier": "^3.9.5",
-    "turbo": "^2.10.12",
-    "typescript": "^5.8.0"
+    "lint-staged": "^17.6.0",
+    "prettier": "3.9.6",
+    "turbo": "^2.11.9"
+  },
+  "engines": {
+    "node": ">=24.21.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.25.0"
+    }
   }
 }

@@ -1,26 +1,30 @@
 {
-  "$schema": "https://turbo.build/schema.json",
+  "$schema": "https://turborepo.dev/schema.json",
+  "globalEnv": ["PORT"],
+  "globalPassThroughEnv": ["API_URL", "DATABASE_URL"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "env": ["API_URL", "DATABASE_URL", "DATABASE_URL_UNPOOLED", "ADMIN_PASSWORD"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "!.next/dev/**",
+        "public/dist/**"
+      ],
+      "env": ["API_URL"]
     },
-    "dev": {
-      "dependsOn": ["^build"],
-      "cache": false,
-      "persistent": true
-    },
+    "test": {},
     "lint": {
       "dependsOn": ["^build"]
     },
-    "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"]
+    "dev": {
+      "cache": false,
+      "persistent": true
     },
-    "typecheck": {
-      "dependsOn": ["^build"],
-      "outputs": []
+    "clean": {
+      "cache": false
     }
   }
 }

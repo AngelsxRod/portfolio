@@ -1,21 +1,26 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: portfolio-postgres
-    restart: unless-stopped
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: always
     ports:
-      - '5434:5432'
-    environment:
-      POSTGRES_DB: portfolio
-      POSTGRES_PASSWORD: portfolio
-      POSTGRES_USER: portfolio
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U portfolio -d portfolio']
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    volumes:
-      - portfolio-postgres-data:/var/lib/postgresql/data
+      - 3000:3000
+    networks:
+      - app_network
+  api:
+    container_name: api
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+    restart: always
+    ports:
+      - 3001:3001
+    networks:
+      - app_network
 
-volumes:
-  portfolio-postgres-data:
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  app_network:

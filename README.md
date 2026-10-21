@@ -1,61 +1,50 @@
 # Portfolio
 
-Base del portafolio profesional de Angel Rodriguez. Es un único monorepositorio con dos
-aplicaciones desplegadas de forma independiente en Vercel.
+Monorepo con Turborepo y pnpm, creado a partir del ejemplo `with-docker`.
 
-## Arquitectura
+## Estructura
 
-- `apps/web`: Next.js 16, React 19 y Tailwind CSS 4.
-- `apps/api`: NestJS 11 desplegado como Vercel Function.
-- `packages/database`: Drizzle ORM y Neon Postgres.
-- `packages/contracts`: contratos Zod compartidos.
-- `packages/ui`: componentes React compartidos.
+- `apps/web`: aplicación Next.js (puerto 3000).
+- `apps/api`: API Express (puerto 3001).
+- `packages/ui`, `logger`, `eslint-config`, `typescript-config` y `jest-presets`: paquetes compartidos.
 
-## Requisitos
+Requiere Node.js 24.21 o superior y pnpm 11.25.0.
 
-- Node.js 24
-- pnpm 11.18
-- Docker, únicamente para PostgreSQL local
+## Desarrollo
 
-## Desarrollo local
-
-```bash
-corepack enable
-pnpm install
-docker compose up -d postgres
-cp .env.example apps/api/.env.local
-printf 'API_URL=http://localhost:3001\n' > apps/web/.env.local
-pnpm db:push
+```sh
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Después de crear los archivos de entorno por primera vez, el flujo diario puede iniciarse con:
+Para verificar el proyecto:
 
-```bash
-pnpm dev:local
+```sh
+pnpm build
+pnpm lint
+pnpm test
 ```
 
-El comando levanta PostgreSQL, sincroniza el esquema local y arranca API y web. Para
-detener únicamente los servicios Docker usa `pnpm dev:services:down`.
+El API usa `DATABASE_URL` para conectarse a Neon. En producción, esa variable la proporciona la integración Neon del proyecto `portfolio-api` en Vercel. Para probar la conexión sin exponer credenciales, consulta `GET /status/db`; responde `200` cuando la base está disponible y `503` cuando no lo está. La web usa `API_URL` del proyecto `portfolio-web` para comunicarse con el API desde una ruta del servidor.
 
-- Web: <http://localhost:3000>
-- API: <http://localhost:3001/api/health>
-- Swagger: <http://localhost:3001/docs>
+## Calidad y commits
 
-## Comprobaciones
+Al instalar dependencias, Husky activa estos hooks de Git:
 
-```bash
-pnpm check
+- `pre-commit`: Prettier sobre los archivos preparados mediante lint-staged.
+- `commit-msg`: exige Conventional Commits, por ejemplo `feat(api): connect Neon`.
+- `pre-push`: ejecuta `pnpm check` (formato, lint, pruebas y compilación).
+
+GitHub Actions ejecuta el mismo control en cada push a `main` y en los pull requests.
+
+## Docker
+
+```sh
+docker compose up --build -d
 ```
 
-## Despliegue
+La web estará en http://localhost:3000 y la API en http://localhost:3001/status. Compose crea la red interna automáticamente. Para detener los contenedores:
 
-Importa este mismo repositorio dos veces en Vercel:
-
-1. `portfolio-api`, con Root Directory `apps/api`.
-2. `portfolio-web`, con Root Directory `apps/web` y `API_URL` apuntando a la URL estable
-   del proyecto API.
-
-Conecta una base Neon exclusiva al proyecto API. Neon inyectará `DATABASE_URL` y
-`DATABASE_URL_UNPOOLED`. Los previews de ambas aplicaciones se generan desde el mismo commit,
-pero el preview web usa inicialmente la API estable de producción.
+```sh
+docker compose down
+```

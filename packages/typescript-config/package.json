@@ -1,8 +1,9 @@
 {
-  "name": "@portfolio/typescript-config",
-  "version": "0.1.0",
+  "name": "@repo/typescript-config",
+  "version": "0.0.0",
   "private": true,
-  "files": [
-    "*.json"
-  ]
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  }
 }
