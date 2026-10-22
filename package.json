@@ -7,6 +7,7 @@
     "build": "turbo run build",
     "check": "pnpm format:check && pnpm lint && pnpm test && pnpm build",
     "clean": "turbo run clean",
+    "db": "node scripts/db.mjs",
     "dev": "turbo run dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

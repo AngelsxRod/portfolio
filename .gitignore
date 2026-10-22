@@ -15,13 +15,16 @@ build
 
 # other
 dist/
+*.tsbuildinfo
 
 # misc
 .DS_Store
 *.pem
-.agents
+.agents/*
+!.agents/skills/
 .aws
 .codex
+.vercel
 
 # debug
 npm-debug.log*

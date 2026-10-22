@@ -1,9 +1,26 @@
-import { createServer } from "./server";
-import { log } from "@repo/logger";
+import "reflect-metadata";
+import "dotenv/config";
+import { Logger } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import { AppModule } from "./server.js";
 
-const port = process.env.PORT || 3001;
-const server = createServer();
+async function bootstrap() {
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
+  app.enableShutdownHooks();
 
-server.listen(port, () => {
-  log(`api running on ${port}`);
+  const port = Number(process.env.PORT ?? 3001);
+  await app.listen(port, "0.0.0.0");
+  Logger.log(`api running on ${port}`, "Bootstrap");
+}
+
+void bootstrap().catch((error: unknown) => {
+  Logger.error(error, "Bootstrap");
+  process.exitCode = 1;
 });

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import { Button } from "@repo/ui/button";
+import Link from "next/link";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Label } from "@repo/ui/components/label";
 
 export default function Web() {
   const [name, setName] = useState<string>("");
@@ -37,32 +40,49 @@ export default function Web() {
   };
 
   return (
-    <div>
-      <h1>Web</h1>
-      <form onSubmit={onSubmit}>
-        <label htmlFor="name">Name </label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          value={name}
-          onChange={onChange}
-        ></input>
+    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col justify-center gap-8 px-6 py-12">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Web</h1>
+        <p className="text-muted-foreground">Enter a name to test the API.</p>
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link href="/components" />}
+        >
+          Ver galería de componentes
+        </Button>
+      </div>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            type="text"
+            name="name"
+            id="name"
+            value={name}
+            onChange={onChange}
+            required
+          />
+        </div>
         <Button type="submit">Submit</Button>
       </form>
       {error && (
-        <div>
-          <h3>Error</h3>
+        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-lg border p-4">
+          <h2 className="font-medium">Error</h2>
           <p>{error}</p>
         </div>
       )}
       {response && (
-        <div>
-          <h3>Greeting</h3>
-          <p>{response.message}</p>
-          <Button onClick={onReset}>Reset</Button>
+        <div className="bg-card space-y-4 rounded-lg border p-4">
+          <div>
+            <h2 className="font-medium">Greeting</h2>
+            <p className="text-muted-foreground">{response.message}</p>
+          </div>
+          <Button variant="outline" onClick={onReset}>
+            Reset
+          </Button>
         </div>
       )}
-    </div>
+    </main>
   );
 }

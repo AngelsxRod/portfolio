@@ -1,3 +1,6 @@
+import "@repo/ui/styles.css";
+import { TooltipProvider } from "@repo/ui/components/tooltip";
+
 export default function RootLayout({
   children,
 }: {
@@ -5,7 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
