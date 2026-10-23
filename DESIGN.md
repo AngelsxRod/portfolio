@@ -20,16 +20,16 @@ Este portafolio presenta trabajo publicado sin atribuir biografía, especialidad
 
 Los tokens compartidos viven en `packages/ui/src/styles/globals.css` y alimentan shadcn/ui, incluidas las vistas del panel.
 
-| Papel    | Valor     | Uso                                  |
-| -------- | --------- | ------------------------------------ |
-| Tinta    | `#142d38` | Titulares, texto principal, pie      |
-| Petróleo | `#145b68` | Acciones primarias, enlaces, símbolo |
-| Bruma    | `#f4f7f7` | Fondo público                        |
-| Blanco   | `#ffffff` | Superficies y estados                |
-| Hielo    | `#e0edef` | Chips y bloques secundarios          |
-| Regla    | `#aac2c8` | Divisiones del folio                 |
+| Papel   | Valor     | Uso                                  |
+| ------- | --------- | ------------------------------------ |
+| Tinta   | `#1b1a21` | Titulares, texto principal, pie      |
+| Violeta | `#6d28d9` | Acciones primarias, enlaces, símbolo |
+| Bruma   | `#f6f6f8` | Fondo del sitio y del panel          |
+| Blanco  | `#ffffff` | Superficies y estados                |
+| Neblina | `#ececf1` | Chips y bloques secundarios          |
+| Regla   | `#cbc9d3` | Divisiones del folio                 |
 
-`--foreground`, `--primary`, `--secondary`, `--muted`, `--border` y `--ring` siguen esas funciones semánticas. Para texto secundario se usan `#395863` o `#526a72` sobre Bruma/Blanco. El foco usa `#08778a` con un contorno visible de 3 px. No usar Petróleo para texto pequeño sobre un fondo de color similar, ni sustituir reglas por sombras flotantes.
+`--foreground`, `--primary`, `--secondary`, `--muted`, `--border` y `--ring` siguen esas funciones semánticas. Para texto secundario se usan `#4a4856` o `#5f5d6b` sobre Bruma/Blanco. El foco usa `#7c3aed` con un contorno visible de 3 px. No usar Violeta para texto pequeño sobre un fondo de color similar, ni sustituir reglas por sombras flotantes.
 
 ## Composición y espacio
 
@@ -63,10 +63,10 @@ Una página de perfil, cuando tenga datos reales, debería abrir con su informac
 
 ## Panel administrativo
 
-El panel usa una paleta propia con la sobriedad de una herramienta de trabajo: violeta (`#6d28d9` en claro, `#a78bfa` en oscuro) como acento de la acción primaria, el foco y la sección activa, sobre superficies en grises neutros —sin fondos teñidos de lila— y reglas finas en lugar de sombras. Se define en `globals.css` con `body:has(.admin-shell)`, así que no afecta al sitio público, que conserva el petróleo. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
+El panel usa la misma paleta que el sitio con la sobriedad de una herramienta de trabajo: el violeta (`#6d28d9` en claro, `#a78bfa` en oscuro) acentúa la acción primaria, el foco y la sección activa sobre superficies en grises neutros —sin fondos teñidos de lila— y reglas finas en lugar de sombras. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
 
 - **Navegación:** barra lateral fija agrupada en «Contenido» y «Sitio»; en móvil, `Sheet`. Cabecera con migas y «Ver sitio».
-- **Estados:** `Publicado` en petróleo sólido y `Borrador` en Hielo, siempre con texto.
+- **Estados:** `Publicado` en violeta sólido y `Borrador` en Neblina, siempre con texto.
 - **Listados:** título, descripción y acción principal arriba; búsqueda y filtro de estado; tabla en escritorio y tarjetas bajo 768 px. Retirar siempre pide confirmación.
 - **Formularios:** secciones con título y descripción a la izquierda y campos a la derecha (apiladas en móvil), y una barra de acciones fija abajo.
 - **Accesibilidad:** «Saltar al contenido», `aria-current`, foco visible y `prefers-reduced-motion` respetado en el panel.

@@ -41,70 +41,6 @@
 
 :root {
   --radius: 0.375rem;
-  --background: #f4f7f7;
-  --foreground: #142d38;
-  --card: #ffffff;
-  --card-foreground: #142d38;
-  --popover: #ffffff;
-  --popover-foreground: #142d38;
-  --primary: #145b68;
-  --primary-foreground: #ffffff;
-  --secondary: #e0edef;
-  --secondary-foreground: #174b58;
-  --muted: #e8eff0;
-  --muted-foreground: #526a72;
-  --accent: #d3e6e8;
-  --accent-foreground: #103f4b;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #c7d6d9;
-  --input: #b6cbd0;
-  --ring: #08778a;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #142d38;
-  --sidebar-primary: #145b68;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #e0edef;
-  --sidebar-accent-foreground: #103f4b;
-  --sidebar-border: #c7d6d9;
-  --sidebar-ring: #08778a;
-}
-
-.dark {
-  --background: #102630;
-  --foreground: #edf5f5;
-  --card: #183540;
-  --card-foreground: #edf5f5;
-  --popover: #183540;
-  --popover-foreground: #edf5f5;
-  --primary: #9cd7dc;
-  --primary-foreground: #102630;
-  --secondary: #264954;
-  --secondary-foreground: #e5f4f4;
-  --muted: #26414a;
-  --muted-foreground: #b5ccd0;
-  --accent: #2b5862;
-  --accent-foreground: #eef7f7;
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: #42616b;
-  --input: #567580;
-  --ring: #9cd7dc;
-  --sidebar: #183540;
-  --sidebar-foreground: #edf5f5;
-  --sidebar-primary: #9cd7dc;
-  --sidebar-primary-foreground: #102630;
-  --sidebar-accent: #264954;
-  --sidebar-accent-foreground: #eef7f7;
-  --sidebar-border: #42616b;
-  --sidebar-ring: #9cd7dc;
-}
-
-/*
- * Paleta del panel: violeta como acento sobre superficies en grises neutros
- * (sin fondos teñidos). Se aplica al <body> cuando hay un `.admin-shell`, de
- * modo que también alcanza a los menús y diálogos que se montan en el body.
- * El sitio público conserva los tokens petróleo de arriba.
- */
-body:has(.admin-shell) {
   --background: #f6f6f8;
   --foreground: #1b1a21;
   --card: #ffffff;
@@ -130,9 +66,10 @@ body:has(.admin-shell) {
   --sidebar-accent-foreground: #3b1d7a;
   --sidebar-border: #dcdbe2;
   --sidebar-ring: #7c3aed;
+  --destructive: oklch(0.577 0.245 27.325);
 }
 
-.dark body:has(.admin-shell) {
+.dark {
   --background: #131217;
   --foreground: #ececf0;
   --card: #1b1a21;
@@ -158,6 +95,7 @@ body:has(.admin-shell) {
   --sidebar-accent-foreground: #ece8ff;
   --sidebar-border: #34323d;
   --sidebar-ring: #a78bfa;
+  --destructive: oklch(0.704 0.191 22.216);
 }
 
 @layer base {
@@ -173,9 +111,9 @@ body:has(.admin-shell) {
 
 @layer components {
   .public-site {
-    --folio-ink: #142d38;
-    --folio-rule: #aac2c8;
-    background: #f4f7f7;
+    --folio-ink: #1b1a21;
+    --folio-rule: #cbc9d3;
+    background: #f6f6f8;
     color: var(--folio-ink);
   }
   .page-frame {
@@ -189,17 +127,17 @@ body:has(.admin-shell) {
     left: 1rem;
     padding: 0.75rem 1rem;
     background: #fff;
-    color: #142d38;
+    color: #1b1a21;
   }
   .skip-link:focus {
     top: 1rem;
   }
   .public-site a:focus-visible {
-    outline: 3px solid #08778a;
+    outline: 3px solid #7c3aed;
     outline-offset: 4px;
   }
   .public-header {
-    border-bottom: 1px solid #aac2c8;
+    border-bottom: 1px solid #cbc9d3;
   }
   .header-inner {
     display: flex;
@@ -222,13 +160,13 @@ body:has(.admin-shell) {
     position: relative;
     width: 2.2rem;
     height: 2.2rem;
-    background: #145b68;
+    background: #6d28d9;
     color: #fff;
     font-size: 1.1rem;
     line-height: 1;
   }
   .brand-symbol span {
-    color: #a9dbdd;
+    color: #c4b5fd;
   }
   .header-nav {
     display: flex;
@@ -244,10 +182,10 @@ body:has(.admin-shell) {
   }
   .header-nav a:hover,
   .header-nav a[aria-current="page"] {
-    border-bottom-color: #145b68;
+    border-bottom-color: #6d28d9;
   }
   .folio-caption {
-    color: #145b68;
+    color: #6d28d9;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -281,7 +219,7 @@ body:has(.admin-shell) {
   .archive-intro,
   .detail-summary {
     max-width: 39rem;
-    color: #395863;
+    color: #4a4856;
     font-size: clamp(1.1rem, 1.8vw, 1.35rem);
     line-height: 1.55;
   }
@@ -293,11 +231,11 @@ body:has(.admin-shell) {
     overflow: hidden;
     align-self: stretch;
     min-height: 25rem;
-    background: #145b68;
+    background: #6d28d9;
   }
   .hero-mark-line {
     position: absolute;
-    border: 1px solid #71aeb6;
+    border: 1px solid #a78bfa;
     transform: rotate(-33deg);
   }
   .hero-mark-line-a {
@@ -319,7 +257,7 @@ body:has(.admin-shell) {
     top: 19%;
     left: 21%;
     border-radius: 50%;
-    background: #a9dbdd;
+    background: #c4b5fd;
     mix-blend-mode: screen;
   }
   .hero-mark-corner {
@@ -328,8 +266,8 @@ body:has(.admin-shell) {
     bottom: 8%;
     width: 18%;
     aspect-ratio: 1;
-    border-right: 2px solid #eef8f8;
-    border-bottom: 2px solid #eef8f8;
+    border-right: 2px solid #f1f1f4;
+    border-bottom: 2px solid #f1f1f4;
   }
   .home-work {
     padding-block: 6rem 7rem;
@@ -350,7 +288,7 @@ body:has(.admin-shell) {
   }
   .section-aside {
     max-width: 17rem;
-    color: #526a72;
+    color: #5f5d6b;
     line-height: 1.5;
   }
   .project-grid {
@@ -455,7 +393,7 @@ body:has(.admin-shell) {
   }
   .text-link,
   .back-link {
-    color: #145b68;
+    color: #6d28d9;
     font-size: 0.9rem;
     font-weight: 700;
     text-decoration: underline;
@@ -475,7 +413,7 @@ body:has(.admin-shell) {
   }
   .empty-panel p {
     margin-top: 0.5rem;
-    color: #526a72;
+    color: #5f5d6b;
   }
   .skills-section {
     padding-block: 0 7rem;
@@ -502,7 +440,7 @@ body:has(.admin-shell) {
   }
   .skills-group li {
     padding: 0.35rem 0.75rem;
-    background: #e0edef;
+    background: #ececf1;
     color: var(--folio-ink);
     overflow-wrap: anywhere;
   }
@@ -520,7 +458,7 @@ body:has(.admin-shell) {
     border-bottom: 1px solid var(--folio-rule);
   }
   .experience-period {
-    color: #395863;
+    color: #4a4856;
     font-size: 0.9rem;
     font-weight: 600;
   }
@@ -534,7 +472,7 @@ body:has(.admin-shell) {
     letter-spacing: -0.02em;
   }
   .experience-organization {
-    color: #145b68;
+    color: #6d28d9;
     font-weight: 600;
   }
   .experience-body p + p,
@@ -548,11 +486,11 @@ body:has(.admin-shell) {
     font-weight: 600;
   }
   .profile-links a {
-    color: #145b68;
+    color: #6d28d9;
     text-underline-offset: 4px;
   }
   .education-level {
-    color: #395863;
+    color: #4a4856;
     font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -699,7 +637,7 @@ body:has(.admin-shell) {
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    border-top: 3px solid #145b68;
+    border-top: 3px solid #6d28d9;
     padding-top: 1rem;
   }
   .detail-aside h2 {
@@ -708,12 +646,12 @@ body:has(.admin-shell) {
   }
   .detail-aside h3 {
     margin-bottom: 0.75rem;
-    color: #526a72;
+    color: #5f5d6b;
     font-size: 0.85rem;
   }
   .project-prose {
     max-width: 44rem;
-    color: #24414d;
+    color: #26242f;
     font-size: 1.05rem;
     line-height: 1.75;
     overflow-wrap: anywhere;
@@ -724,7 +662,7 @@ body:has(.admin-shell) {
   .project-prose h2,
   .project-prose h3,
   .project-prose h4 {
-    color: #142d38;
+    color: #1b1a21;
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.2;
@@ -751,27 +689,27 @@ body:has(.admin-shell) {
     margin-top: 0.4rem;
   }
   .project-prose a {
-    color: #145b68;
+    color: #6d28d9;
     text-decoration: underline;
     text-underline-offset: 0.2em;
   }
   .project-prose blockquote {
     padding-left: 1rem;
-    border-left: 3px solid #145b68;
-    color: #395863;
+    border-left: 3px solid #6d28d9;
+    color: #4a4856;
   }
   .project-prose pre {
     overflow-x: auto;
     padding: 1rem;
-    background: #e0edef;
+    background: #ececf1;
     border-radius: 0.375rem;
   }
   .project-prose code {
     overflow-wrap: anywhere;
   }
   .public-footer {
-    background: #142d38;
-    color: #ecf5f5;
+    background: #1b1a21;
+    color: #f1f1f4;
   }
   .footer-inner {
     display: flex;
