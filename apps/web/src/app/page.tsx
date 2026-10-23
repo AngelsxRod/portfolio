@@ -1,88 +1,87 @@
-"use client";
-
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { getPublicProjects } from "@/lib/public-projects";
+import {
+  PublicFooter,
+  PublicHeader,
+  ProjectRow,
+} from "@/components/public-site";
 
-export default function Web() {
-  const [name, setName] = useState<string>("");
-  const [response, setResponse] = useState<{ message: string } | null>(null);
-  const [error, setError] = useState<string | undefined>();
+export const dynamic = "force-dynamic";
 
-  useEffect(() => {
-    setResponse(null);
-    setError(undefined);
-  }, [name]);
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setName(e.target.value);
-
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    try {
-      const result = await fetch(`/api/message/${encodeURIComponent(name)}`);
-      if (!result.ok) {
-        throw new Error("API request failed");
-      }
-      const response = await result.json();
-      setResponse(response);
-    } catch (err) {
-      console.error(err);
-      setError("Unable to fetch response");
-    }
-  };
-
-  const onReset = () => {
-    setName("");
-  };
+export default async function Home() {
+  const projects = await getPublicProjects();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col justify-center gap-8 px-6 py-12">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Web</h1>
-        <p className="text-muted-foreground">Enter a name to test the API.</p>
-        <Button
-          variant="outline"
-          nativeButton={false}
-          render={<Link href="/components" />}
-        >
-          Ver galería de componentes
-        </Button>
-      </div>
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            type="text"
-            name="name"
-            id="name"
-            value={name}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <Button type="submit">Submit</Button>
-      </form>
-      {error && (
-        <div className="border-destructive/30 bg-destructive/10 text-destructive rounded-lg border p-4">
-          <h2 className="font-medium">Error</h2>
-          <p>{error}</p>
-        </div>
-      )}
-      {response && (
-        <div className="bg-card space-y-4 rounded-lg border p-4">
-          <div>
-            <h2 className="font-medium">Greeting</h2>
-            <p className="text-muted-foreground">{response.message}</p>
+    <div className="public-site min-h-svh">
+      <PublicHeader current="home" />
+      <main id="contenido">
+        <section className="hero-shell page-frame" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="folio-caption">Portafolio / proyectos publicados</p>
+            <h1 id="hero-title" className="display-title">
+              Ideas claras.
+              <br />
+              Trabajo visible.
+            </h1>
+            <p className="hero-intro">
+              Una selección de proyectos y decisiones de diseño y desarrollo.
+              Cada caso reúne su contexto y los detalles disponibles.
+            </p>
+            <Button
+              nativeButton={false}
+              render={<Link href="/projects" />}
+              size="lg"
+            >
+              Explorar proyectos
+            </Button>
           </div>
-          <Button variant="outline" onClick={onReset}>
-            Reset
-          </Button>
-        </div>
-      )}
-    </main>
+          <div className="hero-mark" aria-hidden="true">
+            <span className="hero-mark-line hero-mark-line-a" />
+            <span className="hero-mark-line hero-mark-line-b" />
+            <span className="hero-mark-disc" />
+            <span className="hero-mark-corner" />
+          </div>
+        </section>
+
+        <section className="page-frame home-work" aria-labelledby="work-title">
+          <div className="section-heading">
+            <div>
+              <p className="folio-caption">Archivo público</p>
+              <h2 id="work-title" className="section-title">
+                Trabajo seleccionado
+              </h2>
+            </div>
+            <p className="section-aside">
+              Proyectos publicados, presentados con el contenido disponible.
+            </p>
+          </div>
+          {projects.length > 0 ? (
+            <div className="project-list">
+              {projects.slice(0, 3).map((project) => (
+                <ProjectRow key={project.id} project={project} />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-panel">
+              <h3>Aún no hay proyectos publicados</h3>
+              <p>
+                El archivo aparecerá aquí cuando haya proyectos disponibles.
+              </p>
+            </div>
+          )}
+          {projects.length > 3 && (
+            <Button
+              variant="outline"
+              nativeButton={false}
+              render={<Link href="/projects" />}
+            >
+              Ver todos los proyectos
+            </Button>
+          )}
+        </section>
+      </main>
+      <PublicFooter />
+    </div>
   );
 }
