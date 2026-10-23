@@ -118,6 +118,7 @@
   .public-site {
     --folio-ink: var(--foreground);
     --folio-rule: var(--border);
+    overflow-x: clip;
     background: var(--background);
     color: var(--folio-ink);
   }
