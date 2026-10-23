@@ -347,12 +347,37 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
         position: 0,
       });
 
-      // A published record must be withdrawn before it can be edited or republished.
-      expect((await write("PUT", `${base}/${id}`, payload())).statusCode).toBe(
-        404,
-      );
+      // Editing a published record keeps the public version and stores pending changes.
       expect((await write("POST", `${base}/${id}/publish`)).statusCode).toBe(
         404,
+      );
+      const edited = await write(
+        "PUT",
+        `${base}/${id}`,
+        payload({ name: "Cambio pendiente" }),
+      );
+      expect(edited.statusCode).toBe(200);
+      expect(edited.json().status).toBe("published");
+      expect(edited.json().name).toBe(body.name);
+      expect(edited.json().pending.name).toBe("Cambio pendiente");
+      const live = (await publicList()).find((item) => item.id === id)!;
+      expect(live.name).toBe(body.name);
+      expect("pending" in live).toBe(false);
+
+      const discarded = await write("POST", `${base}/${id}/discard`);
+      expect(discarded.statusCode).toBe(200);
+      expect(discarded.json().pending).toBeNull();
+      expect((await write("POST", `${base}/${id}/discard`)).statusCode).toBe(
+        404,
+      );
+
+      await write("PUT", `${base}/${id}`, payload({ name: "Versión nueva" }));
+      const applied = await write("POST", `${base}/${id}/publish`);
+      expect(applied.statusCode).toBe(200);
+      expect(applied.json().name).toBe("Versión nueva");
+      expect(applied.json().pending).toBeNull();
+      expect((await publicList()).find((item) => item.id === id)!.name).toBe(
+        "Versión nueva",
       );
 
       const withdrawn = await write("POST", `${base}/${id}/unpublish`);

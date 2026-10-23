@@ -11,12 +11,18 @@ import {
   Post,
   Req,
 } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { requireWebOrigin, Public } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { projects } from "../db/schema.js";
-import { projectId } from "./drafts.js";
+import { handleWriteError, projectId } from "./drafts.js";
 import { MediaService } from "./media.js";
+
+/** Los cambios pendientes son privados: nunca salen en las rutas públicas. */
+function withoutPending<T extends { pending?: unknown }>(row: T) {
+  const { pending: _pending, ...rest } = row;
+  return rest;
+}
 
 const order = [
   asc(projects.position),
@@ -44,7 +50,7 @@ export class PublicationService {
     return { ...project, media: await this.media.metadataForProjects([id]) };
   }
 
-  async listPublished() {
+  async listPublished(includePending = false) {
     const rows = await this.database
       .getDatabase()
       .select()
@@ -55,7 +61,7 @@ export class PublicationService {
       rows.map((row) => row.id),
     );
     return rows.map((row) => ({
-      ...row,
+      ...(includePending ? row : withoutPending(row)),
       featuredMediaId:
         media.find((image) => image.projectId === row.id && image.isFeatured)
           ?.id ??
@@ -75,7 +81,7 @@ export class PublicationService {
     if (!project) throw new NotFoundException("Proyecto no encontrado.");
     const media = await this.media.metadataForProjects([project.id]);
     return {
-      ...project,
+      ...withoutPending(project),
       featuredMediaId:
         media.find((image) => image.isFeatured)?.id ?? media[0]?.id ?? null,
       media,
@@ -83,13 +89,68 @@ export class PublicationService {
   }
 
   async publish(id: string) {
-    const [draft] = await this.database
+    const [current] = await this.database
       .getDatabase()
-      .select({ summary: projects.summary, description: projects.description })
+      .select({ status: projects.status, pending: projects.pending })
       .from(projects)
-      .where(and(eq(projects.id, id), eq(projects.status, "draft")))
+      .where(eq(projects.id, id))
       .limit(1);
-    if (!draft) throw new NotFoundException("Borrador no encontrado.");
+    if (current?.status === "published") {
+      const pending = current.pending as {
+        summary: string | null;
+        description: string | null;
+      } | null;
+      if (!pending) throw new NotFoundException("No hay cambios pendientes.");
+      this.requireContent(pending);
+      try {
+        const [project] = await this.database
+          .getDatabase()
+          .update(projects)
+          .set({
+            ...(pending as Record<string, unknown>),
+            pending: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(projects.id, id),
+              eq(projects.status, "published"),
+              isNotNull(projects.pending),
+            ),
+          )
+          .returning();
+        if (!project) throw new NotFoundException("No hay cambios pendientes.");
+        this.logger.log({ action: "project.applied", projectId: project.id });
+        return project;
+      } catch (error) {
+        handleWriteError(error);
+      }
+    }
+    return this.publishDraft(id);
+  }
+
+  async discard(id: string) {
+    const [project] = await this.database
+      .getDatabase()
+      .update(projects)
+      .set({ pending: null, updatedAt: new Date() })
+      .where(
+        and(
+          eq(projects.id, id),
+          eq(projects.status, "published"),
+          isNotNull(projects.pending),
+        ),
+      )
+      .returning();
+    if (!project) throw new NotFoundException("No hay cambios pendientes.");
+    this.logger.log({ action: "project.discarded", projectId: project.id });
+    return project;
+  }
+
+  private requireContent(draft: {
+    summary: string | null;
+    description: string | null;
+  }) {
     const fields: Record<string, string> = {};
     if (!draft.summary?.trim())
       fields.summary = "Añade un resumen para publicar.";
@@ -101,6 +162,17 @@ export class PublicationService {
         fields,
       });
     }
+  }
+
+  private async publishDraft(id: string) {
+    const [draft] = await this.database
+      .getDatabase()
+      .select({ summary: projects.summary, description: projects.description })
+      .from(projects)
+      .where(and(eq(projects.id, id), eq(projects.status, "draft")))
+      .limit(1);
+    if (!draft) throw new NotFoundException("Borrador no encontrado.");
+    this.requireContent(draft);
     const [project] = await this.database
       .getDatabase()
       .update(projects)
@@ -113,10 +185,33 @@ export class PublicationService {
   }
 
   async unpublish(id: string) {
+    const [current] = await this.database
+      .getDatabase()
+      .select({ pending: projects.pending })
+      .from(projects)
+      .where(and(eq(projects.id, id), eq(projects.status, "published")))
+      .limit(1);
+    // Al retirar, el borrador es la última versión en la que se trabajó.
+    const applied = current?.pending
+      ? (current.pending as Record<string, unknown>)
+      : {};
+    try {
+      return await this.retire(id, applied);
+    } catch (error) {
+      handleWriteError(error);
+    }
+  }
+
+  private async retire(id: string, applied: object) {
     const [project] = await this.database
       .getDatabase()
       .update(projects)
-      .set({ status: "draft", updatedAt: new Date() })
+      .set({
+        ...applied,
+        pending: null,
+        status: "draft",
+        updatedAt: new Date(),
+      })
       .where(and(eq(projects.id, id), eq(projects.status, "published")))
       .returning();
     if (!project)
@@ -139,7 +234,7 @@ export class PublicationController {
   @Get("published")
   @Header("Cache-Control", "no-store")
   published() {
-    return this.publication.listPublished();
+    return this.publication.listPublished(true);
   }
 
   @Post(":id/publish")
@@ -151,6 +246,17 @@ export class PublicationController {
   ) {
     requireWebOrigin(request.headers.origin);
     return this.publication.publish(projectId(id));
+  }
+
+  @Post(":id/discard")
+  @HttpCode(200)
+  @Header("Cache-Control", "no-store")
+  discard(
+    @Param("id") id: string,
+    @Req() request: { headers: { origin?: string } },
+  ) {
+    requireWebOrigin(request.headers.origin);
+    return this.publication.discard(projectId(id));
   }
 
   @Post(":id/unpublish")

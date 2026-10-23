@@ -12,7 +12,7 @@ import {
   Put,
   Req,
 } from "@nestjs/common";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { education } from "../db/schema.js";
@@ -221,6 +221,24 @@ export class EducationService {
 
   async update(id: string, input: EducationInput) {
     try {
+      const [current] = await this.database
+        .getDatabase()
+        .select({ status: education.status })
+        .from(education)
+        .where(eq(education.id, id))
+        .limit(1);
+      if (current?.status === "published") {
+        // Lo publicado no cambia: las ediciones quedan como cambios pendientes.
+        const [pending] = await this.database
+          .getDatabase()
+          .update(education)
+          .set({ pending: input, updatedAt: new Date() })
+          .where(and(eq(education.id, id), eq(education.status, "published")))
+          .returning();
+        if (!pending) throw new NotFoundException("Registro no encontrado.");
+        this.logger.log({ action: "education.pending.saved", id: pending.id });
+        return present(pending);
+      }
       const [row] = await this.database
         .getDatabase()
         .update(education)
@@ -236,6 +254,61 @@ export class EducationService {
   }
 
   async publish(id: string) {
+    const [current] = await this.database
+      .getDatabase()
+      .select({ status: education.status, pending: education.pending })
+      .from(education)
+      .where(eq(education.id, id))
+      .limit(1);
+    if (current?.status === "published") {
+      if (!current.pending)
+        throw new NotFoundException("No hay cambios pendientes.");
+      try {
+        const [row] = await this.database
+          .getDatabase()
+          .update(education)
+          .set({
+            ...stored(current.pending as unknown as EducationInput),
+            pending: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(education.id, id),
+              eq(education.status, "published"),
+              isNotNull(education.pending),
+            ),
+          )
+          .returning();
+        if (!row) throw new NotFoundException("No hay cambios pendientes.");
+        this.logger.log({ action: "education.pending.applied", id: row.id });
+        return present(row);
+      } catch (error) {
+        handleWriteError(error);
+      }
+    }
+    return this.publishDraft(id);
+  }
+
+  async discard(id: string) {
+    const [row] = await this.database
+      .getDatabase()
+      .update(education)
+      .set({ pending: null, updatedAt: new Date() })
+      .where(
+        and(
+          eq(education.id, id),
+          eq(education.status, "published"),
+          isNotNull(education.pending),
+        ),
+      )
+      .returning();
+    if (!row) throw new NotFoundException("No hay cambios pendientes.");
+    this.logger.log({ action: "education.pending.discarded", id: row.id });
+    return present(row);
+  }
+
+  private async publishDraft(id: string) {
     const [row] = await this.database
       .getDatabase()
       .update(education)
@@ -248,10 +321,33 @@ export class EducationService {
   }
 
   async unpublish(id: string) {
+    const [current] = await this.database
+      .getDatabase()
+      .select({ pending: education.pending })
+      .from(education)
+      .where(and(eq(education.id, id), eq(education.status, "published")))
+      .limit(1);
+    // Al retirar, el borrador es la última versión en la que se trabajó.
+    const applied = current?.pending
+      ? stored(current.pending as unknown as EducationInput)
+      : {};
+    try {
+      return await this.retire(id, applied);
+    } catch (error) {
+      handleWriteError(error);
+    }
+  }
+
+  private async retire(id: string, applied: object) {
     const [row] = await this.database
       .getDatabase()
       .update(education)
-      .set({ status: "draft", updatedAt: new Date() })
+      .set({
+        ...applied,
+        pending: null,
+        status: "draft",
+        updatedAt: new Date(),
+      })
       .where(and(eq(education.id, id), eq(education.status, "published")))
       .returning();
     if (!row) throw new NotFoundException("Educación publicada no encontrada.");
@@ -302,6 +398,14 @@ export class AdminEducationController {
   publish(@Param("id") id: string, @Req() request: OriginRequest) {
     requireWebOrigin(request.headers.origin);
     return this.education.publish(uuid(id));
+  }
+
+  @Post(":id/discard")
+  @HttpCode(200)
+  @Header("Cache-Control", "no-store")
+  discard(@Param("id") id: string, @Req() request: OriginRequest) {
+    requireWebOrigin(request.headers.origin);
+    return this.education.discard(uuid(id));
   }
 
   @Post(":id/unpublish")

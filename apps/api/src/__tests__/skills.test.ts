@@ -338,13 +338,42 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
         position: 0,
       });
 
-      // A published skill must be withdrawn before it can be edited or republished.
-      expect(
-        (await write("PUT", `/admin/skills/${id}`, payload())).statusCode,
-      ).toBe(404);
+      // Editing a published skill keeps the public version and stores pending changes.
       expect(
         (await write("POST", `/admin/skills/${id}/publish`)).statusCode,
       ).toBe(404);
+      const edited = await write("PUT", `/admin/skills/${id}`, {
+        ...payload(),
+        name: "Cambio pendiente",
+      });
+      expect(edited.statusCode).toBe(200);
+      expect(edited.json().status).toBe("published");
+      expect(edited.json().name).toBe(body.name);
+      expect(edited.json().pending.name).toBe("Cambio pendiente");
+      const live = await app.inject({ method: "GET", url: "/skills" });
+      const liveSkill = live
+        .json()
+        .find((skill: { id: string }) => skill.id === id);
+      expect(liveSkill.name).toBe(body.name);
+      expect("pending" in liveSkill).toBe(false);
+
+      const discarded = await write("POST", `/admin/skills/${id}/discard`);
+      expect(discarded.statusCode).toBe(200);
+      expect(discarded.json().pending).toBeNull();
+      expect(
+        (await write("POST", `/admin/skills/${id}/discard`)).statusCode,
+      ).toBe(404);
+
+      const nextName = `Versión nueva ${randomUUID()}`;
+      await write("PUT", `/admin/skills/${id}`, {
+        ...payload(),
+        name: nextName,
+      });
+      const applied = await write("POST", `/admin/skills/${id}/publish`);
+      expect(applied.statusCode).toBe(200);
+      expect(applied.json().name).toBe(nextName);
+      expect(applied.json().pending).toBeNull();
+      expect(await publicNames()).toContain(nextName);
 
       await new Promise((resolve) => setTimeout(resolve, 10));
       const withdrawn = await write("POST", `/admin/skills/${id}/unpublish`);

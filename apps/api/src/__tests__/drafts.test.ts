@@ -300,7 +300,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
           headers: { cookie, origin },
           payload: payload(),
         });
-        expect(edit.statusCode).toBe(404);
+        // Un publicado acepta la edición como cambios pendientes; un id ajeno no.
+        expect(edit.statusCode).toBe(id === published!.id ? 200 : 404);
       }
       const malformed = await app.inject({
         method: "GET",
@@ -791,6 +792,122 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(
         (await app.inject({ method: "GET", url, headers: { cookie } })).json(),
       ).toEqual([]);
+    });
+
+    it("keeps the published project while changes stay pending", async () => {
+      const [published] = await db
+        .insert(schema.projects)
+        .values({
+          ...payload(),
+          title: "Versión pública",
+          summary: "Resumen",
+          description: "Contenido",
+          status: "published",
+        })
+        .returning();
+      ids.push(published!.id);
+      const send = (method: "PUT" | "POST", url: string, body?: object) =>
+        app.inject({
+          method,
+          url,
+          headers: { cookie, origin },
+          ...(body ? { payload: body } : {}),
+        });
+      const publicDetail = () =>
+        app.inject({ method: "GET", url: `/projects/${published!.slug}` });
+
+      expect(
+        (await send("POST", `/admin/projects/${published!.id}/publish`))
+          .statusCode,
+      ).toBe(404);
+      const edited = await send(
+        "PUT",
+        `/admin/projects/drafts/${published!.id}`,
+        {
+          ...payload(),
+          slug: published!.slug,
+          title: "Versión en borrador",
+          summary: "Resumen nuevo",
+          description: "Contenido nuevo",
+        },
+      );
+      expect(edited.statusCode).toBe(200);
+      expect(edited.json()).toMatchObject({
+        status: "published",
+        title: "Versión pública",
+        pending: { title: "Versión en borrador" },
+      });
+      const live = (await publicDetail()).json();
+      expect(live.title).toBe("Versión pública");
+      expect("pending" in live).toBe(false);
+      const publicList = (
+        await app.inject({ method: "GET", url: "/projects" })
+      ).json() as { id: string }[];
+      expect(
+        "pending" in publicList.find((item) => item.id === published!.id)!,
+      ).toBe(false);
+
+      // Publicar con un resumen vacío en los cambios pendientes se rechaza.
+      await send("PUT", `/admin/projects/drafts/${published!.id}`, {
+        ...payload(),
+        slug: published!.slug,
+        summary: "",
+        description: "",
+      });
+      const incomplete = await send(
+        "POST",
+        `/admin/projects/${published!.id}/publish`,
+      );
+      expect(incomplete.statusCode).toBe(400);
+      expect(incomplete.json().fields).toHaveProperty("summary");
+
+      const discarded = await send(
+        "POST",
+        `/admin/projects/${published!.id}/discard`,
+      );
+      expect(discarded.statusCode).toBe(200);
+      expect(discarded.json().pending).toBeNull();
+      expect(
+        (await send("POST", `/admin/projects/${published!.id}/discard`))
+          .statusCode,
+      ).toBe(404);
+
+      await send("PUT", `/admin/projects/drafts/${published!.id}`, {
+        ...payload(),
+        slug: published!.slug,
+        title: "Versión aplicada",
+        summary: "Resumen aplicado",
+        description: "Contenido aplicado",
+      });
+      const applied = await send(
+        "POST",
+        `/admin/projects/${published!.id}/publish`,
+      );
+      expect(applied.statusCode).toBe(200);
+      expect(applied.json()).toMatchObject({
+        title: "Versión aplicada",
+        pending: null,
+      });
+      expect((await publicDetail()).json().title).toBe("Versión aplicada");
+
+      // Retirar conserva la última versión editada como borrador.
+      await send("PUT", `/admin/projects/drafts/${published!.id}`, {
+        ...payload(),
+        slug: published!.slug,
+        title: "Último borrador",
+        summary: "Resumen",
+        description: "Contenido",
+      });
+      const withdrawn = await send(
+        "POST",
+        `/admin/projects/${published!.id}/unpublish`,
+      );
+      expect(withdrawn.json()).toMatchObject({
+        status: "draft",
+        title: "Último borrador",
+        pending: null,
+      });
+      expect((await publicDetail()).statusCode).toBe(404);
     });
   },
 );

@@ -54,6 +54,7 @@ export const projects = pgTable(
       .default(sql`'{}'::text[]`),
     position: integer("position").notNull().default(0),
     status: projectStatus("status").notNull().default("draft"),
+    pending: jsonb("pending").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -139,6 +140,7 @@ export const skills = pgTable(
       .references(() => skillCategories.id, { onDelete: "restrict" }),
     position: integer("position").notNull().default(0),
     status: skillStatus("status").notNull().default("draft"),
+    pending: jsonb("pending").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -174,6 +176,7 @@ export const experiences = pgTable(
       .default(sql`'{}'::text[]`),
     position: integer("position").notNull().default(0),
     status: experienceStatus("status").notNull().default("draft"),
+    pending: jsonb("pending").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -226,6 +229,7 @@ export const education = pgTable(
     description: text("description"),
     position: integer("position").notNull().default(0),
     status: educationStatus("status").notNull().default("draft"),
+    pending: jsonb("pending").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -267,6 +271,7 @@ export const certificates = pgTable(
     description: text("description"),
     position: integer("position").notNull().default(0),
     status: certificateStatus("status").notNull().default("draft"),
+    pending: jsonb("pending").$type<Record<string, unknown>>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

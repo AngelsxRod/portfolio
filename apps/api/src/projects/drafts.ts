@@ -135,7 +135,7 @@ export function projectId(id: string) {
   return id;
 }
 
-function handleWriteError(error: unknown): never {
+export function handleWriteError(error: unknown): never {
   // Drizzle wraps the PostgreSQL error; expose only the known domain conflict.
   const cause =
     error instanceof Error && "cause" in error ? error.cause : error;
@@ -207,6 +207,24 @@ export class DraftsService {
 
   async update(id: string, input: DraftInput) {
     try {
+      const [current] = await this.database
+        .getDatabase()
+        .select({ status: projects.status })
+        .from(projects)
+        .where(eq(projects.id, id))
+        .limit(1);
+      if (current?.status === "published") {
+        // Lo publicado no cambia: las ediciones quedan como cambios pendientes.
+        const [pending] = await this.database
+          .getDatabase()
+          .update(projects)
+          .set({ pending: input, updatedAt: new Date() })
+          .where(and(eq(projects.id, id), eq(projects.status, "published")))
+          .returning();
+        if (!pending) throw new NotFoundException("Proyecto no encontrado.");
+        this.logger.log({ action: "project.pending", projectId: pending.id });
+        return pending;
+      }
       const [draft] = await this.database
         .getDatabase()
         .update(projects)

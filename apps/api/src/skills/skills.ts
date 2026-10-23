@@ -13,7 +13,7 @@ import {
   Put,
   Req,
 } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { skillCategories, skills } from "../db/schema.js";
@@ -36,6 +36,7 @@ const columns = {
   category: skillCategories.name,
   position: skills.position,
   status: skills.status,
+  pending: skills.pending,
   createdAt: skills.createdAt,
   updatedAt: skills.updatedAt,
 };
@@ -168,6 +169,24 @@ export class SkillsService {
 
   async update(id: string, input: SkillInput) {
     try {
+      const [current] = await this.database
+        .getDatabase()
+        .select({ status: skills.status })
+        .from(skills)
+        .where(eq(skills.id, id))
+        .limit(1);
+      if (current?.status === "published") {
+        // Lo publicado no cambia: las ediciones quedan como cambios pendientes.
+        const [pending] = await this.database
+          .getDatabase()
+          .update(skills)
+          .set({ pending: input, updatedAt: new Date() })
+          .where(and(eq(skills.id, id), eq(skills.status, "published")))
+          .returning();
+        if (!pending) throw new NotFoundException("Registro no encontrado.");
+        this.logger.log({ action: "skill.pending", skillId: pending.id });
+        return this.get(pending.id);
+      }
       const [skill] = await this.database
         .getDatabase()
         .update(skills)
@@ -183,6 +202,61 @@ export class SkillsService {
   }
 
   async publish(id: string) {
+    const [current] = await this.database
+      .getDatabase()
+      .select({ status: skills.status, pending: skills.pending })
+      .from(skills)
+      .where(eq(skills.id, id))
+      .limit(1);
+    if (current?.status === "published") {
+      if (!current.pending)
+        throw new NotFoundException("No hay cambios pendientes.");
+      try {
+        const [skill] = await this.database
+          .getDatabase()
+          .update(skills)
+          .set({
+            ...(current.pending as unknown as SkillInput),
+            pending: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(skills.id, id),
+              eq(skills.status, "published"),
+              isNotNull(skills.pending),
+            ),
+          )
+          .returning();
+        if (!skill) throw new NotFoundException("No hay cambios pendientes.");
+        this.logger.log({ action: "skill.applied", skillId: skill.id });
+        return this.get(skill.id);
+      } catch (error) {
+        handleWriteError(error);
+      }
+    }
+    return this.publishDraft(id);
+  }
+
+  async discard(id: string) {
+    const [skill] = await this.database
+      .getDatabase()
+      .update(skills)
+      .set({ pending: null, updatedAt: new Date() })
+      .where(
+        and(
+          eq(skills.id, id),
+          eq(skills.status, "published"),
+          isNotNull(skills.pending),
+        ),
+      )
+      .returning();
+    if (!skill) throw new NotFoundException("No hay cambios pendientes.");
+    this.logger.log({ action: "skill.discarded", skillId: skill.id });
+    return this.get(skill.id);
+  }
+
+  private async publishDraft(id: string) {
     const [skill] = await this.database
       .getDatabase()
       .update(skills)
@@ -195,10 +269,33 @@ export class SkillsService {
   }
 
   async unpublish(id: string) {
+    const [current] = await this.database
+      .getDatabase()
+      .select({ pending: skills.pending })
+      .from(skills)
+      .where(and(eq(skills.id, id), eq(skills.status, "published")))
+      .limit(1);
+    // Al retirar, el borrador es la última versión en la que se trabajó.
+    const applied = current?.pending
+      ? (current.pending as unknown as SkillInput)
+      : {};
+    try {
+      return await this.retire(id, applied);
+    } catch (error) {
+      handleWriteError(error);
+    }
+  }
+
+  private async retire(id: string, applied: object) {
     const [skill] = await this.database
       .getDatabase()
       .update(skills)
-      .set({ status: "draft", updatedAt: new Date() })
+      .set({
+        ...applied,
+        pending: null,
+        status: "draft",
+        updatedAt: new Date(),
+      })
       .where(and(eq(skills.id, id), eq(skills.status, "published")))
       .returning();
     if (!skill)
@@ -250,6 +347,14 @@ export class AdminSkillsController {
   publish(@Param("id") id: string, @Req() request: OriginRequest) {
     requireWebOrigin(request.headers.origin);
     return this.skills.publish(uuid(id));
+  }
+
+  @Post(":id/discard")
+  @HttpCode(200)
+  @Header("Cache-Control", "no-store")
+  discard(@Param("id") id: string, @Req() request: OriginRequest) {
+    requireWebOrigin(request.headers.origin);
+    return this.skills.discard(uuid(id));
   }
 
   @Post(":id/unpublish")
