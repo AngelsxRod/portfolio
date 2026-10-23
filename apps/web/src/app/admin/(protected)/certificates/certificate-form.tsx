@@ -82,7 +82,7 @@ export function CertificateForm({
       if (response.status === 401) return notifySessionExpired();
       const result = await response.json();
       if (!response.ok) {
-        toast.error(result.message ?? "No se pudo guardar la certificado.", {
+        toast.error(result.message ?? "No se pudo guardar el certificado.", {
           description: result.fields?.form,
         });
         applyServerErrors(form, result.fields);
