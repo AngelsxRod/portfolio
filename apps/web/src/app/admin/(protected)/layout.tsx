@@ -23,13 +23,13 @@ export default async function AdminLayout({
         <AdminSidebar />
         <div className="flex min-h-svh min-w-0 flex-1 flex-col bg-muted/30">
           <AdminHeader />
-          <div
+          <main
             id="contenido"
             tabIndex={-1}
             className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none sm:px-6 lg:py-8"
           >
             {children}
-          </div>
+          </main>
         </div>
       </SidebarProvider>
     </div>
