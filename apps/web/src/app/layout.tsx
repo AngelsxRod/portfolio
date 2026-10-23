@@ -3,9 +3,9 @@ import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { Toaster } from "@repo/ui/components/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Sora } from "next/font/google";
 
-const fontDisplay = Space_Grotesk({
+const fontDisplay = Sora({
   subsets: ["latin"],
   variable: "--font-display",
 });
