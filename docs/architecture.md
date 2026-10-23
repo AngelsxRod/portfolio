@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-El repositorio tiene una web Next.js, una API NestJS con Fastify, PostgreSQL con Drizzle y componentes compartidos en `packages/ui`. Existen la tabla de proyectos, la autenticación de un administrador, la edición de borradores, la publicación y las páginas públicas de proyectos. Los medios y los demás tipos de contenido siguen pendientes.
+El repositorio tiene una web Next.js, una API NestJS con Fastify, PostgreSQL con Drizzle y componentes compartidos en `packages/ui`. Existen proyectos, autenticación administrativa, edición de borradores, publicación y páginas públicas. Existen imágenes de proyectos (etapa 5) y habilidades (etapa 6, entrega 1); experiencia, educación, certificados y perfil siguen pendientes.
 
 ## Responsabilidades
 
@@ -57,7 +57,27 @@ La validación en tiempo de ejecución exige título de 1–200 caracteres y slu
 
 La API ofrece `GET /admin/projects/published`, `POST /admin/projects/:id/publish` y `POST /admin/projects/:id/unpublish`. Todas requieren sesión administrativa; las escrituras también exigen el `WEB_ORIGIN` exacto. Publicar solo acepta borradores con resumen y descripción no vacíos y devuelve `400` con `fields` si faltan. Retirar convierte un proyecto publicado en borrador editable. Las transiciones filtran por el estado de origen, devuelven `404` cuando no corresponde y actualizan `updatedAt`.
 
-`GET /projects` y `GET /projects/:slug` son públicos y consultan únicamente el estado `published`, ordenando el listado por posición, creación e ID. Un slug inexistente o retirado devuelve `404`. La web sirve `/projects` y `/projects/[slug]` con lecturas `no-store` y renderizado por petición; la API envía `Cache-Control: no-store`. La descripción se renderiza como Markdown sin HTML incrustado ni imágenes, y solo admite destinos seguros en los enlaces. Los medios se incorporarán en la etapa 5.
+`GET /projects` y `GET /projects/:slug` son públicos y consultan únicamente el estado `published`, ordenando el listado por posición, creación e ID. Un slug inexistente o retirado devuelve `404`. La web sirve `/projects` y `/projects/[slug]` con lecturas `no-store` y renderizado por petición; la API envía `Cache-Control: no-store`. La descripción se renderiza como Markdown sin HTML incrustado ni imágenes, y solo admite destinos seguros en los enlaces.
+
+## Medios de proyectos
+
+La decisión de almacenamiento está en `docs/adr/0003-project-media-storage.md`. `project_media` asocia imágenes a proyectos por UUID; almacena bytes, MIME, texto alternativo obligatorio y fechas. `GET` y `POST /admin/projects/:id/media`, `DELETE /admin/projects/:id/media/:mediaId` y `GET /admin/projects/:id/media/:mediaId/file` requieren sesión. Las escrituras exigen origen válido. El binario privado también comprueba que el medio pertenezca al proyecto indicado. `GET /projects/media/:mediaId` solo sirve la imagen cuando su proyecto está publicado. Los listados y detalles públicos incluyen metadatos de medios, nunca los bytes. Retirar un proyecto oculta inmediatamente sus imágenes públicas.
+
+### Formulario integrado y destacada
+
+`GET /admin/projects/:id` devuelve el proyecto y sus metadatos de medios para el formulario integrado. Los borradores permiten editar contenido e imágenes; los publicados muestran el contenido de solo lectura y permiten gestionar sus imágenes. La URL administrativa anterior de medios redirige al mismo formulario. Las rutas de borradores siguen rechazando proyectos publicados.
+
+El formulario admite varios archivos, arrastre y pegado desde el portapapeles. Cada imagen exige su propio texto alternativo. Guardar crea o actualiza primero el borrador y después carga los archivos pendientes, actualiza los textos alternativos y selecciona la destacada. Si una operación falla, conserva el formulario, los archivos pendientes, el identificador del proyecto creado y los medios cuya carga fue confirmada. Un reintento actualiza el mismo borrador y omite las cargas ya confirmadas. Crear borradores y cargar imágenes admite el encabezado opcional `Idempotency-Key`, validado como UUID y reutilizado por el cliente mientras haya una respuesta pendiente de confirmar. La repetición recupera el registro guardado; una carga repetida exige el mismo proyecto, MIME y bytes. Así una respuesta perdida no duplica proyectos ni imágenes. Las imágenes quitadas se eliminan al guardar y se pueden restaurar antes de ello.
+
+`PUT /admin/projects/:id/media/:mediaId` acepta únicamente `altText` de 1–300 caracteres tras recortar espacios. `PUT /admin/projects/:id/featured-media` acepta únicamente `mediaId`, un UUID perteneciente al proyecto. Ambas operaciones requieren sesión y origen válido. La selección usa una transacción con bloqueo del proyecto y un índice único parcial sobre `project_media.is_featured`; la eliminación comparte el bloqueo para evitar carreras con esa selección.
+
+Los metadatos incluyen `isFeatured`; los proyectos públicos incluyen `featuredMediaId`. Si no hay destacada explícita, se elige la primera imagen por fecha de creación e ID; sin imágenes, se devuelve `null`. Esta alternativa permite mostrar medios existentes sin reescribirlos y se aplica también al eliminar la destacada. Portada y archivo usan esa vista previa; el detalle usa el carrusel accesible sin reproducción automática ni animación de transición.
+
+## Habilidades
+
+La tabla `skills` guarda `id` (UUID), `name` y `category` (1–80 caracteres, recortados), `position`, `status` (`draft` o `published`) y fechas. Restricciones: nombre y categoría no vacíos, y nombre único sin distinguir mayúsculas (`409` con `fields.name`). La categoría es texto libre; no hay relación con proyectos ni niveles de dominio.
+
+Las rutas privadas son `GET` y `POST /admin/skills`, `GET` y `PUT /admin/skills/:id`, y `POST /admin/skills/:id/publish` y `/unpublish`. Requieren sesión; las escrituras exigen el `WEB_ORIGIN` exacto. Crear fija `draft`; el cliente no envía estado ni fechas. Los campos desconocidos se rechazan y los errores devuelven `400` con `fields`. Como en proyectos, `PUT` solo opera sobre borradores (un publicado devuelve `404` hasta retirarlo) y cada transición actualiza `updatedAt`. `GET /skills` es público, devuelve únicamente `id`, `name`, `category` y `position` de las publicadas, ordenadas por posición, categoría, nombre e ID, con `no-store`. La web las muestra en la sección `#habilidades` de la portada, agrupadas por categoría y con estado vacío; el panel las gestiona en `/admin/skills` mediante rutas del mismo origen que comprueban `Origin`.
 
 ## Entrega por capacidades
 
