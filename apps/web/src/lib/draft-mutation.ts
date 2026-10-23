@@ -31,6 +31,13 @@ export async function mutateDraft(request: NextRequest, id?: string) {
     const response = await adminApi(id ? `/${encodeURIComponent(id)}` : "", {
       method: id ? "PUT" : "POST",
       body: JSON.stringify(body),
+      ...(request.headers.has("Idempotency-Key")
+        ? {
+            headers: {
+              "Idempotency-Key": request.headers.get("Idempotency-Key")!,
+            },
+          }
+        : {}),
     });
     if (response.status >= 500) throw new Error("API unavailable");
     return Response.json(await response.json(), {

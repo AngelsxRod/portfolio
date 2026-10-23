@@ -98,6 +98,17 @@ export default async function AdminHome() {
                           title={draft.title}
                           status="draft"
                         />
+                        <Button
+                          variant="outline"
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={`/admin/projects/${draft.id}/edit#images-title`}
+                            />
+                          }
+                        >
+                          Imágenes
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -172,6 +183,17 @@ export default async function AdminHome() {
                           title={project.title}
                           status="published"
                         />
+                        <Button
+                          variant="outline"
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={`/admin/projects/${project.id}/edit#images-title`}
+                            />
+                          }
+                        >
+                          Imágenes
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

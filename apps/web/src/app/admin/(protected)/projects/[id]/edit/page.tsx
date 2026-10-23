@@ -1,5 +1,5 @@
 import { DraftForm } from "@/app/admin/(protected)/projects/draft-form";
-import { getDraft } from "@/lib/admin-api";
+import { getAdminProject } from "@/lib/admin-api";
 
 export default async function EditDraft({
   params,
@@ -9,7 +9,14 @@ export default async function EditDraft({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const { id } = await params;
-  const draft = await getDraft(id);
+  const draft = await getAdminProject(id);
   const { saved } = await searchParams;
-  return <DraftForm key={draft.id} draft={draft} justCreated={saved === "1"} />;
+  return (
+    <DraftForm
+      key={draft.id}
+      draft={draft}
+      initialImages={draft.media}
+      justCreated={saved === "1"}
+    />
+  );
 }

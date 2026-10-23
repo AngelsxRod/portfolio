@@ -13,6 +13,16 @@ export type DraftProject = {
   updatedAt: string;
 };
 
+export type ProjectImage = {
+  id: string;
+  projectId: string;
+  mimeType: string;
+  altText: string;
+  isFeatured: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type PublishedProject = Omit<
   DraftProject,
   "status" | "summary" | "description"
@@ -20,4 +30,6 @@ export type PublishedProject = Omit<
   status: "published";
   summary: string;
   description: string;
+  media: ProjectImage[];
+  featuredMediaId: string | null;
 };

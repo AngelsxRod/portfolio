@@ -4,7 +4,15 @@ import { notFound, redirect } from "next/navigation";
 import { apiUrl, SESSION_COOKIE, webOrigin } from "@/lib/admin-session";
 import type { DraftProject } from "@/lib/drafts";
 
-export async function adminProjectsApi(path: string, init: RequestInit = {}) {
+export function adminProjectsApi(path: string, init: RequestInit = {}) {
+  return adminResource("projects", path, init);
+}
+
+async function adminResource(
+  resource: "projects",
+  path: string,
+  init: RequestInit = {},
+) {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
     return Response.json(
@@ -12,10 +20,17 @@ export async function adminProjectsApi(path: string, init: RequestInit = {}) {
       { status: 401 },
     );
   }
-  return fetch(`${apiUrl()}/admin/projects${path}`, {
+  return fetch(`${apiUrl()}/admin/${resource}${path}`, {
     ...init,
     headers: {
       ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...(new Headers(init.headers).has("Idempotency-Key")
+        ? {
+            "Idempotency-Key": new Headers(init.headers).get(
+              "Idempotency-Key",
+            )!,
+          }
+        : {}),
       Cookie: `${SESSION_COOKIE}=${token}`,
       Origin: webOrigin(),
     },
@@ -48,4 +63,16 @@ export async function getPublishedProjects() {
   if (!response.ok)
     throw new Error("No se pudieron recuperar los proyectos publicados.");
   return response.json() as Promise<import("@/lib/drafts").PublishedProject[]>;
+}
+
+export async function getAdminProject(id: string) {
+  const response = await adminProjectsApi(`/${encodeURIComponent(id)}`);
+  if (response.status === 401) redirect("/admin/login");
+  if (response.status === 400 || response.status === 404) notFound();
+  if (!response.ok) throw new Error("No se pudo recuperar el proyecto.");
+  return response.json() as Promise<
+    (DraftProject | import("@/lib/drafts").PublishedProject) & {
+      media: import("@/lib/drafts").ProjectImage[];
+    }
+  >;
 }
