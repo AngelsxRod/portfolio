@@ -206,6 +206,9 @@
   .header-nav a:hover {
     color: var(--foreground);
   }
+  .mobile-nav-trigger {
+    display: none;
+  }
   .header-nav a[aria-current="page"] {
     background: var(--accent);
     color: var(--foreground);
@@ -1070,19 +1073,22 @@
       width: min(100% - 2rem, 78rem);
     }
     .header-inner {
-      min-height: 4.25rem;
-      flex-wrap: wrap;
-      gap: 0 1rem;
-      padding-block: 0.25rem;
+      min-height: 4rem;
+      gap: 1rem;
     }
     .brand-link {
       gap: 0.5rem;
     }
+    .header-tools {
+      gap: 0.5rem;
+    }
     .header-nav {
-      flex: 1 1 100%;
-      flex-wrap: wrap;
-      gap: 0 0.75rem;
-      font-size: 0.82rem;
+      display: none;
+    }
+    .mobile-nav-trigger {
+      display: inline-flex;
+      width: 2.75rem;
+      height: 2.75rem;
     }
     .display-title {
       font-size: clamp(3.2rem, 13vw, 5rem);

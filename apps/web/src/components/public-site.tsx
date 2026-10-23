@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@repo/ui/components/badge";
 import type { PublishedProject } from "@/lib/drafts";
+import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export type PublicPage =
@@ -42,6 +43,7 @@ export function PublicHeader({ current }: { current?: PublicPage }) {
               ))}
             </nav>
             <ThemeToggle />
+            <MobileNav items={navigation} current={current} />
           </div>
         </div>
       </header>
