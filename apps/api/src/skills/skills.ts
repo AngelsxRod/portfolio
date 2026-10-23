@@ -16,17 +16,29 @@ import {
 import { and, asc, eq } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
-import { skills } from "../db/schema.js";
+import { skillCategories, skills } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
 
-type SkillInput = { name: string; category: string; position: number };
+type SkillInput = { name: string; categoryId: string; position: number };
 
 const order = [
+  asc(skillCategories.position),
+  asc(skillCategories.name),
   asc(skills.position),
-  asc(skills.category),
   asc(skills.name),
   asc(skills.id),
 ];
+
+const columns = {
+  id: skills.id,
+  name: skills.name,
+  categoryId: skills.categoryId,
+  category: skillCategories.name,
+  position: skills.position,
+  status: skills.status,
+  createdAt: skills.createdAt,
+  updatedAt: skills.updatedAt,
+};
 
 function skillInput(body: unknown): SkillInput {
   if (!body || typeof body !== "object" || Array.isArray(body))
@@ -35,23 +47,24 @@ function skillInput(body: unknown): SkillInput {
   const fields: Record<string, string> = {};
   if (
     Object.keys(data).some(
-      (key) => !["name", "category", "position"].includes(key),
+      (key) => !["name", "categoryId", "position"].includes(key),
     )
   )
     fields.form = "La solicitud contiene campos no permitidos.";
-  function text(key: "name" | "category") {
-    const value = data[key];
-    if (typeof value !== "string") {
-      fields[key] = "Introduce texto válido.";
-      return "";
-    }
-    const trimmed = value.trim();
-    if (!trimmed || trimmed.length > 80)
-      fields[key] = "Usa entre 1 y 80 caracteres.";
-    return trimmed;
+  let name = "";
+  if (typeof data.name !== "string") fields.name = "Introduce texto válido.";
+  else {
+    name = data.name.trim();
+    if (!name || name.length > 80) fields.name = "Usa entre 1 y 80 caracteres.";
   }
-  const name = text("name");
-  const category = text("category");
+  const categoryId = data.categoryId;
+  if (
+    typeof categoryId !== "string" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      categoryId,
+    )
+  )
+    fields.categoryId = "Elige una categoría.";
   const position = data.position ?? 0;
   if (
     typeof position !== "number" ||
@@ -61,7 +74,11 @@ function skillInput(body: unknown): SkillInput {
   )
     fields.position = "Introduce un entero entre 0 y 2147483647.";
   if (Object.keys(fields).length) invalid(fields);
-  return { name, category, position: position as number };
+  return {
+    name,
+    categoryId: categoryId as string,
+    position: position as number,
+  };
 }
 
 function handleWriteError(error: unknown): never {
@@ -81,6 +98,14 @@ function handleWriteError(error: unknown): never {
       fields: { name: "Elige otro nombre; no distingue mayúsculas." },
     });
   }
+  if (
+    cause &&
+    typeof cause === "object" &&
+    "code" in cause &&
+    cause.code === "23503"
+  ) {
+    invalid({ categoryId: "Elige una categoría existente." });
+  }
   throw error;
 }
 
@@ -93,8 +118,9 @@ export class SkillsService {
   list() {
     return this.database
       .getDatabase()
-      .select()
+      .select(columns)
       .from(skills)
+      .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
       .orderBy(...order);
   }
 
@@ -104,10 +130,12 @@ export class SkillsService {
       .select({
         id: skills.id,
         name: skills.name,
-        category: skills.category,
+        categoryId: skills.categoryId,
+        category: skillCategories.name,
         position: skills.position,
       })
       .from(skills)
+      .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
       .where(eq(skills.status, "published"))
       .orderBy(...order);
   }
@@ -115,8 +143,9 @@ export class SkillsService {
   async get(id: string) {
     const [skill] = await this.database
       .getDatabase()
-      .select()
+      .select(columns)
       .from(skills)
+      .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
       .where(eq(skills.id, id))
       .limit(1);
     if (!skill) throw new NotFoundException("Habilidad no encontrada.");
@@ -131,7 +160,7 @@ export class SkillsService {
         .values({ ...input, status: "draft" })
         .returning();
       this.logger.log({ action: "skill.created", skillId: skill?.id });
-      return skill;
+      return this.get(skill!.id);
     } catch (error) {
       handleWriteError(error);
     }
@@ -147,7 +176,7 @@ export class SkillsService {
         .returning();
       if (!skill) throw new NotFoundException("Borrador no encontrado.");
       this.logger.log({ action: "skill.updated", skillId: skill.id });
-      return skill;
+      return this.get(skill.id);
     } catch (error) {
       handleWriteError(error);
     }
@@ -162,7 +191,7 @@ export class SkillsService {
       .returning();
     if (!skill) throw new NotFoundException("Borrador no encontrado.");
     this.logger.log({ action: "skill.published", skillId: skill.id });
-    return skill;
+    return this.get(skill.id);
   }
 
   async unpublish(id: string) {
@@ -175,7 +204,7 @@ export class SkillsService {
     if (!skill)
       throw new NotFoundException("Habilidad publicada no encontrada.");
     this.logger.log({ action: "skill.unpublished", skillId: skill.id });
-    return skill;
+    return this.get(skill.id);
   }
 }
 

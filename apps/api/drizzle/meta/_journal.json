@@ -36,6 +36,20 @@
       "when": 1792744038767,
       "tag": "0004_fair_bushwacker",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792745839383,
+      "tag": "0005_early_katie_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792745847291,
+      "tag": "0006_sloppy_mockingbird",
+      "breakpoints": true
     }
   ]
 }

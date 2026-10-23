@@ -106,12 +106,35 @@ export const projectMedia = pgTable(
 
 export const skillStatus = pgEnum("skill_status", ["draft", "published"]);
 
+export const skillCategories = pgTable(
+  "skill_categories",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 80 }).notNull(),
+    position: integer("position").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check("skill_categories_name_not_blank", sql`btrim(${table.name}) <> ''`),
+    uniqueIndex("skill_categories_name_lower_idx").on(
+      sql`lower(${table.name})`,
+    ),
+  ],
+);
+
 export const skills = pgTable(
   "skills",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 80 }).notNull(),
-    category: varchar("category", { length: 80 }).notNull(),
+    categoryId: uuid("category_id")
+      .notNull()
+      .references(() => skillCategories.id, { onDelete: "restrict" }),
     position: integer("position").notNull().default(0),
     status: skillStatus("status").notNull().default("draft"),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -123,8 +146,8 @@ export const skills = pgTable(
   },
   (table) => [
     check("skills_name_not_blank", sql`btrim(${table.name}) <> ''`),
-    check("skills_category_not_blank", sql`btrim(${table.category}) <> ''`),
     uniqueIndex("skills_name_lower_idx").on(sql`lower(${table.name})`),
     index("skills_status_position_idx").on(table.status, table.position),
+    index("skills_category_id_idx").on(table.categoryId),
   ],
 );

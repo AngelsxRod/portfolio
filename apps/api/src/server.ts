@@ -29,6 +29,10 @@ import {
   PublicProjectsController,
 } from "./projects/publication.js";
 import {
+  SkillCategoriesController,
+  SkillCategoriesService,
+} from "./skills/categories.js";
+import {
   AdminSkillsController,
   PublicSkillsController,
   SkillsService,
@@ -80,6 +84,7 @@ class MessageController {
     PublicationController,
     PublicProjectsController,
     AdminSkillsController,
+    SkillCategoriesController,
     PublicSkillsController,
   ],
   providers: [
@@ -89,6 +94,7 @@ class MessageController {
     MediaService,
     PublicationService,
     SkillsService,
+    SkillCategoriesService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })

@@ -23,6 +23,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
     const origin = "http://localhost:3000";
     const secret = "skill-test-proxy-secret-at-least-32-characters";
     const ids: string[] = [];
+    const categoryIds: string[] = [];
+    let categoryId: string;
     const previous = { ...process.env };
     let app: NestFastifyApplication;
     let cookie: string;
@@ -55,11 +57,16 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       });
       expect(login.statusCode).toBe(200);
       cookie = String(login.headers["set-cookie"]).split(";")[0]!;
+      categoryId = await createCategory(`Categoría ${randomUUID()}`);
     });
 
     afterAll(async () => {
       if (ids.length)
         await db.delete(schema.skills).where(inArray(schema.skills.id, ids));
+      if (categoryIds.length)
+        await db
+          .delete(schema.skillCategories)
+          .where(inArray(schema.skillCategories.id, categoryIds));
       if (cookie) {
         const token = cookie.slice(cookie.indexOf("=") + 1);
         await db
@@ -84,12 +91,20 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       }
     });
 
+    async function createCategory(name: string, position = 0) {
+      const result = await app.inject({
+        method: "POST",
+        url: "/admin/skill-categories",
+        headers: { cookie, origin },
+        payload: { name, position },
+      });
+      expect(result.statusCode).toBe(201);
+      categoryIds.push(result.json().id);
+      return result.json().id as string;
+    }
+
     function payload() {
-      return {
-        name: `Habilidad ${randomUUID()}`,
-        category: "Categoría de prueba",
-        position: 0,
-      };
+      return { name: `Habilidad ${randomUUID()}`, categoryId, position: 0 };
     }
 
     async function create(body: unknown = payload()) {
@@ -121,18 +136,15 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
 
     it("persists a trimmed draft and retrieves it", async () => {
       const body = payload();
-      const created = await create({
-        ...body,
-        name: `  ${body.name}  `,
-        category: "  Categoría  ",
-      });
+      const created = await create({ ...body, name: `  ${body.name}  ` });
       expect(created.statusCode).toBe(201);
       expect(created.json()).toMatchObject({
         name: body.name,
-        category: "Categoría",
+        categoryId,
         position: 0,
         status: "draft",
       });
+      expect(created.json().category).toMatch(/^Categoría /);
       const { id } = created.json();
       const found = await app.inject({
         method: "GET",
@@ -141,7 +153,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       });
       expect(found.statusCode).toBe(200);
       expect(found.headers["cache-control"]).toBe("no-store");
-      expect(found.json()).toMatchObject({ id, name: body.name });
+      expect(found.json()).toMatchObject({ id, name: body.name, categoryId });
       const list = await app.inject({
         method: "GET",
         url: "/admin/skills",
@@ -154,37 +166,48 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
 
     it("defaults the position to 0 and edits a draft", async () => {
       const body = payload();
-      const created = await create({ name: body.name, category: "Uno" });
+      const created = await create({ name: body.name, categoryId });
       expect(created.json().position).toBe(0);
       const { id, updatedAt } = created.json();
       await new Promise((resolve) => setTimeout(resolve, 10));
+      const other = await createCategory(`Otra ${randomUUID()}`);
       const edited = await write("PUT", `/admin/skills/${id}`, {
         name: body.name,
-        category: "Dos",
+        categoryId: other,
         position: 3,
       });
       expect(edited.statusCode).toBe(200);
-      expect(edited.json()).toMatchObject({ category: "Dos", position: 3 });
+      expect(edited.json()).toMatchObject({ categoryId: other, position: 3 });
       expect(new Date(edited.json().updatedAt).getTime()).toBeGreaterThan(
         new Date(updatedAt).getTime(),
       );
     });
 
+    const unknownCategory = "00000000-0000-4000-8000-0000000000aa";
     it.each([
-      [{ name: "", category: "x" }, "name"],
-      [{ name: "   ", category: "x" }, "name"],
-      [{ name: "x".repeat(81), category: "x" }, "name"],
-      [{ name: 5, category: "x" }, "name"],
-      [{ category: "x" }, "name"],
-      [{ name: "x", category: "" }, "category"],
-      [{ name: "x", category: "x".repeat(81) }, "category"],
-      [{ name: "x" }, "category"],
-      [{ name: "x", category: "x", position: -1 }, "position"],
-      [{ name: "x", category: "x", position: 1.5 }, "position"],
-      [{ name: "x", category: "x", position: "1" }, "position"],
-      [{ name: "x", category: "x", position: 2147483648 }, "position"],
-      [{ name: "x", category: "x", status: "published" }, "form"],
-      [{ name: "x", category: "x", level: 90 }, "form"],
+      [{ name: "", categoryId: unknownCategory }, "name"],
+      [{ name: "   ", categoryId: unknownCategory }, "name"],
+      [{ name: "x".repeat(81), categoryId: unknownCategory }, "name"],
+      [{ name: 5, categoryId: unknownCategory }, "name"],
+      [{ categoryId: unknownCategory }, "name"],
+      [{ name: "x" }, "categoryId"],
+      [{ name: "x", categoryId: "" }, "categoryId"],
+      [{ name: "x", categoryId: 5 }, "categoryId"],
+      [{ name: "x", categoryId: "no-es-uuid" }, "categoryId"],
+      [{ name: "x", categoryId: unknownCategory }, "categoryId"],
+      [
+        { name: "x", category: "texto libre", categoryId: unknownCategory },
+        "form",
+      ],
+      [{ name: "x", categoryId: unknownCategory, position: -1 }, "position"],
+      [{ name: "x", categoryId: unknownCategory, position: 1.5 }, "position"],
+      [{ name: "x", categoryId: unknownCategory, position: "1" }, "position"],
+      [
+        { name: "x", categoryId: unknownCategory, position: 2147483648 },
+        "position",
+      ],
+      [{ name: "x", categoryId: unknownCategory, status: "published" }, "form"],
+      [{ name: "x", categoryId: unknownCategory, level: 90 }, "form"],
     ])("rejects invalid input %j with a message for %s", async (body, key) => {
       const result = await create(body);
       expect(result.statusCode).toBe(400);
@@ -214,14 +237,13 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       const duplicate = await create({
         ...body,
         name: body.name.toUpperCase(),
-        category: "Otra",
       });
       expect(duplicate.statusCode).toBe(409);
       expect(duplicate.json().fields).toHaveProperty("name");
       const other = await create(payload());
       const clash = await write("PUT", `/admin/skills/${other.json().id}`, {
         name: body.name.toLowerCase(),
-        category: "x",
+        categoryId,
       });
       expect(clash.statusCode).toBe(409);
     });
@@ -311,7 +333,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       ).toEqual({
         id,
         name: body.name,
-        category: body.category,
+        categoryId,
+        category: expect.stringMatching(/^Categoría /),
         position: 0,
       });
 
@@ -352,6 +375,30 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
         );
       expect(found).toEqual([second.json().id, first.json().id]);
       expect(JSON.stringify(result)).not.toContain("status");
+    });
+
+    it("orders public skills by category position before skill position", async () => {
+      const later = await createCategory(`Z ${randomUUID()}`, 900);
+      const earlier = await createCategory(`A ${randomUUID()}`, 800);
+      const inLater = await create({
+        ...payload(),
+        categoryId: later,
+        position: 0,
+      });
+      const inEarlier = await create({
+        ...payload(),
+        categoryId: earlier,
+        position: 50,
+      });
+      for (const created of [inLater, inEarlier])
+        await write("POST", `/admin/skills/${created.json().id}/publish`);
+      const result = (
+        await app.inject({ method: "GET", url: "/skills" })
+      ).json() as { id: string }[];
+      const found = result
+        .map((skill) => skill.id)
+        .filter((id) => [inLater, inEarlier].some((s) => s.json().id === id));
+      expect(found).toEqual([inEarlier.json().id, inLater.json().id]);
     });
   },
 );
