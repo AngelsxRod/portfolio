@@ -100,7 +100,7 @@ export function CertificateForm({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
         <Link
           href="/admin/certificates"
@@ -236,6 +236,6 @@ export function CertificateForm({
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

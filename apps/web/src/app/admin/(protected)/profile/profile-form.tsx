@@ -148,7 +148,7 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
   const dirty = form.formState.isDirty;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">Perfil</h1>
@@ -340,6 +340,6 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

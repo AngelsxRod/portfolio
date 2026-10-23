@@ -14,7 +14,7 @@ import { getSkillCategories } from "@/lib/admin-api";
 export default async function SkillCategories() {
   const categories = await getSkillCategories();
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <Link
@@ -87,6 +87,6 @@ export default async function SkillCategories() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

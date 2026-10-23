@@ -18,7 +18,7 @@ import { EducationPublicationAction } from "./education-publication-action";
 export default async function AdminEducation() {
   const items = await getAdminEducationList();
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">Educación</h1>
@@ -107,6 +107,6 @@ export default async function AdminEducation() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

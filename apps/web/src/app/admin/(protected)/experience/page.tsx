@@ -17,7 +17,7 @@ import { ExperiencePublicationAction } from "./experience-publication-action";
 export default async function AdminExperience() {
   const experiences = await getAdminExperiences();
   return (
-    <main className="space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-2xl font-semibold tracking-tight">Experiencia</h1>
@@ -105,6 +105,6 @@ export default async function AdminExperience() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

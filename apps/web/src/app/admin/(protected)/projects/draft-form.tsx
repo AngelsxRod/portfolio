@@ -188,10 +188,10 @@ function DraftFormBody({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
         <Link
-          href="/admin"
+          href="/admin/projects"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
           ← Volver a borradores
@@ -375,7 +375,7 @@ function DraftFormBody({
               <Button
                 variant="outline"
                 nativeButton={false}
-                render={<Link href="/admin" />}
+                render={<Link href="/admin/projects" />}
               >
                 Volver a la lista
               </Button>
@@ -383,6 +383,6 @@ function DraftFormBody({
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

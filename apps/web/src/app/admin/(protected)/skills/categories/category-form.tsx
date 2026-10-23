@@ -81,7 +81,7 @@ export function CategoryForm({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div className="space-y-2">
         <Link
           href="/admin/skills/categories"
@@ -159,6 +159,6 @@ export function CategoryForm({
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

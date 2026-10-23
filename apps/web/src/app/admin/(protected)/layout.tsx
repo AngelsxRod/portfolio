@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Separator } from "@repo/ui/components/separator";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { hasAdminSession } from "@/lib/admin-session";
-import { LogoutForm } from "./logout-form";
 
 export default async function AdminLayout({
   children,
@@ -12,30 +12,26 @@ export default async function AdminLayout({
   if (!(await hasAdminSession())) redirect("/admin/login");
 
   return (
-    <div className="min-h-svh bg-muted/30">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
-          <Link href="/admin" className="text-lg font-semibold">
-            Panel administrativo
-          </Link>
-          <LogoutForm />
+    <div className="admin-shell">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Saltar al contenido
+      </a>
+      <SidebarProvider>
+        <AdminSidebar />
+        <div className="flex min-h-svh min-w-0 flex-1 flex-col bg-muted/30">
+          <AdminHeader />
+          <div
+            id="contenido"
+            tabIndex={-1}
+            className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 outline-none sm:px-6 lg:py-8"
+          >
+            {children}
+          </div>
         </div>
-      </header>
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <nav
-          aria-label="Panel"
-          className="mb-6 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium"
-        >
-          <Link href="/admin">Proyectos</Link>
-          <Link href="/admin/skills">Habilidades</Link>
-          <Link href="/admin/experience">Experiencia</Link>
-          <Link href="/admin/education">Educación</Link>
-          <Link href="/admin/certificates">Certificados</Link>
-          <Link href="/admin/profile">Perfil</Link>
-        </nav>
-        <Separator className="mb-8" />
-        {children}
-      </div>
+      </SidebarProvider>
     </div>
   );
 }
