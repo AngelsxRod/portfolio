@@ -9,6 +9,8 @@
     "ADMIN_PASSWORD_HASH",
     "ADMIN_PROXY_SECRET",
     "WEB_ORIGIN",
+    "TURNSTILE_SITE_KEY",
+    "TURNSTILE_SECRET_KEY",
     "NODE_ENV"
   ],
   "tasks": {

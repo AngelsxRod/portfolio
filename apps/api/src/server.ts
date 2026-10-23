@@ -53,6 +53,11 @@ import {
   PublicProfileController,
 } from "./profile/profile.js";
 import {
+  ContactController,
+  ContactMailer,
+  TurnstileService,
+} from "./contact/contact.js";
+import {
   AdminSkillsController,
   PublicSkillsController,
   SkillsService,
@@ -114,6 +119,7 @@ class MessageController {
     PublicCertificatesController,
     AdminProfileController,
     PublicProfileController,
+    ContactController,
   ],
   providers: [
     DatabaseService,
@@ -127,6 +133,8 @@ class MessageController {
     EducationService,
     CertificatesService,
     ProfileService,
+    TurnstileService,
+    ContactMailer,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })
