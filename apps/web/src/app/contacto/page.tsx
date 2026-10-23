@@ -19,7 +19,10 @@ export default async function ContactPage() {
           intro="Cuéntame sobre tu proyecto o consulta y te responderé por correo."
         />
         <div className="contact-layout">
-          <ContactForm siteKey={process.env.TURNSTILE_SITE_KEY || null} />
+          <section aria-labelledby="form-title" className="contact-card">
+            <h2 id="form-title">Envíame un mensaje</h2>
+            <ContactForm siteKey={process.env.TURNSTILE_SITE_KEY || null} />
+          </section>
           {profile && (profile.email || profile.links.length > 0) && (
             <aside aria-labelledby="direct-title" className="contact-aside">
               <h2 id="direct-title">También puedes encontrarme en</h2>
