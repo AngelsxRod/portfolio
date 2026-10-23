@@ -12,7 +12,7 @@ export default async function AdminLayout({
   if (!(await hasAdminSession())) redirect("/admin/login");
 
   return (
-    <div className="admin-shell">
+    <>
       <a
         href="#contenido"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
@@ -32,6 +32,6 @@ export default async function AdminLayout({
           </main>
         </div>
       </SidebarProvider>
-    </div>
+    </>
   );
 }

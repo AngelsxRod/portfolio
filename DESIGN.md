@@ -63,7 +63,7 @@ Una página de perfil, cuando tenga datos reales, debería abrir con su informac
 
 ## Panel administrativo
 
-El panel usa los mismos tokens con la sobriedad de una herramienta de trabajo: superficies blancas sobre Bruma, reglas finas en lugar de sombras y petróleo solo para la acción primaria y la sección activa. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
+El panel usa una paleta propia con la sobriedad de una herramienta de trabajo: violeta (`#6d28d9` en claro, `#a78bfa` en oscuro) como acento de la acción primaria, el foco y la sección activa, sobre superficies en grises neutros —sin fondos teñidos de lila— y reglas finas en lugar de sombras. Se define en `globals.css` con `body:has(.admin-shell)`, así que no afecta al sitio público, que conserva el petróleo. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
 
 - **Navegación:** barra lateral fija agrupada en «Contenido» y «Sitio»; en móvil, `Sheet`. Cabecera con migas y «Ver sitio».
 - **Estados:** `Publicado` en petróleo sólido y `Borrador` en Hielo, siempre con texto.

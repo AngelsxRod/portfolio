@@ -98,6 +98,68 @@
   --sidebar-ring: #9cd7dc;
 }
 
+/*
+ * Paleta del panel: violeta como acento sobre superficies en grises neutros
+ * (sin fondos teñidos). Se aplica al <body> cuando hay un `.admin-shell`, de
+ * modo que también alcanza a los menús y diálogos que se montan en el body.
+ * El sitio público conserva los tokens petróleo de arriba.
+ */
+body:has(.admin-shell) {
+  --background: #f6f6f8;
+  --foreground: #1b1a21;
+  --card: #ffffff;
+  --card-foreground: #1b1a21;
+  --popover: #ffffff;
+  --popover-foreground: #1b1a21;
+  --primary: #6d28d9;
+  --primary-foreground: #ffffff;
+  --secondary: #ececf1;
+  --secondary-foreground: #2a2833;
+  --muted: #eeeef2;
+  --muted-foreground: #5f5d6b;
+  --accent: #e7e1f8;
+  --accent-foreground: #3b1d7a;
+  --border: #dcdbe2;
+  --input: #cbc9d3;
+  --ring: #7c3aed;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b1a21;
+  --sidebar-primary: #6d28d9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e7e1f8;
+  --sidebar-accent-foreground: #3b1d7a;
+  --sidebar-border: #dcdbe2;
+  --sidebar-ring: #7c3aed;
+}
+
+.dark body:has(.admin-shell) {
+  --background: #131217;
+  --foreground: #ececf0;
+  --card: #1b1a21;
+  --card-foreground: #ececf0;
+  --popover: #1b1a21;
+  --popover-foreground: #ececf0;
+  --primary: #a78bfa;
+  --primary-foreground: #16121f;
+  --secondary: #272630;
+  --secondary-foreground: #ececf0;
+  --muted: #24232b;
+  --muted-foreground: #a9a7b5;
+  --accent: #2f2850;
+  --accent-foreground: #ece8ff;
+  --border: #34323d;
+  --input: #464452;
+  --ring: #a78bfa;
+  --sidebar: #19181e;
+  --sidebar-foreground: #ececf0;
+  --sidebar-primary: #a78bfa;
+  --sidebar-primary-foreground: #16121f;
+  --sidebar-accent: #2f2850;
+  --sidebar-accent-foreground: #ece8ff;
+  --sidebar-border: #34323d;
+  --sidebar-ring: #a78bfa;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
