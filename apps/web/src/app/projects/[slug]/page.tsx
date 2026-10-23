@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProjectCarousel } from "@/components/project-carousel";
 import Markdown from "react-markdown";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
@@ -28,6 +29,10 @@ export default async function ProjectDetail({
 }) {
   const { slug } = await params;
   const project = await getPublicProject(slug);
+  const heroImages = [
+    ...project.media.filter((image) => image.id === project.featuredMediaId),
+    ...project.media.filter((image) => image.id !== project.featuredMediaId),
+  ];
   const demoUrl = safeExternalUrl(project.demoUrl);
   const codeUrl = safeExternalUrl(project.codeUrl);
   return (
@@ -37,44 +42,46 @@ export default async function ProjectDetail({
         <Link href="/projects" className="back-link">
           ← Volver a proyectos
         </Link>
-        <header className="detail-header">
-          <p className="folio-caption">Proyecto publicado</p>
+        <header className="detail-header detail-header-gallery">
           <h1 className="display-title">{project.title}</h1>
-          <p className="detail-summary">{project.summary}</p>
-          {(demoUrl || codeUrl) && (
-            <div className="detail-actions">
-              {demoUrl && (
-                <Button
-                  nativeButton={false}
-                  render={
-                    <a
-                      href={demoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  Ver sitio
-                </Button>
-              )}
-              {codeUrl && (
-                <Button
-                  variant="outline"
-                  nativeButton={false}
-                  render={
-                    <a
-                      href={codeUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  Ver código
-                </Button>
-              )}
-            </div>
-          )}
+          <div className="detail-intro-copy">
+            <p className="detail-summary">{project.summary}</p>
+            {(demoUrl || codeUrl) && (
+              <div className="detail-actions">
+                {demoUrl && (
+                  <Button
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                  >
+                    Ver sitio
+                  </Button>
+                )}
+                {codeUrl && (
+                  <Button
+                    variant="outline"
+                    nativeButton={false}
+                    render={
+                      <a
+                        href={codeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    }
+                  >
+                    Ver código
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </header>
+        {heroImages.length > 0 && <ProjectCarousel images={heroImages} />}
         <div
           className={
             project.technologies.length > 0

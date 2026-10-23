@@ -35,13 +35,13 @@ Los tokens compartidos viven en `packages/ui/src/styles/globals.css` y alimentan
 
 - Marco máximo de `78rem`; márgenes laterales de `1.5rem` en escritorio y `1rem` en móvil.
 - Portada en dos columnas: mensaje y navegación a la izquierda, símbolo a la derecha. El símbolo pasa debajo del texto en pantallas estrechas.
-- Archivo como filas separadas por reglas. Cada fila contiene título y resumen a la izquierda; tecnologías y acceso al detalle a la derecha. Si hay un único caso, como R&R Asociados, ocupa una fila completa sin inventar proyectos vecinos.
-- Detalle con cabecera amplia y descripción de lectura; una ficha lateral solo muestra metadatos presentes. En móvil la ficha va después de la descripción.
+- Archivo y selección de portada como grid: dos columnas en escritorio y una hasta 640 px. Las tarjetas siguen la referencia editorial aportada: imagen rectangular sin marco ni radios, título compacto, resumen y enlace debajo. Cada proyecto tiene una vista previa de proporción 2:1, título, resumen, tecnologías presentes y enlace. Los proyectos sin imagen usan una composición tipográfica con su nombre e inicial; nunca capturas ficticias.
+- Detalle con título destacado arriba a la izquierda, resumen y enlaces a su derecha y la imagen protagonista al ancho del marco justo debajo. En móvil la cabecera pasa a una columna antes de la galería. La galería no lleva panel contenedor ni miniaturas; las flechas y el indicador van en una barra discreta inferior. Clic en la imagen abre un visor de toda la pantalla con navegación circular, teclado y cierre con Escape; al cerrar, el foco vuelve a la imagen seleccionada. Las capturas se muestran completas, sin recortar contenido. Sin imágenes se conserva la cabecera tipográfica. La descripción continúa debajo, con ficha lateral únicamente cuando hay metadatos.
 - Escala de espacio base: `0.5`, `0.75`, `1`, `1.5`, `2`, `3`, `4`, `5` y `7rem`. Entre secciones principales usar `4–7rem`; entre título y resumen, `0.8–2rem`. No comprimir varias funciones dentro de una tarjeta pequeña.
 
 ## Imágenes
 
-La etapa de medios sigue pendiente. Hasta que exista una imagen publicada con permiso y texto alternativo, usar tipografía, color y geometría abstracta. No usar capturas ficticias de R&R Asociados ni imágenes de stock como si fueran el proyecto. Cuando lleguen medios, usar una imagen principal por caso con proporción estable, sin recortar información esencial; el texto alternativo debe describir lo visible, no repetir el título.
+La etapa de medios permite mostrar imágenes publicadas con texto alternativo. Cuando no hay imágenes, usar tipografía y color. No usar capturas ficticias de R&R Asociados ni imágenes de stock como si fueran el proyecto. Cuando lleguen medios, usar una imagen principal por caso con proporción estable, sin recortar información esencial; el texto alternativo debe describir lo visible, no repetir el título.
 
 ## Interacción y movimiento
 
@@ -52,7 +52,7 @@ La etapa de medios sigue pendiente. Hasta que exista una imagen publicada con pe
 
 ## Móvil y accesibilidad
 
-- Desde `800px` la portada y el detalle pasan a una columna; desde `600px` las filas también. No esconder enlaces esenciales detrás de un menú que hoy no hace falta.
+- La portada pasa a una columna desde `800px`; la galería del detalle adapta su proporción desde `600px`. El grid de proyectos usa dos columnas y pasa a una a `640px`. No esconder enlaces esenciales detrás de un menú que hoy no hace falta.
 - Mantener áreas de toque cómodas, lectura sin desplazamiento horizontal y títulos que envuelvan palabras largas. El Markdown y los bloques de código deben poder desbordarse dentro de su región sin romper el marco.
 - Usar `header`, `nav`, `main`, `section`, `article`, `aside` y `footer` según su función, un `h1` por página y encabezados en orden. El símbolo de portada es decorativo y se oculta a lectores de pantalla.
 - Comprobar teclado, zoom, contraste y anchos de 375 px y escritorio antes de publicar cambios visuales.

@@ -4,7 +4,7 @@ import { getPublicProjects } from "@/lib/public-projects";
 import {
   PublicFooter,
   PublicHeader,
-  ProjectRow,
+  ProjectCard,
 } from "@/components/public-site";
 
 export const dynamic = "force-dynamic";
@@ -57,9 +57,9 @@ export default async function Home() {
             </p>
           </div>
           {projects.length > 0 ? (
-            <div className="project-list">
+            <div className="project-grid">
               {projects.slice(0, 3).map((project) => (
-                <ProjectRow key={project.id} project={project} />
+                <ProjectCard key={project.id} project={project} />
               ))}
             </div>
           ) : (

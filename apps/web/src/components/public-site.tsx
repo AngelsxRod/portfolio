@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@repo/ui/components/badge";
 import type { PublishedProject } from "@/lib/drafts";
@@ -48,33 +49,67 @@ export function PublicFooter() {
   );
 }
 
-export function ProjectRow({
+export function ProjectCard({
   project,
   headingLevel = "h3",
 }: {
   project: PublishedProject;
   headingLevel?: "h2" | "h3";
 }) {
+  const preview =
+    project.media.find((image) => image.id === project.featuredMediaId) ??
+    project.media[0];
   const title = <Link href={`/projects/${project.slug}`}>{project.title}</Link>;
   return (
-    <article className="project-row">
-      <div className="project-row-main">
-        {headingLevel === "h2" ? <h2>{title}</h2> : <h3>{title}</h3>}
-        <p>{project.summary}</p>
-      </div>
-      <div className="project-row-meta">
+    <article className="project-card">
+      <Link
+        href={`/projects/${project.slug}`}
+        className="project-card-visual"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        {preview ? (
+          <div className="relative h-full w-full">
+            <Image
+              src={`/api/projects/media/${preview.id}`}
+              alt={preview.altText}
+              fill
+              unoptimized
+              sizes="(max-width:640px) 100vw, (max-width:1280px) 50vw, 610px"
+              className="object-cover object-top"
+            />
+          </div>
+        ) : (
+          <div className="project-card-typography">
+            <span>{project.title}</span>
+            <span className="project-card-monogram" aria-hidden="true">
+              {project.title.slice(0, 1)}
+            </span>
+          </div>
+        )}
+      </Link>
+      <div className="project-card-copy">
         {project.technologies.length > 0 && (
           <ul
             aria-label={`Tecnologías de ${project.title}`}
-            className="technology-list"
+            className="technology-list project-card-tags"
           >
             {project.technologies.map((technology) => (
               <li key={technology}>
-                <Badge variant="secondary">{technology}</Badge>
+                <Badge
+                  variant="default"
+                  className="rounded-none px-2 py-0.5 text-xs"
+                >
+                  {technology}
+                </Badge>
               </li>
             ))}
           </ul>
         )}
+        {headingLevel === "h2" ? <h2>{title}</h2> : <h3>{title}</h3>}
+        <p>{project.summary}</p>
+      </div>
+      <div className="project-card-meta">
         <Link
           className="text-link"
           href={`/projects/${project.slug}`}

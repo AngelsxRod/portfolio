@@ -2,7 +2,7 @@ import { getPublicProjects } from "@/lib/public-projects";
 import {
   PublicFooter,
   PublicHeader,
-  ProjectRow,
+  ProjectCard,
 } from "@/components/public-site";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +30,9 @@ export default async function ProjectsPage() {
               </p>
             </div>
           ) : (
-            <div className="project-list">
+            <div className="project-grid">
               {projects.map((project) => (
-                <ProjectRow
+                <ProjectCard
                   key={project.id}
                   project={project}
                   headingLevel="h2"
