@@ -15,6 +15,20 @@
       "when": 1792656482398,
       "tag": "0001_eager_carmella_unuscione",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792723350435,
+      "tag": "0002_fancy_zaran",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792732764668,
+      "tag": "0003_solid_warbird",
+      "breakpoints": true
     }
   ]
 }

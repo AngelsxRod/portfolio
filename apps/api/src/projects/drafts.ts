@@ -29,7 +29,7 @@ type DraftInput = {
   position: number;
 };
 
-function invalid(fields: Record<string, string>): never {
+export function invalid(fields: Record<string, string>): never {
   throw new BadRequestException({
     message: "Revisa los campos indicados.",
     fields,
@@ -185,13 +185,19 @@ export class DraftsService {
     return draft;
   }
 
-  async create(input: DraftInput) {
+  async create(input: DraftInput, retryId?: string) {
     try {
       const [draft] = await this.database
         .getDatabase()
         .insert(projects)
-        .values({ ...input, status: "draft" })
+        .values({
+          ...input,
+          status: "draft",
+          ...(retryId ? { id: retryId } : {}),
+        })
+        .onConflictDoNothing({ target: projects.id })
         .returning();
+      if (!draft && retryId) return this.update(retryId, input);
       this.logger.log({ action: "draft.created", projectId: draft?.id });
       return draft;
     } catch (error) {
@@ -236,10 +242,15 @@ export class DraftsController {
   @Header("Cache-Control", "no-store")
   create(
     @Body() body: unknown,
-    @Req() request: { headers: { origin?: string } },
+    @Req()
+    request: { headers: { origin?: string; "idempotency-key"?: string } },
   ) {
     requireWebOrigin(request.headers.origin);
-    return this.drafts.create(draftInput(body));
+    const key = request.headers["idempotency-key"];
+    return this.drafts.create(
+      draftInput(body),
+      key ? projectId(key) : undefined,
+    );
   }
 
   @Put(":id")
@@ -247,7 +258,8 @@ export class DraftsController {
   update(
     @Param("id") id: string,
     @Body() body: unknown,
-    @Req() request: { headers: { origin?: string } },
+    @Req()
+    request: { headers: { origin?: string; "idempotency-key"?: string } },
   ) {
     requireWebOrigin(request.headers.origin);
     return this.drafts.update(projectId(id), draftInput(body));

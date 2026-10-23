@@ -18,6 +18,12 @@ import {
 import { AdminSessionService } from "./auth/session.js";
 import { DraftsController, DraftsService } from "./projects/drafts.js";
 import {
+  AdminMediaController,
+  FeaturedMediaController,
+  MediaService,
+  PublicMediaController,
+} from "./projects/media.js";
+import {
   PublicationController,
   PublicationService,
   PublicProjectsController,
@@ -63,6 +69,9 @@ class MessageController {
     AuthController,
     AdminController,
     DraftsController,
+    AdminMediaController,
+    FeaturedMediaController,
+    PublicMediaController,
     PublicationController,
     PublicProjectsController,
   ],
@@ -70,6 +79,7 @@ class MessageController {
     DatabaseService,
     AdminSessionService,
     DraftsService,
+    MediaService,
     PublicationService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],

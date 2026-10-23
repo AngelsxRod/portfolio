@@ -1,6 +1,9 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
+  uniqueIndex,
   check,
+  customType,
   integer,
   pgEnum,
   pgTable,
@@ -8,7 +11,12 @@ import {
   timestamp,
   uuid,
   varchar,
+  index,
 } from "drizzle-orm/pg-core";
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType: () => "bytea",
+});
 
 export const adminSessions = pgTable("admin_sessions", {
   tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
@@ -57,6 +65,41 @@ export const projects = pgTable(
     check(
       "projects_published_content_required",
       sql`${table.status} <> 'published' or (nullif(btrim(${table.summary}), '') is not null and nullif(btrim(${table.description}), '') is not null)`,
+    ),
+  ],
+);
+
+export const projectMedia = pgTable(
+  "project_media",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    mimeType: varchar("mime_type", { length: 16 }).notNull(),
+    altText: varchar("alt_text", { length: 300 }).notNull(),
+    isFeatured: boolean("is_featured").notNull().default(false),
+    bytes: bytea("bytes").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("project_media_project_id_idx").on(table.projectId),
+    uniqueIndex("project_media_one_featured_idx")
+      .on(table.projectId)
+      .where(sql`${table.isFeatured} = true`),
+    check("project_media_alt_not_blank", sql`btrim(${table.altText}) <> ''`),
+    check(
+      "project_media_bytes_limit",
+      sql`octet_length(${table.bytes}) between 1 and 5242880`,
+    ),
+    check(
+      "project_media_mime_type",
+      sql`${table.mimeType} in ('image/png', 'image/jpeg', 'image/webp')`,
     ),
   ],
 );

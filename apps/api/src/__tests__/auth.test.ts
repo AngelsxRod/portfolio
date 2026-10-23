@@ -91,6 +91,25 @@ describe("admin access", () => {
     ["POST", "/admin/projects/drafts"],
     ["PUT", "/admin/projects/drafts/00000000-0000-4000-8000-000000000001"],
     ["GET", "/admin/projects/published"],
+    ["GET", "/admin/projects/00000000-0000-4000-8000-000000000001"],
+    ["GET", "/admin/projects/00000000-0000-4000-8000-000000000001/media"],
+    ["POST", "/admin/projects/00000000-0000-4000-8000-000000000001/media"],
+    [
+      "PUT",
+      "/admin/projects/00000000-0000-4000-8000-000000000001/featured-media",
+    ],
+    [
+      "PUT",
+      "/admin/projects/00000000-0000-4000-8000-000000000001/media/00000000-0000-4000-8000-000000000002",
+    ],
+    [
+      "DELETE",
+      "/admin/projects/00000000-0000-4000-8000-000000000001/media/00000000-0000-4000-8000-000000000002",
+    ],
+    [
+      "GET",
+      "/admin/projects/00000000-0000-4000-8000-000000000001/media/00000000-0000-4000-8000-000000000002/file",
+    ],
     ["POST", "/admin/projects/00000000-0000-4000-8000-000000000001/publish"],
     ["POST", "/admin/projects/00000000-0000-4000-8000-000000000001/unpublish"],
   ] as const)("denies %s %s without an active session", async (method, url) => {

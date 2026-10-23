@@ -1,0 +1,2 @@
+ALTER TABLE "project_media" ADD COLUMN "is_featured" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "project_media_one_featured_idx" ON "project_media" USING btree ("project_id") WHERE "project_media"."is_featured" = true;

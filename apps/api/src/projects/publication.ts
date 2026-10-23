@@ -16,6 +16,7 @@ import { requireWebOrigin, Public } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { projects } from "../db/schema.js";
 import { projectId } from "./drafts.js";
+import { MediaService } from "./media.js";
 
 const order = [
   asc(projects.position),
@@ -27,15 +28,41 @@ const order = [
 export class PublicationService {
   private readonly logger = new Logger(PublicationService.name);
 
-  constructor(private readonly database: DatabaseService) {}
+  constructor(
+    private readonly database: DatabaseService,
+    private readonly media: MediaService,
+  ) {}
 
-  listPublished() {
-    return this.database
+  async adminProject(id: string) {
+    const [project] = await this.database
+      .getDatabase()
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id))
+      .limit(1);
+    if (!project) throw new NotFoundException("Proyecto no encontrado.");
+    return { ...project, media: await this.media.metadataForProjects([id]) };
+  }
+
+  async listPublished() {
+    const rows = await this.database
       .getDatabase()
       .select()
       .from(projects)
       .where(eq(projects.status, "published"))
       .orderBy(...order);
+    const media = await this.media.metadataForProjects(
+      rows.map((row) => row.id),
+    );
+    return rows.map((row) => ({
+      ...row,
+      featuredMediaId:
+        media.find((image) => image.projectId === row.id && image.isFeatured)
+          ?.id ??
+        media.find((image) => image.projectId === row.id)?.id ??
+        null,
+      media: media.filter((image) => image.projectId === row.id),
+    }));
   }
 
   async publicProject(slug: string) {
@@ -46,7 +73,13 @@ export class PublicationService {
       .where(and(eq(projects.slug, slug), eq(projects.status, "published")))
       .limit(1);
     if (!project) throw new NotFoundException("Proyecto no encontrado.");
-    return project;
+    const media = await this.media.metadataForProjects([project.id]);
+    return {
+      ...project,
+      featuredMediaId:
+        media.find((image) => image.isFeatured)?.id ?? media[0]?.id ?? null,
+      media,
+    };
   }
 
   async publish(id: string) {
@@ -96,6 +129,12 @@ export class PublicationService {
 @Controller("admin/projects")
 export class PublicationController {
   constructor(private readonly publication: PublicationService) {}
+
+  @Get(":id")
+  @Header("Cache-Control", "no-store")
+  get(@Param("id") id: string) {
+    return this.publication.adminProject(projectId(id));
+  }
 
   @Get("published")
   @Header("Cache-Control", "no-store")

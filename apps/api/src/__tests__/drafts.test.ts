@@ -40,7 +40,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
         .useValue({ getDatabase: () => db })
         .compile();
       app = module.createNestApplication<NestFastifyApplication>(
-        new FastifyAdapter(),
+        new FastifyAdapter({ bodyLimit: 7 * 1024 * 1024 }),
       );
       await app.init();
       await app.getHttpAdapter().getInstance().ready();
@@ -422,6 +422,375 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
           })
         ).statusCode,
       ).toBe(404);
+    });
+
+    it("retries creation and uploads after an unconfirmed response without duplicating records", async () => {
+      const key = randomUUID();
+      const body = payload();
+      const send = (title: string) =>
+        app.inject({
+          method: "POST",
+          url: "/admin/projects/drafts",
+          headers: { cookie, origin, "idempotency-key": key },
+          payload: { ...body, title },
+        });
+      const first = await send("Primer intento");
+      ids.push(first.json().id);
+      const retry = await send("Texto conservado");
+      expect(retry.statusCode).toBe(201);
+      expect(retry.json()).toMatchObject({
+        id: first.json().id,
+        title: "Texto conservado",
+      });
+      const uploadKey = randomUUID();
+      const upload = () =>
+        app.inject({
+          method: "POST",
+          url: `/admin/projects/${first.json().id}/media`,
+          headers: { cookie, origin, "idempotency-key": uploadKey },
+          payload: {
+            mimeType: "image/png",
+            altText: "Carga repetida",
+            data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=",
+          },
+        });
+      const original = await upload();
+      const repeated = await upload();
+      expect(repeated.statusCode).toBe(201);
+      expect(repeated.json().id).toBe(original.json().id);
+      const listed = await app.inject({
+        method: "GET",
+        url: `/admin/projects/${first.json().id}/media`,
+        headers: { cookie },
+      });
+      expect(listed.json()).toHaveLength(1);
+    });
+
+    it("returns no preview without images and falls back to the first existing image", async () => {
+      const saved = (
+        await create({
+          ...payload(),
+          summary: "Resumen",
+          description: "Detalle",
+        })
+      ).json();
+      await app.inject({
+        method: "POST",
+        url: `/admin/projects/${saved.id}/publish`,
+        headers: { cookie, origin },
+      });
+      const detail = () =>
+        app.inject({ method: "GET", url: `/projects/${saved.slug}` });
+      expect((await detail()).json()).toMatchObject({
+        media: [],
+        featuredMediaId: null,
+      });
+      const uploaded = await app.inject({
+        method: "POST",
+        url: `/admin/projects/${saved.id}/media`,
+        headers: { cookie, origin },
+        payload: {
+          mimeType: "image/png",
+          altText: "Primera imagen",
+          data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=",
+        },
+      });
+      expect((await detail()).json().featuredMediaId).toBe(uploaded.json().id);
+      expect(
+        (await app.inject({ method: "GET", url: "/projects" })).json(),
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: saved.id,
+            featuredMediaId: uploaded.json().id,
+          }),
+        ]),
+      );
+    });
+
+    it("selects only an associated featured image and keeps alternatives public only while published", async () => {
+      const saved = (
+        await create({
+          ...payload(),
+          summary: "Resumen",
+          description: "Detalle",
+        })
+      ).json();
+      const other = (await create()).json();
+      const base = `/admin/projects/${saved.id}`;
+      const imageBody = {
+        altText: "Portada original",
+        mimeType: "image/png",
+        data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=",
+      };
+      const upload = async () =>
+        (
+          await app.inject({
+            method: "POST",
+            url: `${base}/media`,
+            headers: { cookie, origin },
+            payload: imageBody,
+          })
+        ).json();
+      expect(
+        (
+          await app.inject({ method: "GET", url: base, headers: { cookie } })
+        ).json().media,
+      ).toEqual([]);
+      const first = await upload();
+      const second = await upload();
+      const feature = (mediaId: string, headers = { cookie, origin }) =>
+        app.inject({
+          method: "PUT",
+          url: `${base}/featured-media`,
+          headers,
+          payload: { mediaId },
+        });
+      expect(
+        (
+          await feature(second.id, {
+            cookie,
+            origin: "https://foreign.example",
+          })
+        ).statusCode,
+      ).toBe(403);
+      expect(
+        (
+          await app.inject({
+            method: "PUT",
+            url: `/admin/projects/${other.id}/featured-media`,
+            headers: { cookie, origin },
+            payload: { mediaId: second.id },
+          })
+        ).statusCode,
+      ).toBe(404);
+      expect((await feature(second.id)).statusCode).toBe(200);
+      const editAlt = (altText: string) =>
+        app.inject({
+          method: "PUT",
+          url: `${base}/media/${second.id}`,
+          headers: { cookie, origin },
+          payload: { altText },
+        });
+      expect(
+        (
+          await app.inject({
+            method: "PUT",
+            url: `${base}/media/${second.id}`,
+            headers: { cookie },
+            payload: { altText: "Sin origen" },
+          })
+        ).statusCode,
+      ).toBe(403);
+      expect((await editAlt(" ")).statusCode).toBe(400);
+      expect((await editAlt("Detalle actualizado")).statusCode).toBe(200);
+      expect(
+        (
+          await app.inject({
+            method: "PUT",
+            url: `/admin/projects/${other.id}/media/${second.id}`,
+            headers: { cookie, origin },
+            payload: { altText: "Otro" },
+          })
+        ).statusCode,
+      ).toBe(404);
+      await Promise.all([feature(first.id), feature(second.id)]);
+      const listed = (
+        await app.inject({
+          method: "GET",
+          url: `${base}/media`,
+          headers: { cookie },
+        })
+      ).json();
+      expect(
+        listed.filter((image: { isFeatured: boolean }) => image.isFeatured),
+      ).toHaveLength(1);
+      await feature(second.id);
+      await app.inject({
+        method: "POST",
+        url: `${base}/publish`,
+        headers: { cookie, origin },
+      });
+      const detail = () =>
+        app.inject({ method: "GET", url: `/projects/${saved.slug}` });
+      expect((await detail()).json()).toMatchObject({
+        featuredMediaId: second.id,
+        media: expect.arrayContaining([
+          expect.objectContaining({
+            id: second.id,
+            altText: "Detalle actualizado",
+          }),
+        ]),
+      });
+      await app.inject({
+        method: "DELETE",
+        url: `${base}/media/${second.id}`,
+        headers: { cookie, origin },
+      });
+      expect((await detail()).json().featuredMediaId).toBe(first.id);
+      await app.inject({
+        method: "POST",
+        url: `${base}/unpublish`,
+        headers: { cookie, origin },
+      });
+      expect((await detail()).statusCode).toBe(404);
+      expect(
+        (
+          await app.inject({
+            method: "GET",
+            url: `/projects/media/${first.id}`,
+          })
+        ).statusCode,
+      ).toBe(404);
+      expect(
+        (
+          await app.inject({
+            method: "GET",
+            url: `${base}/media`,
+            headers: { cookie },
+          })
+        ).json(),
+      ).toHaveLength(1);
+    });
+
+    it("validates images, protects drafts, and serves only published project media", async () => {
+      const saved = (
+        await create({
+          ...payload(),
+          summary: "Resumen",
+          description: "Detalle",
+        })
+      ).json();
+      const file =
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=";
+      const url = `/admin/projects/${saved.id}/media`;
+      const body = {
+        altText: "Vista de la portada",
+        mimeType: "image/png",
+        data: file,
+      };
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url,
+            headers: { origin },
+            payload: body,
+          })
+        ).statusCode,
+      ).toBe(401);
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url,
+            headers: { cookie },
+            payload: body,
+          })
+        ).statusCode,
+      ).toBe(403);
+      expect((await app.inject({ method: "GET", url })).statusCode).toBe(401);
+      for (const invalid of [
+        { ...body, altText: " " },
+        { ...body, altText: "a".repeat(301) },
+        { ...body, mimeType: "image/jpeg" },
+        { ...body, mimeType: "image/svg+xml" },
+        { ...body, data: Buffer.from("not an image").toString("base64") },
+        { ...body, extra: true },
+        { ...body, data: Buffer.alloc(5 * 1024 * 1024 + 1).toString("base64") },
+      ]) {
+        const result = await app.inject({
+          method: "POST",
+          url,
+          headers: { cookie, origin },
+          payload: invalid,
+        });
+        expect(result.statusCode).toBe(400);
+      }
+      const upload = await app.inject({
+        method: "POST",
+        url,
+        headers: { cookie, origin },
+        payload: body,
+      });
+      expect(upload.statusCode).toBe(201);
+      const image = upload.json();
+      expect(image).toMatchObject({
+        projectId: saved.id,
+        altText: body.altText,
+        mimeType: body.mimeType,
+      });
+      expect(image).not.toHaveProperty("bytes");
+      const publicFile = `/projects/media/${image.id}`;
+      const privateFile = `${url}/${image.id}/file`;
+      expect(
+        (await app.inject({ method: "GET", url: publicFile })).statusCode,
+      ).toBe(404);
+      expect(
+        (await app.inject({ method: "GET", url: privateFile })).statusCode,
+      ).toBe(401);
+      expect(
+        (
+          await app.inject({
+            method: "GET",
+            url: privateFile,
+            headers: { cookie },
+          })
+        ).statusCode,
+      ).toBe(200);
+      expect(
+        (
+          await app.inject({
+            method: "GET",
+            url: `/admin/projects/${randomUUID()}/media/${image.id}/file`,
+            headers: { cookie },
+          })
+        ).statusCode,
+      ).toBe(404);
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: `/admin/projects/${saved.id}/publish`,
+            headers: { cookie, origin },
+          })
+        ).statusCode,
+      ).toBe(200);
+      expect(
+        (
+          await app.inject({ method: "GET", url: `/projects/${saved.slug}` })
+        ).json().media,
+      ).toEqual([
+        expect.objectContaining({ id: image.id, altText: body.altText }),
+      ]);
+      const visible = await app.inject({ method: "GET", url: publicFile });
+      expect(visible.statusCode).toBe(200);
+      expect(visible.headers["content-type"]).toBe("image/png");
+      expect(visible.headers["x-content-type-options"]).toBe("nosniff");
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: `/admin/projects/${saved.id}/unpublish`,
+            headers: { cookie, origin },
+          })
+        ).statusCode,
+      ).toBe(200);
+      expect(
+        (await app.inject({ method: "GET", url: publicFile })).statusCode,
+      ).toBe(404);
+      expect(
+        (
+          await app.inject({
+            method: "DELETE",
+            url: `${url}/${image.id}`,
+            headers: { cookie, origin },
+          })
+        ).statusCode,
+      ).toBe(200);
+      expect(
+        (await app.inject({ method: "GET", url, headers: { cookie } })).json(),
+      ).toEqual([]);
     });
   },
 );
