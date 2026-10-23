@@ -16,6 +16,7 @@ import {
 import { Separator } from "@repo/ui/components/separator";
 import { SidebarTrigger } from "@repo/ui/components/sidebar";
 import { adminHome, segmentLabels } from "./admin-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -61,6 +62,7 @@ export function AdminHeader() {
           })}
         </BreadcrumbList>
       </Breadcrumb>
+      <ThemeToggle />
       <Button
         variant="outline"
         size="sm"

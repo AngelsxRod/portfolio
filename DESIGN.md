@@ -70,3 +70,4 @@ El panel usa los mismos tokens con la sobriedad de una herramienta de trabajo: s
 - **Listados:** título, descripción y acción principal arriba; búsqueda y filtro de estado; tabla en escritorio y tarjetas bajo 768 px. Retirar siempre pide confirmación.
 - **Formularios:** secciones con título y descripción a la izquierda y campos a la derecha (apiladas en móvil), y una barra de acciones fija abajo.
 - **Accesibilidad:** «Saltar al contenido», `aria-current`, foco visible y `prefers-reduced-motion` respetado en el panel.
+- **Modo oscuro:** opcional y solo en el panel, con los tokens `.dark` de `globals.css`; claro por defecto. El sitio público siempre es claro.
