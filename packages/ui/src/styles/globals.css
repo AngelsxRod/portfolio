@@ -574,7 +574,7 @@
     max-width: 44rem;
     overflow-wrap: anywhere;
   }
-  .experience-body h3 {
+  .experience-body :is(h2, h3) {
     font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -901,10 +901,13 @@
       gap: 0.75rem;
     }
     .home-section-list a,
-    .about-intro,
-    .contact-layout {
+    .about-intro {
       grid-template-columns: minmax(0, 1fr);
       gap: 0.75rem;
+    }
+    .contact-layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 3rem;
     }
     .section-heading {
       display: block;
