@@ -5,6 +5,8 @@
   "globalPassThroughEnv": [
     "API_URL",
     "DATABASE_URL",
+    "DATABASE_POOL_MAX",
+    "DATABASE_STATEMENT_TIMEOUT_MS",
     "ADMIN_USERNAME",
     "ADMIN_PASSWORD_HASH",
     "ADMIN_PROXY_SECRET",
