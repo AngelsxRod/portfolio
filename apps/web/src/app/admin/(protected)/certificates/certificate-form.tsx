@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { MonthPicker } from "@repo/ui/components/month-picker";
 import { Textarea } from "@repo/ui/components/textarea";
@@ -15,13 +13,9 @@ import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
 import { publishCreated } from "@/components/admin/publish-created";
-import {
-  FormPage,
-  FormSection,
-  StickyActions,
-} from "@/components/admin/form-page";
+import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
-import { Spinner } from "@repo/ui/components/spinner";
+import { SaveMenu } from "@/components/admin/save-menu";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -108,7 +102,16 @@ export function CertificateForm({
         router.replace(
           `/admin/certificates/${result.id}/edit${published ? "" : "?saved=1"}`,
         );
-      } else router.refresh();
+      } else {
+        if (publishNow)
+          await publishCreated(
+            "certificates",
+            certificate.id,
+            "Certificado",
+            false,
+          );
+        router.refresh();
+      }
     } catch {
       toast.error(
         "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.",
@@ -118,6 +121,27 @@ export function CertificateForm({
 
   return (
     <FormPage
+      actions={
+        <>
+          {certificate && published && (
+            <PublicationButton
+              resource="certificates"
+              id={certificate.id}
+              name={certificate.name}
+              status="published"
+              noun="Certificado"
+              feminine={false}
+            />
+          )}
+          {!published && (
+            <SaveMenu
+              saving={saving}
+              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+              onDraft={form.handleSubmit((values) => onSubmit(values))}
+            />
+          )}
+        </>
+      }
       title={
         published
           ? "Certificado publicado"
@@ -247,58 +271,7 @@ export function CertificateForm({
             </FieldGroup>
           </FormSection>
         </fieldset>
-        <StickyActions>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/admin/certificates" />}
-          >
-            Volver a la lista
-          </Button>
-          {certificate && published && (
-            <PublicationButton
-              resource="certificates"
-              id={certificate.id}
-              name={certificate.name}
-              status="published"
-              noun="Certificado"
-              feminine={false}
-            />
-          )}
-          {certificate && !published && !form.formState.isDirty && (
-            <PublicationButton
-              resource="certificates"
-              id={certificate.id}
-              name={certificate.name}
-              status="draft"
-              noun="Certificado"
-              feminine={false}
-              completeHref={`/admin/certificates/${certificate.id}/edit`}
-            />
-          )}
-          {!certificate && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={saving}
-              onClick={form.handleSubmit((values) => onSubmit(values, true))}
-            >
-              Guardar y publicar
-            </Button>
-          )}
-          {!published && (
-            <Button type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner role="presentation" aria-hidden="true" />
-                  Guardando…
-                </>
-              ) : (
-                "Guardar borrador"
-              )}
-            </Button>
-          )}
-        </StickyActions>
+        <button type="submit" hidden />
       </form>
     </FormPage>
   );

@@ -7,26 +7,32 @@ export function FormPage({
   description,
   status,
   feminine,
+  actions,
   children,
 }: {
   title: string;
   description?: ReactNode;
   status?: "draft" | "published";
   feminine?: boolean;
+  /** Acciones de la página, fijas arriba a la derecha. */
+  actions?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight break-words">
-            {title}
-          </h1>
-          {status && <StatusBadge status={status} feminine={feminine} />}
+      <div className="sticky top-14 z-10 -mx-4 flex flex-wrap items-start justify-between gap-4 border-b bg-background/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:-mx-6 sm:px-6">
+        <div className="min-w-0 space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight break-words">
+              {title}
+            </h1>
+            {status && <StatusBadge status={status} feminine={feminine} />}
+          </div>
+          {description && (
+            <p className="max-w-2xl text-muted-foreground">{description}</p>
+          )}
         </div>
-        {description && (
-          <p className="max-w-2xl text-muted-foreground">{description}</p>
-        )}
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
       </div>
       {children}
     </div>

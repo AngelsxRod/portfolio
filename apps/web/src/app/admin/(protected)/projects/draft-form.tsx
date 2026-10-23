@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,13 +13,9 @@ import { Alert, AlertTitle, AlertDescription } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
 import { publishCreated } from "@/components/admin/publish-created";
-import {
-  FormPage,
-  FormSection,
-  StickyActions,
-} from "@/components/admin/form-page";
+import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
-import { Spinner } from "@repo/ui/components/spinner";
+import { SaveMenu } from "@/components/admin/save-menu";
 import {
   applyServerErrors,
   lengthMessage,
@@ -189,7 +184,10 @@ function DraftFormBody({
         router.replace(
           `/admin/projects/${id}/edit${published ? "" : "?saved=1"}`,
         );
-      } else router.refresh();
+      } else {
+        if (publishNow) await publishCreated("projects", id, "Proyecto", false);
+        router.refresh();
+      }
     } catch (error) {
       const message =
         error instanceof Error && !(error instanceof TypeError)
@@ -202,6 +200,36 @@ function DraftFormBody({
 
   return (
     <FormPage
+      actions={
+        <>
+          {draft && published && (
+            <PublicationButton
+              resource="projects"
+              id={draft.id}
+              name={draft.title}
+              status="published"
+              noun="Proyecto"
+              feminine={false}
+            />
+          )}
+          {published && (
+            <Button
+              type="button"
+              disabled={saving}
+              onClick={form.handleSubmit((values) => onSubmit(values))}
+            >
+              {saving ? "Guardando…" : "Guardar imágenes"}
+            </Button>
+          )}
+          {!published && (
+            <SaveMenu
+              saving={saving}
+              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+              onDraft={form.handleSubmit((values) => onSubmit(values))}
+            />
+          )}
+        </>
+      }
       title={
         published
           ? "Imágenes del proyecto publicado"
@@ -391,58 +419,7 @@ function DraftFormBody({
         <div className="border-t pt-6">
           <ProjectImages editor={images} disabled={saving} />
         </div>
-        <StickyActions>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/admin/projects" />}
-          >
-            Volver a la lista
-          </Button>
-          {draft && published && (
-            <PublicationButton
-              resource="projects"
-              id={draft.id}
-              name={draft.title}
-              status="published"
-              noun="Proyecto"
-              feminine={false}
-            />
-          )}
-          {draft && !published && !form.formState.isDirty && (
-            <PublicationButton
-              resource="projects"
-              id={draft.id}
-              name={draft.title}
-              status="draft"
-              noun="Proyecto"
-              feminine={false}
-              completeHref={`/admin/projects/${draft.id}/edit`}
-            />
-          )}
-          {!draft && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={saving}
-              onClick={form.handleSubmit((values) => onSubmit(values, true))}
-            >
-              Guardar y publicar
-            </Button>
-          )}
-          <Button type="submit" disabled={saving}>
-            {saving ? (
-              <>
-                <Spinner role="presentation" aria-hidden="true" />
-                Guardando…
-              </>
-            ) : published ? (
-              "Guardar imágenes"
-            ) : (
-              "Guardar borrador"
-            )}
-          </Button>
-        </StickyActions>
+        <button type="submit" hidden />
       </form>
     </FormPage>
   );

@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { MonthPicker } from "@repo/ui/components/month-picker";
 import {
@@ -22,13 +20,9 @@ import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
 import { publishCreated } from "@/components/admin/publish-created";
-import {
-  FormPage,
-  FormSection,
-  StickyActions,
-} from "@/components/admin/form-page";
+import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
-import { Spinner } from "@repo/ui/components/spinner";
+import { SaveMenu } from "@/components/admin/save-menu";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -130,7 +124,11 @@ export function EducationForm({
         router.replace(
           `/admin/education/${result.id}/edit${published ? "" : "?saved=1"}`,
         );
-      } else router.refresh();
+      } else {
+        if (publishNow)
+          await publishCreated("education", education.id, "Educación", true);
+        router.refresh();
+      }
     } catch {
       toast.error(
         "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.",
@@ -140,6 +138,27 @@ export function EducationForm({
 
   return (
     <FormPage
+      actions={
+        <>
+          {education && published && (
+            <PublicationButton
+              resource="education"
+              id={education.id}
+              name={education.program}
+              status="published"
+              noun="Educación"
+              feminine={true}
+            />
+          )}
+          {!published && (
+            <SaveMenu
+              saving={saving}
+              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+              onDraft={form.handleSubmit((values) => onSubmit(values))}
+            />
+          )}
+        </>
+      }
       title={
         published
           ? "Educación publicada"
@@ -294,58 +313,7 @@ export function EducationForm({
             </FieldGroup>
           </FormSection>
         </fieldset>
-        <StickyActions>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/admin/education" />}
-          >
-            Volver a la lista
-          </Button>
-          {education && published && (
-            <PublicationButton
-              resource="education"
-              id={education.id}
-              name={education.program}
-              status="published"
-              noun="Educación"
-              feminine={true}
-            />
-          )}
-          {education && !published && !form.formState.isDirty && (
-            <PublicationButton
-              resource="education"
-              id={education.id}
-              name={education.program}
-              status="draft"
-              noun="Educación"
-              feminine={true}
-              completeHref={`/admin/education/${education.id}/edit`}
-            />
-          )}
-          {!education && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={saving}
-              onClick={form.handleSubmit((values) => onSubmit(values, true))}
-            >
-              Guardar y publicar
-            </Button>
-          )}
-          {!published && (
-            <Button type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner role="presentation" aria-hidden="true" />
-                  Guardando…
-                </>
-              ) : (
-                "Guardar borrador"
-              )}
-            </Button>
-          )}
-        </StickyActions>
+        <button type="submit" hidden />
       </form>
     </FormPage>
   );

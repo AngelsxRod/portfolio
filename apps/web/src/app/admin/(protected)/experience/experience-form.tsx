@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { MonthPicker } from "@repo/ui/components/month-picker";
 import { Textarea } from "@repo/ui/components/textarea";
@@ -15,13 +13,9 @@ import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
 import { publishCreated } from "@/components/admin/publish-created";
-import {
-  FormPage,
-  FormSection,
-  StickyActions,
-} from "@/components/admin/form-page";
+import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
-import { Spinner } from "@repo/ui/components/spinner";
+import { SaveMenu } from "@/components/admin/save-menu";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -139,7 +133,16 @@ export function ExperienceForm({
         router.replace(
           `/admin/experience/${result.id}/edit${published ? "" : "?saved=1"}`,
         );
-      } else router.refresh();
+      } else {
+        if (publishNow)
+          await publishCreated(
+            "experience",
+            experience.id,
+            "Experiencia",
+            true,
+          );
+        router.refresh();
+      }
     } catch {
       toast.error(
         "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.",
@@ -149,6 +152,27 @@ export function ExperienceForm({
 
   return (
     <FormPage
+      actions={
+        <>
+          {experience && published && (
+            <PublicationButton
+              resource="experience"
+              id={experience.id}
+              name={experience.title}
+              status="published"
+              noun="Experiencia"
+              feminine={true}
+            />
+          )}
+          {!published && (
+            <SaveMenu
+              saving={saving}
+              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+              onDraft={form.handleSubmit((values) => onSubmit(values))}
+            />
+          )}
+        </>
+      }
       title={
         published
           ? "Experiencia publicada"
@@ -284,58 +308,7 @@ export function ExperienceForm({
             </FieldGroup>
           </FormSection>
         </fieldset>
-        <StickyActions>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/admin/experience" />}
-          >
-            Volver a la lista
-          </Button>
-          {experience && published && (
-            <PublicationButton
-              resource="experience"
-              id={experience.id}
-              name={experience.title}
-              status="published"
-              noun="Experiencia"
-              feminine={true}
-            />
-          )}
-          {experience && !published && !form.formState.isDirty && (
-            <PublicationButton
-              resource="experience"
-              id={experience.id}
-              name={experience.title}
-              status="draft"
-              noun="Experiencia"
-              feminine={true}
-              completeHref={`/admin/experience/${experience.id}/edit`}
-            />
-          )}
-          {!experience && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={saving}
-              onClick={form.handleSubmit((values) => onSubmit(values, true))}
-            >
-              Guardar y publicar
-            </Button>
-          )}
-          {!published && (
-            <Button type="submit" disabled={saving}>
-              {saving ? (
-                <>
-                  <Spinner role="presentation" aria-hidden="true" />
-                  Guardando…
-                </>
-              ) : (
-                "Guardar borrador"
-              )}
-            </Button>
-          )}
-        </StickyActions>
+        <button type="submit" hidden />
       </form>
     </FormPage>
   );
