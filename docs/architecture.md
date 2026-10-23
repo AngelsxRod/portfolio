@@ -111,7 +111,7 @@ El perfil es un único registro con dos versiones, no una lista. La tabla `profi
 
 Las rutas privadas son `GET /admin/profile` (devuelve `draft`, `published` y `hasUnpublishedChanges`), `PUT /admin/profile` (crea o reemplaza el borrador), `POST /admin/profile/publish` (copia el borrador a la versión publicada en una transacción; sin borrador devuelve `400`) y `POST /admin/profile/unpublish` (elimina solo la versión publicada y conserva el borrador; `404` si no hay). Requieren sesión; las escrituras exigen el `WEB_ORIGIN` exacto. Los campos desconocidos se rechazan y los errores devuelven `400` con `fields`; los de los enlaces se reportan en `fields.links` con el número del enlace. `GET /profile` es público y devuelve únicamente `displayName`, `presentation`, `location`, `email` y `links` de la versión publicada, con `no-store`; sin perfil publicado responde `404`.
 
-La portada muestra la sección `#perfil` (con estado vacío y enlace en la cabecera), con el correo como `mailto:` y los enlaces con `target="_blank"` y `rel="noopener noreferrer"`. El panel edita el borrador en `/admin/profile` con la lista de enlaces gestionada con `useFieldArray`; muestra si hay cambios sin publicar y permite publicar los cambios o retirar el perfil.
+La portada presenta el perfil en el hero (`#perfil`, enlazado desde la cabecera): ubicación, nombre como titular, presentación y contacto; sin perfil publicado conserva el hero genérico. El correo como `mailto:` y los enlaces con `target="_blank"` y `rel="noopener noreferrer"`. El panel edita el borrador en `/admin/profile` con la lista de enlaces gestionada con `useFieldArray`; muestra si hay cambios sin publicar y permite publicar los cambios o retirar el perfil.
 
 ## Cambios pendientes de lo publicado
 

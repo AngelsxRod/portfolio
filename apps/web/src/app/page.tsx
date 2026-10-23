@@ -32,55 +32,23 @@ export default async function Home() {
     <div className="public-site min-h-svh">
       <PublicHeader current="home" />
       <main id="contenido">
-        <section className="hero-shell page-frame" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <p className="folio-caption">Portafolio / proyectos publicados</p>
-            <h1 id="hero-title" className="display-title">
-              Ideas claras.
-              <br />
-              Trabajo visible.
-            </h1>
-            <p className="hero-intro">
-              Una selección de proyectos y decisiones de diseño y desarrollo.
-              Cada caso reúne su contexto y los detalles disponibles.
-            </p>
-            <Button
-              nativeButton={false}
-              render={<Link href="/projects" />}
-              size="lg"
-            >
-              Explorar proyectos
-            </Button>
-          </div>
-          <div className="hero-mark" aria-hidden="true">
-            <span className="hero-mark-line hero-mark-line-a" />
-            <span className="hero-mark-line hero-mark-line-b" />
-            <span className="hero-mark-disc" />
-            <span className="hero-mark-corner" />
-          </div>
-        </section>
-
         <section
           id="perfil"
-          className="page-frame experience-section"
-          aria-labelledby="profile-title"
+          className="hero-shell page-frame"
+          aria-labelledby="hero-title"
         >
-          <div className="section-heading">
-            <div>
-              <p className="folio-caption">Archivo público</p>
-              <h2 id="profile-title" className="section-title">
-                Perfil
-              </h2>
-            </div>
-          </div>
-          {profile ? (
-            <div className="experience-entry">
-              <p className="experience-period">
-                {profile.location ?? "Contacto"}
-              </p>
-              <div className="experience-body">
-                <h3>{profile.displayName}</h3>
-                <p className="whitespace-pre-line">{profile.presentation}</p>
+          <div className="hero-copy">
+            {profile ? (
+              <>
+                <p className="folio-caption">
+                  {profile.location ?? "Portafolio"}
+                </p>
+                <h1 id="hero-title" className="display-title hero-name">
+                  {profile.displayName}
+                </h1>
+                <p className="hero-intro whitespace-pre-line">
+                  {profile.presentation}
+                </p>
                 {(profile.email || profile.links.length > 0) && (
                   <ul className="profile-links">
                     {profile.email && (
@@ -105,15 +73,40 @@ export default async function Home() {
                     ))}
                   </ul>
                 )}
-              </div>
-            </div>
-          ) : (
-            <div className="empty-panel">
-              <h3>Aún no hay perfil publicado</h3>
-              <p>Aparecerá aquí cuando se publique desde el panel.</p>
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+                <p className="folio-caption">
+                  Portafolio / proyectos publicados
+                </p>
+                <h1 id="hero-title" className="display-title">
+                  Ideas claras.
+                  <br />
+                  Trabajo visible.
+                </h1>
+                <p className="hero-intro">
+                  Una selección de proyectos y decisiones de diseño y
+                  desarrollo. Cada caso reúne su contexto y los detalles
+                  disponibles.
+                </p>
+              </>
+            )}
+            <Button
+              nativeButton={false}
+              render={<Link href="/projects" />}
+              size="lg"
+            >
+              Explorar proyectos
+            </Button>
+          </div>
+          <div className="hero-mark" aria-hidden="true">
+            <span className="hero-mark-line hero-mark-line-a" />
+            <span className="hero-mark-line hero-mark-line-b" />
+            <span className="hero-mark-disc" />
+            <span className="hero-mark-corner" />
+          </div>
         </section>
+
         <section className="page-frame home-work" aria-labelledby="work-title">
           <div className="section-heading">
             <div>
