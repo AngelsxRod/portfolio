@@ -1,17 +1,17 @@
-# Dirección visual: folio técnico
+# Dirección visual: brutalismo suave
 
-Este portafolio presenta trabajo publicado sin atribuir biografía, especialidades ni resultados que todavía no estén documentados. Su carácter visual combina la precisión de una ficha de proyecto con la calma de un archivo bien editado. La forma memorable es un símbolo geométrico de líneas y disco en la portada; el resto de la interfaz deja hablar a los casos.
+Este portafolio presenta trabajo publicado sin atribuir biografía, especialidades ni resultados que todavía no estén documentados. Su carácter visual es un brutalismo suave: bordes de 2 px, sombras sólidas desplazadas sin desenfoque, radios amables, etiquetas ligeramente rotadas y un acento amarillo sobre la paleta morada. La forma memorable es la composición de formas gruesas de la portada; el resto de la interfaz deja hablar a los casos.
 
 ## Principios
 
 1. **El trabajo es el contenido principal.** La portada lleva al archivo y muestra proyectos reales en el orden publicado. No crear casos, métricas ni testimonios de relleno.
 2. **Jerarquía por escala y espacio.** Un título grande abre cada página; las divisiones señalan secciones reales. Evitar números decorativos, rótulos repetidos y tarjetas idénticas para todo.
 3. **Una voz útil y neutral.** Nombrar acciones y estados con precisión: «Ver proyecto», «Proyecto no disponible», «Intentar de nuevo». Evitar frases biográficas o promesas no verificadas.
-4. **Un gesto gráfico, no una colección de efectos.** El símbolo abstracto identifica la portada sin fingir ser una captura del proyecto.
+4. **Carácter con medida.** Bordes gruesos y sombras duras (`--folio-edge`, `--folio-shadow-color`) son la firma; no añadir degradados, desenfoques ni más de un acento cálido (`--folio-warm`).
 
 ## Tipografía
 
-- Familia: `Avenir Next`, Avenir, `Segoe UI`, Arial, sans-serif. Se usa una pila local para evitar que la carga de una fuente remota bloquee la página.
+- Familias con `next/font/google` (autoalojadas, sin petición externa en ejecución): Space Grotesk (`--font-display`) para texto y títulos, y JetBrains Mono (`--font-mono`) para navegación, etiquetas, periodos y botones.
 - Títulos principales: peso 700–750, interletrado aproximado `-0.075em`, interlínea `0.94`, escala fluida de `3.2rem` en móvil a `8.4rem` en escritorio. Títulos de sección: `2.5–4.5rem` con `-0.055em`.
 - Texto de lectura: `1.05–1.35rem`, interlínea `1.55–1.75`, ancho máximo de `44rem` para descripciones. Mantener menos de unas 80 letras por línea.
 - Usar mayúsculas y minúsculas normales. No convertir cada subtítulo en una etiqueta de caja alta ni colorear una sola palabra del titular.
@@ -30,7 +30,7 @@ Los tokens compartidos viven en `packages/ui/src/styles/globals.css` y alimentan
 
 Paleta propuesta por el usuario (Deep Purple, Lavender, Soft White y Jet Black), con grises neutros intermedios para superficies, reglas y texto secundario.
 
-`--foreground`, `--primary`, `--secondary`, `--muted`, `--border` y `--ring` siguen esas funciones semánticas. Para texto secundario se usan `#5a5862` (claro) y `#a3a1ad` (oscuro). El foco usa `#7a5ce0` en claro y Lavender en oscuro con un contorno visible de 3 px. No usar el violeta para texto pequeño sobre un fondo de color similar, ni sustituir reglas por sombras flotantes.
+`--foreground`, `--primary`, `--secondary`, `--muted`, `--border` y `--ring` siguen esas funciones semánticas. Para texto secundario se usan `#5a5862` (claro) y `#a3a1ad` (oscuro). El foco usa `#7a5ce0` en claro y Lavender en oscuro con un contorno visible de 3 px. No usar el violeta para texto pequeño sobre un fondo de color similar. Las sombras son sólidas y desplazadas (nunca difuminadas).
 
 ## Composición y espacio
 
@@ -48,7 +48,7 @@ La etapa de medios permite mostrar imágenes publicadas con texto alternativo. C
 
 - Las acciones usan el componente `Button` de shadcn/ui; las tecnologías usan `Badge`. Variantes primarias para la acción principal, contorno para la secundaria. Las filas tienen enlaces con nombre explícito y subrayado visible al pasar el cursor.
 - Enlaces, botones y campos muestran un foco de alto contraste. El enlace «Saltar al contenido» aparece al recibir foco. `aria-current="page"` señala la navegación activa.
-- Los cambios de color pueden durar cerca de `150ms`; evitar entradas automáticas en cascada, paralaje y movimiento ornamental. Respetar `prefers-reduced-motion`.
+- Movimiento sutil y solo con CSS: hover que desplaza tarjetas y botones (`120–150ms`), formas flotantes lentas en la portada, marquee del stack (se pausa al pasar el cursor) y aparición al hacer scroll con `animation-timeline: view()`. Sin paralaje ni cascadas con retraso. `prefers-reduced-motion` desactiva todas las animaciones.
 - Estado vacío: explicar cuándo aparecerá contenido. Error: nombrar el fallo y ofrecer reintentar. 404: ofrecer volver al archivo. Evitar mensajes vagos como «Algo salió mal».
 
 ## Móvil y accesibilidad
