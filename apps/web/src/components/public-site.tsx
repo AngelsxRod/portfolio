@@ -4,7 +4,19 @@ import { Badge } from "@repo/ui/components/badge";
 import type { PublishedProject } from "@/lib/drafts";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function PublicHeader({ current }: { current?: "home" | "projects" }) {
+export type PublicPage =
+  "home" | "projects" | "about" | "experience" | "education" | "contact";
+
+const navigation: { page: PublicPage; href: string; label: string }[] = [
+  { page: "home", href: "/", label: "Inicio" },
+  { page: "projects", href: "/projects", label: "Proyectos" },
+  { page: "about", href: "/sobre-mi", label: "Sobre mí" },
+  { page: "experience", href: "/experiencia", label: "Experiencia" },
+  { page: "education", href: "/educacion", label: "Educación" },
+  { page: "contact", href: "/contacto", label: "Contacto" },
+];
+
+export function PublicHeader({ current }: { current?: PublicPage }) {
   return (
     <>
       <a className="skip-link" href="#contenido">
@@ -20,23 +32,15 @@ export function PublicHeader({ current }: { current?: "home" | "projects" }) {
           </Link>
           <div className="header-tools">
             <nav aria-label="Navegación principal" className="header-nav">
-              <Link
-                href="/"
-                aria-current={current === "home" ? "page" : undefined}
-              >
-                Inicio
-              </Link>
-              <Link
-                href="/projects"
-                aria-current={current === "projects" ? "page" : undefined}
-              >
-                Proyectos
-              </Link>
-              <Link href="/#perfil">Perfil</Link>
-              <Link href="/#habilidades">Habilidades</Link>
-              <Link href="/#experiencia">Experiencia</Link>
-              <Link href="/#educacion">Educación</Link>
-              <Link href="/#certificados">Certificados</Link>
+              {navigation.map(({ page, href, label }) => (
+                <Link
+                  key={page}
+                  href={href}
+                  aria-current={current === page ? "page" : undefined}
+                >
+                  {label}
+                </Link>
+              ))}
             </nav>
             <ThemeToggle />
           </div>
@@ -52,7 +56,7 @@ export function PublicFooter() {
       <div className="page-frame footer-inner">
         <span>Portafolio</span>
         <span>Proyectos y procesos documentados.</span>
-        <Link href="/projects">Ver proyectos</Link>
+        <Link href="/contacto">Contacto</Link>
       </div>
     </footer>
   );
