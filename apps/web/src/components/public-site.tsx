@@ -50,6 +50,19 @@ export function PublicHeader({ current }: { current?: PublicPage }) {
   );
 }
 
+export function Marquee({ items }: { items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="marquee" aria-hidden="true">
+      <div className="marquee-track">
+        {[...items, ...items].map((item, index) => (
+          <span key={index}>{item} ✦</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function PublicFooter() {
   return (
     <footer className="public-footer">

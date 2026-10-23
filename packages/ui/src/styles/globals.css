@@ -307,6 +307,24 @@
   .hero-copy [data-slot="button"] {
     margin-top: 2rem;
   }
+  .public-site main [data-slot="button"] {
+    border: 2px solid var(--folio-edge);
+    border-radius: 0.6rem;
+    box-shadow: 4px 4px 0 var(--folio-shadow-color);
+    font-family: var(--font-mono), monospace;
+    font-weight: 700;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease;
+  }
+  .public-site main [data-slot="button"]:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--folio-shadow-color);
+  }
+  .public-site main [data-slot="button"]:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--folio-shadow-color);
+  }
   .hero-mark {
     position: relative;
     overflow: hidden;

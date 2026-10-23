@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProjects } from "@/lib/public-projects";
 import { getPublicProfile } from "@/lib/public-profile";
+import { getPublicSkills } from "@/lib/public-skills";
 import {
+  Marquee,
   PublicFooter,
   PublicHeader,
   ProjectCard,
@@ -11,9 +13,10 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [projects, profile] = await Promise.all([
+  const [projects, profile, skills] = await Promise.all([
     getPublicProjects(),
     getPublicProfile(),
+    getPublicSkills().catch(() => []),
   ]);
 
   return (
@@ -107,6 +110,7 @@ export default async function Home() {
             <span className="hero-mark-corner" />
           </div>
         </section>
+        <Marquee items={skills.map((skill) => skill.name)} />
 
         <section className="page-frame home-work" aria-labelledby="work-title">
           <div className="section-heading">
