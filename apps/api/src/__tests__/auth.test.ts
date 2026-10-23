@@ -112,6 +112,12 @@ describe("admin access", () => {
     ],
     ["POST", "/admin/projects/00000000-0000-4000-8000-000000000001/publish"],
     ["POST", "/admin/projects/00000000-0000-4000-8000-000000000001/unpublish"],
+    ["GET", "/admin/skills"],
+    ["GET", "/admin/skills/00000000-0000-4000-8000-000000000001"],
+    ["POST", "/admin/skills"],
+    ["PUT", "/admin/skills/00000000-0000-4000-8000-000000000001"],
+    ["POST", "/admin/skills/00000000-0000-4000-8000-000000000001/publish"],
+    ["POST", "/admin/skills/00000000-0000-4000-8000-000000000001/unpublish"],
   ] as const)("denies %s %s without an active session", async (method, url) => {
     const missing = await app.inject({
       method,

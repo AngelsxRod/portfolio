@@ -28,6 +28,11 @@ import {
   PublicationService,
   PublicProjectsController,
 } from "./projects/publication.js";
+import {
+  AdminSkillsController,
+  PublicSkillsController,
+  SkillsService,
+} from "./skills/skills.js";
 
 @Controller()
 class StatusController {
@@ -74,6 +79,8 @@ class MessageController {
     PublicMediaController,
     PublicationController,
     PublicProjectsController,
+    AdminSkillsController,
+    PublicSkillsController,
   ],
   providers: [
     DatabaseService,
@@ -81,6 +88,7 @@ class MessageController {
     DraftsService,
     MediaService,
     PublicationService,
+    SkillsService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })
