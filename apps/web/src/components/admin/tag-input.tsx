@@ -63,7 +63,7 @@ export function TagInput({
   const available = suggestions.filter((tag) => !has(tag)).slice(0, 12);
 
   return (
-    <div className="space-y-3">
+    <div data-wide className="space-y-3">
       <div className="flex gap-2">
         <Input
           id={id}

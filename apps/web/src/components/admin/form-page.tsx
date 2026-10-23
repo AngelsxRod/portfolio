@@ -23,7 +23,7 @@ export function FormPage({
   children: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="space-y-8">
       <div className="sticky top-14 z-10 -mx-4 flex flex-wrap items-start justify-between gap-4 border-b bg-background px-4 py-4 sm:-mx-6 sm:px-6">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
@@ -57,7 +57,7 @@ export function FormSection({
   children: ReactNode;
 }) {
   return (
-    <section className="grid gap-4 border-t pt-6 md:grid-cols-[13rem_1fr] md:gap-8">
+    <section className="grid gap-4 border-t pt-6 md:grid-cols-[14rem_1fr] md:gap-8">
       <div className="space-y-1">
         <h2 id={titleId} className="text-base font-semibold">
           {title}
@@ -66,7 +66,9 @@ export function FormSection({
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      <div className="min-w-0">{children}</div>
+      <div className="min-w-0 lg:[&_[data-slot=field-group]]:grid-cols-2 [&_[data-slot=field-group]]:grid! [&_[data-slot=field-group]]:gap-x-6 [&_[data-slot=field]:has(textarea)]:col-span-full [&_[data-slot=field]:has([data-wide])]:col-span-full">
+        {children}
+      </div>
     </section>
   );
 }
