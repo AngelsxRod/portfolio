@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@repo/ui/components/native-select";
 import { Card, CardContent } from "@repo/ui/components/card";
 import {
   Field,
@@ -15,7 +19,7 @@ import {
 } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
-import type { AdminSkill } from "@/lib/skills";
+import type { AdminSkill, SkillCategory } from "@/lib/skills";
 
 export function SkillForm({
   skill,
@@ -23,7 +27,7 @@ export function SkillForm({
   justCreated = false,
 }: {
   skill?: AdminSkill;
-  categories: string[];
+  categories: SkillCategory[];
   justCreated?: boolean;
 }) {
   const router = useRouter();
@@ -47,7 +51,7 @@ export function SkillForm({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: form.get("name"),
-            category: form.get("category"),
+            categoryId: form.get("categoryId"),
             position: Number(form.get("position")),
           }),
         },
@@ -117,6 +121,17 @@ export function SkillForm({
             : "Nombre y categoría son obligatorios. La habilidad se guarda como borrador."}
         </p>
       </div>
+      {categories.length === 0 && !published && (
+        <Alert role="status">
+          <AlertTitle>Primero crea una categoría</AlertTitle>
+          <AlertDescription>
+            Las habilidades necesitan una categoría.{" "}
+            <Link className="underline" href="/admin/skills/categories/new">
+              Crear categoría
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
       {saved && (
         <Alert role="status">
           <AlertTitle>Borrador guardado</AlertTitle>
@@ -146,28 +161,32 @@ export function SkillForm({
                   </FieldDescription>
                   {fieldError("name")}
                 </Field>
-                <Field data-invalid={Boolean(errors.category)}>
-                  <FieldLabel htmlFor="category">Categoría</FieldLabel>
-                  <Input
-                    id="category"
-                    name="category"
-                    list="skill-categories"
-                    defaultValue={skill?.category ?? ""}
+                <Field data-invalid={Boolean(errors.categoryId)}>
+                  <FieldLabel htmlFor="categoryId">Categoría</FieldLabel>
+                  <NativeSelect
+                    id="categoryId"
+                    name="categoryId"
+                    defaultValue={skill?.categoryId ?? ""}
                     required
-                    maxLength={80}
-                    autoComplete="off"
-                    {...accessibility("category")}
-                  />
-                  <datalist id="skill-categories">
+                    {...accessibility("categoryId")}
+                  >
+                    <NativeSelectOption value="" disabled>
+                      Elige una categoría
+                    </NativeSelectOption>
                     {categories.map((category) => (
-                      <option key={category} value={category} />
+                      <NativeSelectOption key={category.id} value={category.id}>
+                        {category.name}
+                      </NativeSelectOption>
                     ))}
-                  </datalist>
+                  </NativeSelect>
                   <FieldDescription>
-                    Texto libre de hasta 80 caracteres. Se sugieren las
-                    categorías que ya usaste.
+                    Las categorías se administran en{" "}
+                    <Link className="underline" href="/admin/skills/categories">
+                      Categorías
+                    </Link>
+                    .
                   </FieldDescription>
-                  {fieldError("category")}
+                  {fieldError("categoryId")}
                 </Field>
                 <Field data-invalid={Boolean(errors.position)}>
                   <FieldLabel htmlFor="position">Posición</FieldLabel>

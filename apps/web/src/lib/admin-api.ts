@@ -3,14 +3,14 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { apiUrl, SESSION_COOKIE, webOrigin } from "@/lib/admin-session";
 import type { DraftProject } from "@/lib/drafts";
-import type { AdminSkill } from "@/lib/skills";
+import type { AdminSkill, SkillCategory } from "@/lib/skills";
 
 export function adminProjectsApi(path: string, init: RequestInit = {}) {
   return adminResource("projects", path, init);
 }
 
 async function adminResource(
-  resource: "projects" | "skills",
+  resource: "projects" | "skills" | "skill-categories",
   path: string,
   init: RequestInit = {},
 ) {
@@ -82,8 +82,12 @@ export function adminSkillsApi(path: string, init: RequestInit = {}) {
   return adminResource("skills", path, init);
 }
 
-async function readSkills<T>(path: string): Promise<T> {
-  const response = await adminSkillsApi(path);
+export function adminSkillCategoriesApi(path: string, init: RequestInit = {}) {
+  return adminResource("skill-categories", path, init);
+}
+
+async function readSkills<T>(path: string, api = adminSkillsApi): Promise<T> {
+  const response = await api(path);
   if (response.status === 401) redirect("/admin/login");
   if (response.status === 404 || response.status === 400) notFound();
   if (!response.ok)
@@ -96,4 +100,14 @@ export function getAdminSkills() {
 }
 export function getAdminSkill(id: string) {
   return readSkills<AdminSkill>(`/${encodeURIComponent(id)}`);
+}
+
+export function getSkillCategories() {
+  return readSkills<SkillCategory[]>("", adminSkillCategoriesApi);
+}
+export function getSkillCategory(id: string) {
+  return readSkills<SkillCategory>(
+    `/${encodeURIComponent(id)}`,
+    adminSkillCategoriesApi,
+  );
 }

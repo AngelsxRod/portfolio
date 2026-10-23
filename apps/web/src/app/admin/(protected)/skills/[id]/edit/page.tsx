@@ -1,4 +1,4 @@
-import { getAdminSkill, getAdminSkills } from "@/lib/admin-api";
+import { getAdminSkill, getSkillCategories } from "@/lib/admin-api";
 import { SkillForm } from "../../skill-form";
 
 export default async function EditSkill({
@@ -9,16 +9,16 @@ export default async function EditSkill({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const { id } = await params;
-  const [skill, skills] = await Promise.all([
+  const [skill, categories] = await Promise.all([
     getAdminSkill(id),
-    getAdminSkills(),
+    getSkillCategories(),
   ]);
   const { saved } = await searchParams;
   return (
     <SkillForm
       key={skill.id}
       skill={skill}
-      categories={[...new Set(skills.map((item) => item.category))]}
+      categories={categories}
       justCreated={saved === "1"}
     />
   );

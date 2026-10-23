@@ -1,6 +1,7 @@
 export type AdminSkill = {
   id: string;
   name: string;
+  categoryId: string;
   category: string;
   position: number;
   status: "draft" | "published";
@@ -8,7 +9,16 @@ export type AdminSkill = {
   updatedAt: string;
 };
 
+export type SkillCategory = {
+  id: string;
+  name: string;
+  position: number;
+  skillCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type PublicSkill = Pick<
   AdminSkill,
-  "id" | "name" | "category" | "position"
+  "id" | "name" | "categoryId" | "category" | "position"
 >;

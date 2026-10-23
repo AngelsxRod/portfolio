@@ -25,9 +25,21 @@ export default async function AdminSkills() {
             necesario.
           </p>
         </div>
-        <Button nativeButton={false} render={<Link href="/admin/skills/new" />}>
-          Nueva habilidad
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/admin/skills/categories" />}
+          >
+            Categorías
+          </Button>
+          <Button
+            nativeButton={false}
+            render={<Link href="/admin/skills/new" />}
+          >
+            Nueva habilidad
+          </Button>
+        </div>
       </div>
       <Card>
         <CardContent>

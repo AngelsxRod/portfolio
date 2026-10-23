@@ -1,6 +1,6 @@
 import "server-only";
 import { NextRequest } from "next/server";
-import { adminSkillsApi } from "@/lib/admin-api";
+import { adminSkillCategoriesApi, adminSkillsApi } from "@/lib/admin-api";
 import { webOrigin } from "@/lib/admin-session";
 
 const headers = { "Cache-Control": "no-store" };
@@ -15,9 +15,14 @@ function rejectOrigin(request: NextRequest) {
       );
 }
 
-async function forward(path: string, init: RequestInit, failure: string) {
+async function forward(
+  api: typeof adminSkillsApi,
+  path: string,
+  init: RequestInit,
+  failure: string,
+) {
   try {
-    const response = await adminSkillsApi(path, init);
+    const response = await api(path, init);
     if (response.status >= 500) throw new Error("API unavailable");
     return Response.json(await response.json(), {
       status: response.status,
@@ -28,7 +33,12 @@ async function forward(path: string, init: RequestInit, failure: string) {
   }
 }
 
-export async function saveSkill(request: NextRequest, id?: string) {
+async function save(
+  api: typeof adminSkillsApi,
+  failure: string,
+  request: NextRequest,
+  id?: string,
+) {
   const denied = rejectOrigin(request);
   if (denied) return denied;
   if (id && !uuid.test(id)) {
@@ -53,9 +63,28 @@ export async function saveSkill(request: NextRequest, id?: string) {
     );
   }
   return forward(
+    api,
     id ? `/${id}` : "",
     { method: id ? "PUT" : "POST", body: JSON.stringify(body) },
+    failure,
+  );
+}
+
+export function saveSkill(request: NextRequest, id?: string) {
+  return save(
+    adminSkillsApi,
     "No se pudo guardar la habilidad. Inténtalo de nuevo.",
+    request,
+    id,
+  );
+}
+
+export function saveSkillCategory(request: NextRequest, id?: string) {
+  return save(
+    adminSkillCategoriesApi,
+    "No se pudo guardar la categoría. Inténtalo de nuevo.",
+    request,
+    id,
   );
 }
 
@@ -93,6 +122,7 @@ export async function changeSkillPublication(request: NextRequest, id: string) {
     );
   }
   return forward(
+    adminSkillsApi,
     `/${id}/${action}`,
     { method: "POST" },
     "No se pudo cambiar la publicación. Inténtalo de nuevo.",
