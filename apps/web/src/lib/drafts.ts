@@ -9,6 +9,7 @@ export type DraftProject = {
   technologies: string[];
   position: number;
   status: "draft";
+  pending: null;
   createdAt: string;
   updatedAt: string;
 };
@@ -25,9 +26,20 @@ export type ProjectImage = {
 
 export type PublishedProject = Omit<
   DraftProject,
-  "status" | "summary" | "description"
+  "status" | "summary" | "description" | "pending"
 > & {
   status: "published";
+  pending: Pick<
+    DraftProject,
+    | "title"
+    | "slug"
+    | "summary"
+    | "description"
+    | "demoUrl"
+    | "codeUrl"
+    | "technologies"
+    | "position"
+  > | null;
   summary: string;
   description: string;
   media: ProjectImage[];

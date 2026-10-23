@@ -10,6 +10,17 @@ export type AdminExperience = {
   achievements: string[];
   position: number;
   status: "draft" | "published";
+  /** Cambios guardados de un registro publicado que aún no se publican. */
+  pending: Pick<
+    AdminExperience,
+    | "organization"
+    | "title"
+    | "startDate"
+    | "endDate"
+    | "description"
+    | "achievements"
+    | "position"
+  > | null;
   createdAt: string;
   updatedAt: string;
 };

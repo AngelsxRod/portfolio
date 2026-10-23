@@ -114,7 +114,7 @@ export async function changeSkillPublication(request: NextRequest, id: string) {
   if (
     !record ||
     Object.keys(record).length !== 1 ||
-    (action !== "publish" && action !== "unpublish")
+    (action !== "publish" && action !== "unpublish" && action !== "discard")
   ) {
     return Response.json(
       { message: "Acción no válida." },

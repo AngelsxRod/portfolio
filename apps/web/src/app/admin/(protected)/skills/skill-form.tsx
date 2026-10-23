@@ -23,6 +23,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -51,18 +52,20 @@ export function SkillForm({
   const router = useRouter();
   const published = skill?.status === "published";
   const [saved, setSaved] = useState(justCreated);
+  // Un registro publicado se edita sobre sus cambios pendientes, si los hay.
+  const current = skill?.pending ?? skill;
+  const valuesOf = (source: typeof current) => ({
+    name: source?.name ?? "",
+    categoryId: source?.categoryId ?? "",
+    position: String(source?.position ?? 0),
+  });
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: skill?.name ?? "",
-      categoryId: skill?.categoryId ?? "",
-      position: String(skill?.position ?? 0),
-    },
+    defaultValues: valuesOf(current),
   });
   const saving = form.formState.isSubmitting;
 
   async function onSubmit(values: Values, publishNow = false) {
-    if (published) return;
     setSaved(false);
     try {
       const response = await fetch(
@@ -108,8 +111,17 @@ export function SkillForm({
 
   return (
     <FormPage
+      pending={Boolean(skill?.pending)}
       actions={
         <>
+          {skill && published && skill.pending && (
+            <DiscardPendingButton
+              resource="skills"
+              id={skill.id}
+              name={skill.name}
+              onDiscarded={() => form.reset(valuesOf(skill))}
+            />
+          )}
           {skill && published && (
             <PublicationButton
               resource="skills"
@@ -120,25 +132,17 @@ export function SkillForm({
               feminine={true}
             />
           )}
-          {!published && (
-            <SaveMenu
-              saving={saving}
-              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
-              onDraft={form.handleSubmit((values) => onSubmit(values))}
-            />
-          )}
+          <SaveMenu
+            saving={saving}
+            onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+            onDraft={form.handleSubmit((values) => onSubmit(values))}
+          />
         </>
       }
-      title={
-        published
-          ? "Habilidad publicada"
-          : skill
-            ? "Editar habilidad"
-            : "Nueva habilidad"
-      }
+      title={skill ? "Editar habilidad" : "Nueva habilidad"}
       description={
         published
-          ? "Retírala para poder editarla."
+          ? "Los cambios se guardan aparte: el sitio sigue mostrando la versión publicada hasta que publiques."
           : "Nombre y categoría son obligatorios. La habilidad se guarda como borrador."
       }
       status={skill?.status}
@@ -157,9 +161,13 @@ export function SkillForm({
       )}
       {saved && (
         <Alert role="status">
-          <AlertTitle>Borrador guardado</AlertTitle>
+          <AlertTitle>
+            {published ? "Cambios guardados" : "Borrador guardado"}
+          </AlertTitle>
           <AlertDescription>
-            Los cambios se guardaron correctamente.
+            {published
+              ? "Los cambios se guardaron, pero el sitio sigue mostrando la versión publicada."
+              : "Los cambios se guardaron correctamente."}
           </AlertDescription>
         </Alert>
       )}
@@ -169,7 +177,7 @@ export function SkillForm({
         className="space-y-6"
         aria-busy={saving}
       >
-        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
           <FormSection
             title="Habilidad"
             description="Nombre y categoría con la que se agrupa en la portada."

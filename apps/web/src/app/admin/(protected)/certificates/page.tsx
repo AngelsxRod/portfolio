@@ -43,6 +43,7 @@ export default async function AdminCertificates() {
             formatDateTime(item.updatedAt),
           ],
           status: item.status,
+          pending: Boolean(item.pending),
           editHref: `/admin/certificates/${item.id}/edit`,
           completeHref: `/admin/certificates/${item.id}/edit`,
         }))}

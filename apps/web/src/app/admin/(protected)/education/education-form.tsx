@@ -23,6 +23,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -73,22 +74,24 @@ export function EducationForm({
   const router = useRouter();
   const published = education?.status === "published";
   const [saved, setSaved] = useState(justCreated);
+  // Un registro publicado se edita sobre sus cambios pendientes, si los hay.
+  const current = education?.pending ?? education;
+  const valuesOf = (source: typeof current) => ({
+    institution: source?.institution ?? "",
+    level: source?.level ?? "",
+    program: source?.program ?? "",
+    startDate: source?.startDate ?? "",
+    endDate: source?.endDate ?? "",
+    description: source?.description ?? "",
+    position: String(source?.position ?? 0),
+  });
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      institution: education?.institution ?? "",
-      level: education?.level ?? "",
-      program: education?.program ?? "",
-      startDate: education?.startDate ?? "",
-      endDate: education?.endDate ?? "",
-      description: education?.description ?? "",
-      position: String(education?.position ?? 0),
-    },
+    defaultValues: valuesOf(current),
   });
   const saving = form.formState.isSubmitting;
 
   async function onSubmit(values: Values, publishNow = false) {
-    if (published) return;
     setSaved(false);
     try {
       const response = await fetch(
@@ -138,8 +141,17 @@ export function EducationForm({
 
   return (
     <FormPage
+      pending={Boolean(education?.pending)}
       actions={
         <>
+          {education && published && education.pending && (
+            <DiscardPendingButton
+              resource="education"
+              id={education.id}
+              name={education.program}
+              onDiscarded={() => form.reset(valuesOf(education))}
+            />
+          )}
           {education && published && (
             <PublicationButton
               resource="education"
@@ -150,25 +162,17 @@ export function EducationForm({
               feminine={true}
             />
           )}
-          {!published && (
-            <SaveMenu
-              saving={saving}
-              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
-              onDraft={form.handleSubmit((values) => onSubmit(values))}
-            />
-          )}
+          <SaveMenu
+            saving={saving}
+            onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+            onDraft={form.handleSubmit((values) => onSubmit(values))}
+          />
         </>
       }
-      title={
-        published
-          ? "Educación publicada"
-          : education
-            ? "Editar educación"
-            : "Nueva educación"
-      }
+      title={education ? "Editar educación" : "Nueva educación"}
       description={
         published
-          ? "Retírala para poder editarla."
+          ? "Los cambios se guardan aparte: el sitio sigue mostrando la versión publicada hasta que publiques."
           : "Institución, nivel, programa y fecha de inicio son obligatorios. Se guarda como borrador."
       }
       status={education?.status}
@@ -176,9 +180,13 @@ export function EducationForm({
     >
       {saved && (
         <Alert role="status">
-          <AlertTitle>Borrador guardado</AlertTitle>
+          <AlertTitle>
+            {published ? "Cambios guardados" : "Borrador guardado"}
+          </AlertTitle>
           <AlertDescription>
-            Los cambios se guardaron correctamente.
+            {published
+              ? "Los cambios se guardaron, pero el sitio sigue mostrando la versión publicada."
+              : "Los cambios se guardaron correctamente."}
           </AlertDescription>
         </Alert>
       )}
@@ -188,7 +196,7 @@ export function EducationForm({
         className="space-y-6"
         aria-busy={saving}
       >
-        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
           <FormSection
             title="Estudio"
             description="Institución, nivel y programa."

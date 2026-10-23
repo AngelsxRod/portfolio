@@ -44,6 +44,7 @@ export default async function AdminProjects() {
           subtitle: project.slug,
           cells: [String(project.position), formatDateTime(project.updatedAt)],
           status: project.status,
+          pending: Boolean(project.pending),
           editHref: `/admin/projects/${project.id}/edit`,
           completeHref: `/admin/projects/${project.id}/edit`,
           menu: [

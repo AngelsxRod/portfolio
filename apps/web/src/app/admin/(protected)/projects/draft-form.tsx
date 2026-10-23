@@ -16,6 +16,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
   lengthMessage,
@@ -94,18 +95,27 @@ type Props = {
   justCreated?: boolean;
 };
 
+/** Un proyecto publicado se edita sobre sus cambios pendientes, si los hay. */
+function textValues(
+  source: Props["draft"] | NonNullable<PublishedProject["pending"]>,
+) {
+  return {
+    title: source?.title ?? "",
+    slug: source?.slug ?? "",
+    summary: source?.summary ?? "",
+    description: source?.description ?? "",
+    demoUrl: source?.demoUrl ?? "",
+    codeUrl: source?.codeUrl ?? "",
+    technologies: source?.technologies.join(", ") ?? "",
+    position: String(source?.position ?? 0),
+  };
+}
+
 export function DraftForm({ draft, initialImages = [], justCreated }: Props) {
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
-      title: draft?.title ?? "",
-      slug: draft?.slug ?? "",
-      summary: draft?.summary ?? "",
-      description: draft?.description ?? "",
-      demoUrl: draft?.demoUrl ?? "",
-      codeUrl: draft?.codeUrl ?? "",
-      technologies: draft?.technologies.join(", ") ?? "",
-      position: String(draft?.position ?? 0),
+      ...textValues(draft?.pending ?? draft),
       ...imageDefaults(initialImages),
     },
   });
@@ -146,7 +156,7 @@ function DraftFormBody({
     };
     try {
       let id = projectId;
-      if (!published) {
+      {
         if (!id && !creationKey.current)
           creationKey.current = crypto.randomUUID();
         const response = await fetch(
@@ -200,8 +210,19 @@ function DraftFormBody({
 
   return (
     <FormPage
+      pending={Boolean(draft?.pending)}
       actions={
         <>
+          {draft && published && draft.pending && (
+            <DiscardPendingButton
+              resource="projects"
+              id={draft.id}
+              name={draft.title}
+              onDiscarded={() =>
+                form.reset({ ...form.getValues(), ...textValues(draft) })
+              }
+            />
+          )}
           {draft && published && (
             <PublicationButton
               resource="projects"
@@ -212,34 +233,23 @@ function DraftFormBody({
               feminine={false}
             />
           )}
-          {published && (
-            <Button
-              type="button"
-              disabled={saving}
-              onClick={form.handleSubmit((values) => onSubmit(values))}
-            >
-              {saving ? "Guardando…" : "Guardar imágenes"}
-            </Button>
-          )}
-          {!published && (
-            <SaveMenu
-              saving={saving}
-              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
-              onDraft={form.handleSubmit((values) => onSubmit(values))}
-            />
-          )}
+          <SaveMenu
+            saving={saving}
+            onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+            onDraft={form.handleSubmit((values) => onSubmit(values))}
+          />
         </>
       }
       title={
-        published
-          ? "Imágenes del proyecto publicado"
-          : draft
-            ? "Editar borrador"
-            : "Nuevo borrador"
+        draft
+          ? published
+            ? "Editar proyecto"
+            : "Editar borrador"
+          : "Nuevo borrador"
       }
       description={
         published
-          ? "Puedes gestionar las imágenes. Retira el proyecto desde el panel para editar su texto."
+          ? "Los cambios de texto se guardan aparte y el sitio sigue mostrando la versión publicada hasta que publiques. Las imágenes se actualizan al guardar."
           : "Título y slug obligatorios. Si añades imágenes, describe cada una antes de guardar."
       }
       status={draft?.status}
@@ -264,7 +274,7 @@ function DraftFormBody({
       {saved && (
         <Alert role="status">
           <AlertTitle>
-            {published ? "Imágenes guardadas" : "Borrador guardado"}
+            {published ? "Cambios guardados" : "Borrador guardado"}
           </AlertTitle>
           <AlertDescription>
             Los cambios se guardaron correctamente.
@@ -277,7 +287,7 @@ function DraftFormBody({
         className="space-y-6"
         aria-busy={saving}
       >
-        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
           <FormSection
             title="Identidad"
             description="Cómo se llama el proyecto y en qué dirección se publica."

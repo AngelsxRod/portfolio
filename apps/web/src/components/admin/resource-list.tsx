@@ -36,6 +36,7 @@ import {
   PublicationButton,
   type PublicationResource,
 } from "./publication-button";
+import { Badge } from "@repo/ui/components/badge";
 import { StatusBadge } from "./status-badge";
 
 export type ResourceRow = {
@@ -51,6 +52,8 @@ export type ResourceRow = {
   menu?: { label: string; href: string; external?: boolean }[];
   /** Destino para completar un borrador si publicarlo falla. */
   completeHref?: string;
+  /** Hay cambios guardados que aún no se publican. */
+  pending?: boolean;
   /** Valor para el filtro adicional (p. ej. la categoría de una habilidad). */
   group?: string;
 };
@@ -85,7 +88,6 @@ function RowActions({
   row: ResourceRow;
   stacked?: boolean;
 }) {
-  const published = row.status === "published";
   const name = row.subtitle ? `${row.title} · ${row.subtitle}` : row.title;
   return (
     <div
@@ -98,14 +100,9 @@ function RowActions({
       <Button
         variant="outline"
         nativeButton={false}
-        render={
-          <Link
-            href={row.editHref}
-            aria-label={`${published ? "Ver" : "Editar"} ${name}`}
-          />
-        }
+        render={<Link href={row.editHref} aria-label={`$Editar ${name}`} />}
       >
-        {published ? "Ver" : "Editar"}
+        Editar
       </Button>
       {resource && row.status && (
         <PublicationButton
@@ -344,10 +341,17 @@ export function ResourceList({
                     {hasStatus && (
                       <TableCell>
                         {row.status && (
-                          <StatusBadge
-                            status={row.status}
-                            feminine={feminine}
-                          />
+                          <span className="flex flex-wrap items-center gap-1">
+                            <StatusBadge
+                              status={row.status}
+                              feminine={feminine}
+                            />
+                            {row.pending && (
+                              <Badge variant="outline">
+                                Cambios sin publicar
+                              </Badge>
+                            )}
+                          </span>
                         )}
                       </TableCell>
                     )}
@@ -381,7 +385,12 @@ export function ResourceList({
                     )}
                   </div>
                   {row.status && (
-                    <StatusBadge status={row.status} feminine={feminine} />
+                    <span className="flex flex-wrap items-center gap-1">
+                      <StatusBadge status={row.status} feminine={feminine} />
+                      {row.pending && (
+                        <Badge variant="outline">Cambios sin publicar</Badge>
+                      )}
+                    </span>
                   )}
                 </div>
                 {columns.length > 0 && (

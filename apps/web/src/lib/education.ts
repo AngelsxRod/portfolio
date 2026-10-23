@@ -18,6 +18,17 @@ export type AdminEducation = {
   description: string | null;
   position: number;
   status: "draft" | "published";
+  /** Cambios guardados de un registro publicado que aún no se publican. */
+  pending: Pick<
+    AdminEducation,
+    | "institution"
+    | "level"
+    | "program"
+    | "startDate"
+    | "endDate"
+    | "description"
+    | "position"
+  > | null;
   createdAt: string;
   updatedAt: string;
 };

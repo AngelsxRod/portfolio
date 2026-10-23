@@ -16,6 +16,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -48,21 +49,23 @@ export function CertificateForm({
   const router = useRouter();
   const published = certificate?.status === "published";
   const [saved, setSaved] = useState(justCreated);
+  // Un registro publicado se edita sobre sus cambios pendientes, si los hay.
+  const current = certificate?.pending ?? certificate;
+  const valuesOf = (source: typeof current) => ({
+    name: source?.name ?? "",
+    issuer: source?.issuer ?? "",
+    issueDate: source?.issueDate ?? "",
+    verificationUrl: source?.verificationUrl ?? "",
+    description: source?.description ?? "",
+    position: String(source?.position ?? 0),
+  });
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: certificate?.name ?? "",
-      issuer: certificate?.issuer ?? "",
-      issueDate: certificate?.issueDate ?? "",
-      verificationUrl: certificate?.verificationUrl ?? "",
-      description: certificate?.description ?? "",
-      position: String(certificate?.position ?? 0),
-    },
+    defaultValues: valuesOf(current),
   });
   const saving = form.formState.isSubmitting;
 
   async function onSubmit(values: Values, publishNow = false) {
-    if (published) return;
     setSaved(false);
     try {
       const response = await fetch(
@@ -121,8 +124,17 @@ export function CertificateForm({
 
   return (
     <FormPage
+      pending={Boolean(certificate?.pending)}
       actions={
         <>
+          {certificate && published && certificate.pending && (
+            <DiscardPendingButton
+              resource="certificates"
+              id={certificate.id}
+              name={certificate.name}
+              onDiscarded={() => form.reset(valuesOf(certificate))}
+            />
+          )}
           {certificate && published && (
             <PublicationButton
               resource="certificates"
@@ -133,25 +145,17 @@ export function CertificateForm({
               feminine={false}
             />
           )}
-          {!published && (
-            <SaveMenu
-              saving={saving}
-              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
-              onDraft={form.handleSubmit((values) => onSubmit(values))}
-            />
-          )}
+          <SaveMenu
+            saving={saving}
+            onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+            onDraft={form.handleSubmit((values) => onSubmit(values))}
+          />
         </>
       }
-      title={
-        published
-          ? "Certificado publicado"
-          : certificate
-            ? "Editar certificado"
-            : "Nuevo certificado"
-      }
+      title={certificate ? "Editar certificado" : "Nuevo certificado"}
       description={
         published
-          ? "Retíralo para poder editarla."
+          ? "Los cambios se guardan aparte: el sitio sigue mostrando la versión publicada hasta que publiques."
           : "Nombre, emisor y fecha de emisión son obligatorios. Se guarda como borrador."
       }
       status={certificate?.status}
@@ -159,9 +163,13 @@ export function CertificateForm({
     >
       {saved && (
         <Alert role="status">
-          <AlertTitle>Borrador guardado</AlertTitle>
+          <AlertTitle>
+            {published ? "Cambios guardados" : "Borrador guardado"}
+          </AlertTitle>
           <AlertDescription>
-            Los cambios se guardaron correctamente.
+            {published
+              ? "Los cambios se guardaron, pero el sitio sigue mostrando la versión publicada."
+              : "Los cambios se guardaron correctamente."}
           </AlertDescription>
         </Alert>
       )}
@@ -171,7 +179,7 @@ export function CertificateForm({
         className="space-y-6"
         aria-busy={saving}
       >
-        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
           <FormSection
             title="Certificado"
             description="Nombre y quién lo emitió."

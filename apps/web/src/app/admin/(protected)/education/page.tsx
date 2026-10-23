@@ -46,6 +46,7 @@ export default async function AdminEducation() {
             formatDateTime(item.updatedAt),
           ],
           status: item.status,
+          pending: Boolean(item.pending),
           editHref: `/admin/education/${item.id}/edit`,
           completeHref: `/admin/education/${item.id}/edit`,
         }))}

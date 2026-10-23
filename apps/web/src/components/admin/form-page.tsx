@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Badge } from "@repo/ui/components/badge";
 import { StatusBadge } from "./status-badge";
 
 /** Cabecera y ancho comunes de los formularios del panel. */
@@ -7,6 +8,7 @@ export function FormPage({
   description,
   status,
   feminine,
+  pending,
   actions,
   children,
 }: {
@@ -14,6 +16,8 @@ export function FormPage({
   description?: ReactNode;
   status?: "draft" | "published";
   feminine?: boolean;
+  /** Hay cambios guardados que aún no se publican. */
+  pending?: boolean;
   /** Acciones de la página, fijas arriba a la derecha. */
   actions?: ReactNode;
   children: ReactNode;
@@ -27,6 +31,7 @@ export function FormPage({
               {title}
             </h1>
             {status && <StatusBadge status={status} feminine={feminine} />}
+            {pending && <Badge variant="outline">Cambios sin publicar</Badge>}
           </div>
           {description && (
             <p className="max-w-2xl text-muted-foreground">{description}</p>

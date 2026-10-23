@@ -5,6 +5,8 @@ export type AdminSkill = {
   category: string;
   position: number;
   status: "draft" | "published";
+  /** Cambios guardados de un registro publicado que aún no se publican. */
+  pending: Pick<AdminSkill, "name" | "categoryId" | "position"> | null;
   createdAt: string;
   updatedAt: string;
 };

@@ -37,7 +37,7 @@ export async function POST(
     typeof body !== "object" ||
     Array.isArray(body) ||
     Object.keys(body).length !== 1 ||
-    !["publish", "unpublish"].includes(
+    !["publish", "unpublish", "discard"].includes(
       (body as { action?: string }).action ?? "",
     )
   ) {

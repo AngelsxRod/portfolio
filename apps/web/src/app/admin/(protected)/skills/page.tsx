@@ -53,6 +53,7 @@ export default async function AdminSkills() {
           ],
           group: item.category,
           status: item.status,
+          pending: Boolean(item.pending),
           editHref: `/admin/skills/${item.id}/edit`,
           completeHref: `/admin/skills/${item.id}/edit`,
         }))}

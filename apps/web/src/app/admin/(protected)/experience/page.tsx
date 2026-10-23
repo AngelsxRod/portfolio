@@ -44,6 +44,7 @@ export default async function AdminExperience() {
             formatDateTime(item.updatedAt),
           ],
           status: item.status,
+          pending: Boolean(item.pending),
           editHref: `/admin/experience/${item.id}/edit`,
           completeHref: `/admin/experience/${item.id}/edit`,
         }))}

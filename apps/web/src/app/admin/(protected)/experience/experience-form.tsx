@@ -16,6 +16,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -82,22 +83,24 @@ export function ExperienceForm({
   const router = useRouter();
   const published = experience?.status === "published";
   const [saved, setSaved] = useState(justCreated);
+  // Un registro publicado se edita sobre sus cambios pendientes, si los hay.
+  const current = experience?.pending ?? experience;
+  const valuesOf = (source: typeof current) => ({
+    organization: source?.organization ?? "",
+    title: source?.title ?? "",
+    startDate: source?.startDate ?? "",
+    endDate: source?.endDate ?? "",
+    description: source?.description ?? "",
+    achievements: source?.achievements.join("\n") ?? "",
+    position: String(source?.position ?? 0),
+  });
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      organization: experience?.organization ?? "",
-      title: experience?.title ?? "",
-      startDate: experience?.startDate ?? "",
-      endDate: experience?.endDate ?? "",
-      description: experience?.description ?? "",
-      achievements: experience?.achievements.join("\n") ?? "",
-      position: String(experience?.position ?? 0),
-    },
+    defaultValues: valuesOf(current),
   });
   const saving = form.formState.isSubmitting;
 
   async function onSubmit(values: Values, publishNow = false) {
-    if (published) return;
     setSaved(false);
     try {
       const response = await fetch(
@@ -152,8 +155,17 @@ export function ExperienceForm({
 
   return (
     <FormPage
+      pending={Boolean(experience?.pending)}
       actions={
         <>
+          {experience && published && experience.pending && (
+            <DiscardPendingButton
+              resource="experience"
+              id={experience.id}
+              name={experience.title}
+              onDiscarded={() => form.reset(valuesOf(experience))}
+            />
+          )}
           {experience && published && (
             <PublicationButton
               resource="experience"
@@ -164,25 +176,17 @@ export function ExperienceForm({
               feminine={true}
             />
           )}
-          {!published && (
-            <SaveMenu
-              saving={saving}
-              onPublish={form.handleSubmit((values) => onSubmit(values, true))}
-              onDraft={form.handleSubmit((values) => onSubmit(values))}
-            />
-          )}
+          <SaveMenu
+            saving={saving}
+            onPublish={form.handleSubmit((values) => onSubmit(values, true))}
+            onDraft={form.handleSubmit((values) => onSubmit(values))}
+          />
         </>
       }
-      title={
-        published
-          ? "Experiencia publicada"
-          : experience
-            ? "Editar experiencia"
-            : "Nueva experiencia"
-      }
+      title={experience ? "Editar experiencia" : "Nueva experiencia"}
       description={
         published
-          ? "Retírala para poder editarla."
+          ? "Los cambios se guardan aparte: el sitio sigue mostrando la versión publicada hasta que publiques."
           : "Organización, puesto y fecha de inicio son obligatorios. Se guarda como borrador."
       }
       status={experience?.status}
@@ -190,9 +194,13 @@ export function ExperienceForm({
     >
       {saved && (
         <Alert role="status">
-          <AlertTitle>Borrador guardado</AlertTitle>
+          <AlertTitle>
+            {published ? "Cambios guardados" : "Borrador guardado"}
+          </AlertTitle>
           <AlertDescription>
-            Los cambios se guardaron correctamente.
+            {published
+              ? "Los cambios se guardaron, pero el sitio sigue mostrando la versión publicada."
+              : "Los cambios se guardaron correctamente."}
           </AlertDescription>
         </Alert>
       )}
@@ -202,7 +210,7 @@ export function ExperienceForm({
         className="space-y-6"
         aria-busy={saving}
       >
-        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
           <FormSection
             title="Cargo"
             description="Dónde trabajaste y con qué puesto."
