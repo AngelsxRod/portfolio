@@ -10,13 +10,15 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { experiences } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 type ExperienceInput = {
   organization: string;
@@ -174,32 +176,43 @@ export class ExperienceService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  async list() {
-    const rows = await this.database
-      .getDatabase()
-      .select()
-      .from(experiences)
-      .orderBy(...order);
-    return rows.map(present);
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select()
+        .from(experiences)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(experiences),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
-  async listPublished() {
-    const rows = await this.database
-      .getDatabase()
-      .select({
-        id: experiences.id,
-        organization: experiences.organization,
-        title: experiences.title,
-        startDate: experiences.startDate,
-        endDate: experiences.endDate,
-        description: experiences.description,
-        achievements: experiences.achievements,
-        position: experiences.position,
-      })
-      .from(experiences)
-      .where(eq(experiences.status, "published"))
-      .orderBy(...order);
-    return rows.map(present);
+  async listPublished(params: PageParams) {
+    const db = this.database.getDatabase();
+    const published = eq(experiences.status, "published");
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select({
+          id: experiences.id,
+          organization: experiences.organization,
+          title: experiences.title,
+          startDate: experiences.startDate,
+          endDate: experiences.endDate,
+          description: experiences.description,
+          achievements: experiences.achievements,
+          position: experiences.position,
+        })
+        .from(experiences)
+        .where(published)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(experiences).where(published),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
   async get(id: string) {
@@ -375,8 +388,8 @@ export class AdminExperienceController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.experience.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.experience.list(pageParams(query));
   }
 
   @Get(":id")
@@ -435,7 +448,7 @@ export class PublicExperienceController {
   @Public()
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.experience.listPublished();
+  list(@Query() query: Record<string, unknown>) {
+    return this.experience.listPublished(pageParams(query));
   }
 }

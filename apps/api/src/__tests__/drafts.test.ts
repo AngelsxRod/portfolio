@@ -131,11 +131,11 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(recovered.headers["cache-control"]).toBe("no-store");
       const listed = await app.inject({
         method: "GET",
-        url: "/admin/projects/drafts",
+        url: "/admin/projects/drafts?pageSize=100",
         headers: { cookie },
       });
       expect(listed.statusCode).toBe(200);
-      expect(listed.json()).toEqual(
+      expect(listed.json().items).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: saved.json().id }),
         ]),
@@ -279,10 +279,10 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       ids.push(published!.id);
       const listed = await app.inject({
         method: "GET",
-        url: "/admin/projects/drafts",
+        url: "/admin/projects/drafts?pageSize=100",
         headers: { cookie },
       });
-      expect(listed.json()).not.toEqual(
+      expect(listed.json().items).not.toEqual(
         expect.arrayContaining([
           expect.objectContaining({ id: published!.id }),
         ]),
@@ -313,10 +313,11 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
 
     it("keeps drafts private, publishes complete projects, and removes them when withdrawn", async () => {
       const saved = (await create()).json();
-      const publicList = () => app.inject({ method: "GET", url: "/projects" });
+      const publicList = () =>
+        app.inject({ method: "GET", url: "/projects?pageSize=100" });
       const publicDetail = () =>
         app.inject({ method: "GET", url: `/projects/${saved.slug}` });
-      expect((await publicList()).json()).not.toEqual(
+      expect((await publicList()).json().items).not.toEqual(
         expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
       );
       expect((await publicDetail()).statusCode).toBe(404);
@@ -355,7 +356,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       const listed = await publicList();
       expect(listed.statusCode).toBe(200);
       expect(listed.headers["cache-control"]).toBe("no-store");
-      expect(listed.json()).toEqual(
+      expect(listed.json().items).toEqual(
         expect.arrayContaining([expect.objectContaining({ slug: saved.slug })]),
       );
       const detail = await publicDetail();
@@ -366,10 +367,10 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       });
       const adminPublished = await app.inject({
         method: "GET",
-        url: "/admin/projects/published",
+        url: "/admin/projects/published?pageSize=100",
         headers: { cookie },
       });
-      expect(adminPublished.json()).toEqual(
+      expect(adminPublished.json().items).toEqual(
         expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
       );
 
@@ -383,7 +384,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(Date.parse(withdrawn.json().updatedAt)).toBeGreaterThanOrEqual(
         Date.parse(published.json().updatedAt),
       );
-      expect((await publicList()).json()).not.toEqual(
+      expect((await publicList()).json().items).not.toEqual(
         expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
       );
       expect((await publicDetail()).statusCode).toBe(404);
@@ -498,7 +499,9 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       });
       expect((await detail()).json().featuredMediaId).toBe(uploaded.json().id);
       expect(
-        (await app.inject({ method: "GET", url: "/projects" })).json(),
+        (
+          await app.inject({ method: "GET", url: "/projects?pageSize=100" })
+        ).json().items,
       ).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -841,8 +844,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(live.title).toBe("Versión pública");
       expect("pending" in live).toBe(false);
       const publicList = (
-        await app.inject({ method: "GET", url: "/projects" })
-      ).json() as { id: string }[];
+        await app.inject({ method: "GET", url: "/projects?pageSize=100" })
+      ).json().items as { id: string }[];
       expect(
         "pending" in publicList.find((item) => item.id === published!.id)!,
       ).toBe(false);

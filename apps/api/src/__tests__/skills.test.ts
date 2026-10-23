@@ -128,11 +128,76 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
     }
 
     async function publicNames() {
-      const result = await app.inject({ method: "GET", url: "/skills" });
+      const result = await app.inject({
+        method: "GET",
+        url: "/skills?pageSize=100",
+      });
       expect(result.statusCode).toBe(200);
       expect(result.headers["cache-control"]).toBe("no-store");
-      return (result.json() as { name: string }[]).map((skill) => skill.name);
+      return (result.json().items as { name: string }[]).map(
+        (skill) => skill.name,
+      );
     }
+
+    it("paginates the admin and public lists with a stable envelope", async () => {
+      const categoryIdForPage = categoryId;
+      for (let i = 0; i < 3; i++) {
+        const made = await create({
+          ...payload(),
+          categoryId: categoryIdForPage,
+        });
+        expect(made.statusCode).toBe(201);
+        await write("POST", `/admin/skills/${made.json().id}/publish`);
+      }
+      const first = await app.inject({
+        method: "GET",
+        url: "/admin/skills?page=1&pageSize=2",
+        headers: { cookie },
+      });
+      expect(first.statusCode).toBe(200);
+      const body = first.json();
+      expect(body.items).toHaveLength(2);
+      expect(body).toMatchObject({ page: 1, pageSize: 2 });
+      expect(body.total).toBeGreaterThanOrEqual(3);
+      expect(body.totalPages).toBe(Math.ceil(body.total / 2));
+      const second = (
+        await app.inject({
+          method: "GET",
+          url: "/admin/skills?page=2&pageSize=2",
+          headers: { cookie },
+        })
+      ).json();
+      const firstIds = body.items.map((item: { id: string }) => item.id);
+      expect(
+        second.items.some((item: { id: string }) => firstIds.includes(item.id)),
+      ).toBe(false);
+      const beyond = (
+        await app.inject({
+          method: "GET",
+          url: "/skills?page=99999&pageSize=10",
+        })
+      ).json();
+      expect(beyond.items).toEqual([]);
+      expect(beyond.total).toBeGreaterThanOrEqual(3);
+    });
+
+    it("rejects invalid pagination parameters", async () => {
+      for (const query of [
+        "page=0",
+        "page=-1",
+        "page=abc",
+        "pageSize=0",
+        "pageSize=101",
+        "pageSize=1.5",
+      ]) {
+        const result = await app.inject({
+          method: "GET",
+          url: `/skills?${query}`,
+        });
+        expect(result.statusCode, query).toBe(400);
+        expect(Object.keys(result.json().fields)).toHaveLength(1);
+      }
+    });
 
     it("persists a trimmed draft and retrieves it", async () => {
       const body = payload();
@@ -156,12 +221,12 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(found.json()).toMatchObject({ id, name: body.name, categoryId });
       const list = await app.inject({
         method: "GET",
-        url: "/admin/skills",
+        url: "/admin/skills?pageSize=100",
         headers: { cookie },
       });
-      expect(list.json().map((skill: { id: string }) => skill.id)).toContain(
-        id,
-      );
+      expect(
+        list.json().items.map((skill: { id: string }) => skill.id),
+      ).toContain(id);
     });
 
     it("defaults the position to 0 and edits a draft", async () => {
@@ -327,9 +392,14 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(new Date(published.json().updatedAt).getTime()).toBeGreaterThan(
         new Date(updatedAt).getTime(),
       );
-      const publicList = await app.inject({ method: "GET", url: "/skills" });
+      const publicList = await app.inject({
+        method: "GET",
+        url: "/skills?pageSize=100",
+      });
       expect(
-        publicList.json().find((skill: { id: string }) => skill.id === id),
+        publicList
+          .json()
+          .items.find((skill: { id: string }) => skill.id === id),
       ).toEqual({
         id,
         name: body.name,
@@ -350,10 +420,13 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(edited.json().status).toBe("published");
       expect(edited.json().name).toBe(body.name);
       expect(edited.json().pending.name).toBe("Cambio pendiente");
-      const live = await app.inject({ method: "GET", url: "/skills" });
+      const live = await app.inject({
+        method: "GET",
+        url: "/skills?pageSize=100",
+      });
       const liveSkill = live
         .json()
-        .find((skill: { id: string }) => skill.id === id);
+        .items.find((skill: { id: string }) => skill.id === id);
       expect(liveSkill.name).toBe(body.name);
       expect("pending" in liveSkill).toBe(false);
 
@@ -395,8 +468,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       for (const created of [first, second])
         await write("POST", `/admin/skills/${created.json().id}/publish`);
       const result = (
-        await app.inject({ method: "GET", url: "/skills" })
-      ).json() as { id: string }[];
+        await app.inject({ method: "GET", url: "/skills?pageSize=100" })
+      ).json().items as { id: string }[];
       const found = result
         .map((skill) => skill.id)
         .filter((id) =>
@@ -422,8 +495,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       for (const created of [inLater, inEarlier])
         await write("POST", `/admin/skills/${created.json().id}/publish`);
       const result = (
-        await app.inject({ method: "GET", url: "/skills" })
-      ).json() as { id: string }[];
+        await app.inject({ method: "GET", url: "/skills?pageSize=100" })
+      ).json().items as { id: string }[];
       const found = result
         .map((skill) => skill.id)
         .filter((id) => [inLater, inEarlier].some((s) => s.json().id === id));

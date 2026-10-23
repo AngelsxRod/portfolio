@@ -122,10 +122,10 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(found.json().name).toBe(name);
       const list = await app.inject({
         method: "GET",
-        url: "/admin/skill-categories",
+        url: "/admin/skill-categories?pageSize=100",
         headers: { cookie },
       });
-      expect(list.json().map((c: { id: string }) => c.id)).toContain(
+      expect(list.json().items.map((c: { id: string }) => c.id)).toContain(
         result.json().id,
       );
     });

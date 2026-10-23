@@ -11,12 +11,14 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, count, eq } from "drizzle-orm";
 import { DatabaseService } from "../database.js";
 import { projects } from "../db/schema.js";
 import { requireWebOrigin } from "../auth/auth.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 type DraftInput = {
   title: string;
@@ -161,17 +163,24 @@ export class DraftsService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  list() {
-    return this.database
-      .getDatabase()
-      .select()
-      .from(projects)
-      .where(eq(projects.status, "draft"))
-      .orderBy(
-        asc(projects.position),
-        asc(projects.createdAt),
-        asc(projects.id),
-      );
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const draft = eq(projects.status, "draft");
+    const [items, [totals]] = await Promise.all([
+      db
+        .select()
+        .from(projects)
+        .where(draft)
+        .orderBy(
+          asc(projects.position),
+          asc(projects.createdAt),
+          asc(projects.id),
+        )
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(projects).where(draft),
+    ]);
+    return paginate(items, totals?.total ?? 0, params);
   }
 
   async get(id: string) {
@@ -246,8 +255,8 @@ export class DraftsController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.drafts.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.drafts.list(pageParams(query));
   }
 
   @Get(":id")

@@ -119,10 +119,13 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
     }
 
     async function publicList() {
-      const result = await app.inject({ method: "GET", url: "/education" });
+      const result = await app.inject({
+        method: "GET",
+        url: "/education?pageSize=100",
+      });
       expect(result.statusCode).toBe(200);
       expect(result.headers["cache-control"]).toBe("no-store");
-      return result.json() as { id: string; institution: string }[];
+      return result.json().items as { id: string; institution: string }[];
     }
 
     it("persists a trimmed draft with defaults and retrieves it", async () => {
@@ -154,10 +157,12 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(found.json()).toMatchObject({ id, institution: body.institution });
       const list = await app.inject({
         method: "GET",
-        url: base,
+        url: `${base}?pageSize=100`,
         headers: { cookie },
       });
-      expect(list.json().map((item: { id: string }) => item.id)).toContain(id);
+      expect(
+        list.json().items.map((item: { id: string }) => item.id),
+      ).toContain(id);
     });
 
     it("stores every field and edits a draft", async () => {

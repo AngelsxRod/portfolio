@@ -10,13 +10,15 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { asc, eq, sql } from "drizzle-orm";
+import { asc, count, eq, sql } from "drizzle-orm";
 import { requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { skillCategories } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 type CategoryInput = { name: string; position: number };
 
@@ -83,16 +85,22 @@ export class SkillCategoriesService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  list() {
-    return this.database
-      .getDatabase()
-      .select(columns)
-      .from(skillCategories)
-      .orderBy(
-        asc(skillCategories.position),
-        asc(skillCategories.name),
-        asc(skillCategories.id),
-      );
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const [items, [totals]] = await Promise.all([
+      db
+        .select(columns)
+        .from(skillCategories)
+        .orderBy(
+          asc(skillCategories.position),
+          asc(skillCategories.name),
+          asc(skillCategories.id),
+        )
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(skillCategories),
+    ]);
+    return paginate(items, totals?.total ?? 0, params);
   }
 
   async get(id: string) {
@@ -145,8 +153,8 @@ export class SkillCategoriesController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.categories.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.categories.list(pageParams(query));
   }
 
   @Get(":id")

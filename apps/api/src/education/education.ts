@@ -10,13 +10,15 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { education } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 const levels = ["secondary", "university", "other"] as const;
 
@@ -166,32 +168,43 @@ export class EducationService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  async list() {
-    const rows = await this.database
-      .getDatabase()
-      .select()
-      .from(education)
-      .orderBy(...order);
-    return rows.map(present);
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select()
+        .from(education)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(education),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
-  async listPublished() {
-    const rows = await this.database
-      .getDatabase()
-      .select({
-        id: education.id,
-        institution: education.institution,
-        level: education.level,
-        program: education.program,
-        startDate: education.startDate,
-        endDate: education.endDate,
-        description: education.description,
-        position: education.position,
-      })
-      .from(education)
-      .where(eq(education.status, "published"))
-      .orderBy(...order);
-    return rows.map(present);
+  async listPublished(params: PageParams) {
+    const db = this.database.getDatabase();
+    const published = eq(education.status, "published");
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select({
+          id: education.id,
+          institution: education.institution,
+          level: education.level,
+          program: education.program,
+          startDate: education.startDate,
+          endDate: education.endDate,
+          description: education.description,
+          position: education.position,
+        })
+        .from(education)
+        .where(published)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(education).where(published),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
   async get(id: string) {
@@ -364,8 +377,8 @@ export class AdminEducationController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.education.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.education.list(pageParams(query));
   }
 
   @Get(":id")
@@ -424,7 +437,7 @@ export class PublicEducationController {
   @Public()
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.education.listPublished();
+  list(@Query() query: Record<string, unknown>) {
+    return this.education.listPublished(pageParams(query));
   }
 }

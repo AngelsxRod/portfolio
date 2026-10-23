@@ -11,13 +11,15 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { skillCategories, skills } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 type SkillInput = { name: string; categoryId: string; position: number };
 
@@ -116,16 +118,32 @@ export class SkillsService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  list() {
-    return this.database
-      .getDatabase()
-      .select(columns)
-      .from(skills)
-      .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
-      .orderBy(...order);
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const [items, [totals]] = await Promise.all([
+      db
+        .select(columns)
+        .from(skills)
+        .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(skills),
+    ]);
+    return paginate(items, totals?.total ?? 0, params);
   }
 
-  listPublished() {
+  async listPublished(params: PageParams) {
+    const db = this.database.getDatabase();
+    const published = eq(skills.status, "published");
+    const [items, [totals]] = await Promise.all([
+      this.publishedPage(params),
+      db.select({ total: count() }).from(skills).where(published),
+    ]);
+    return paginate(items, totals?.total ?? 0, params);
+  }
+
+  private publishedPage(params: PageParams) {
     return this.database
       .getDatabase()
       .select({
@@ -138,7 +156,9 @@ export class SkillsService {
       .from(skills)
       .innerJoin(skillCategories, eq(skills.categoryId, skillCategories.id))
       .where(eq(skills.status, "published"))
-      .orderBy(...order);
+      .orderBy(...order)
+      .limit(params.pageSize)
+      .offset(params.offset);
   }
 
   async get(id: string) {
@@ -313,8 +333,8 @@ export class AdminSkillsController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.skills.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.skills.list(pageParams(query));
   }
 
   @Get(":id")
@@ -373,7 +393,7 @@ export class PublicSkillsController {
   @Public()
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.skills.listPublished();
+  list(@Query() query: Record<string, unknown>) {
+    return this.skills.listPublished(pageParams(query));
   }
 }

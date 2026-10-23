@@ -9,14 +9,16 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, eq, isNotNull } from "drizzle-orm";
 import { requireWebOrigin, Public } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { projects } from "../db/schema.js";
 import { handleWriteError, projectId } from "./drafts.js";
 import { MediaService } from "./media.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 /** Los cambios pendientes son privados: nunca salen en las rutas públicas. */
 function withoutPending<T extends { pending?: unknown }>(row: T) {
@@ -50,17 +52,23 @@ export class PublicationService {
     return { ...project, media: await this.media.metadataForProjects([id]) };
   }
 
-  async listPublished(includePending = false) {
-    const rows = await this.database
-      .getDatabase()
-      .select()
-      .from(projects)
-      .where(eq(projects.status, "published"))
-      .orderBy(...order);
+  async listPublished(params: PageParams, includePending = false) {
+    const db = this.database.getDatabase();
+    const published = eq(projects.status, "published");
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select()
+        .from(projects)
+        .where(published)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(projects).where(published),
+    ]);
     const media = await this.media.metadataForProjects(
       rows.map((row) => row.id),
     );
-    return rows.map((row) => ({
+    const items = rows.map((row) => ({
       ...(includePending ? row : withoutPending(row)),
       featuredMediaId:
         media.find((image) => image.projectId === row.id && image.isFeatured)
@@ -69,6 +77,7 @@ export class PublicationService {
         null,
       media: media.filter((image) => image.projectId === row.id),
     }));
+    return paginate(items, totals?.total ?? 0, params);
   }
 
   async publicProject(slug: string) {
@@ -233,8 +242,8 @@ export class PublicationController {
 
   @Get("published")
   @Header("Cache-Control", "no-store")
-  published() {
-    return this.publication.listPublished(true);
+  published(@Query() query: Record<string, unknown>) {
+    return this.publication.listPublished(pageParams(query), true);
   }
 
   @Post(":id/publish")
@@ -278,8 +287,8 @@ export class PublicProjectsController {
   @Public()
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.publication.listPublished();
+  list(@Query() query: Record<string, unknown>) {
+    return this.publication.listPublished(pageParams(query));
   }
 
   @Public()

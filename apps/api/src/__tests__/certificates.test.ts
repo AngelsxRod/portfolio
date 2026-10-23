@@ -118,10 +118,13 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
     }
 
     async function publicList() {
-      const result = await app.inject({ method: "GET", url: "/certificates" });
+      const result = await app.inject({
+        method: "GET",
+        url: "/certificates?pageSize=100",
+      });
       expect(result.statusCode).toBe(200);
       expect(result.headers["cache-control"]).toBe("no-store");
-      return result.json() as { id: string; name: string }[];
+      return result.json().items as { id: string; name: string }[];
     }
 
     it("persists a trimmed draft with defaults and retrieves it", async () => {

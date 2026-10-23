@@ -10,13 +10,15 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { certificates } from "../db/schema.js";
 import { invalid, projectId as uuid } from "../projects/drafts.js";
+import { type PageParams, paginate, pageParams } from "../common/pagination.js";
 
 type CertificateInput = {
   name: string;
@@ -165,31 +167,42 @@ export class CertificatesService {
 
   constructor(private readonly database: DatabaseService) {}
 
-  async list() {
-    const rows = await this.database
-      .getDatabase()
-      .select()
-      .from(certificates)
-      .orderBy(...order);
-    return rows.map(present);
+  async list(params: PageParams) {
+    const db = this.database.getDatabase();
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select()
+        .from(certificates)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(certificates),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
-  async listPublished() {
-    const rows = await this.database
-      .getDatabase()
-      .select({
-        id: certificates.id,
-        name: certificates.name,
-        issuer: certificates.issuer,
-        issueDate: certificates.issueDate,
-        verificationUrl: certificates.verificationUrl,
-        description: certificates.description,
-        position: certificates.position,
-      })
-      .from(certificates)
-      .where(eq(certificates.status, "published"))
-      .orderBy(...order);
-    return rows.map(present);
+  async listPublished(params: PageParams) {
+    const db = this.database.getDatabase();
+    const published = eq(certificates.status, "published");
+    const [rows, [totals]] = await Promise.all([
+      db
+        .select({
+          id: certificates.id,
+          name: certificates.name,
+          issuer: certificates.issuer,
+          issueDate: certificates.issueDate,
+          verificationUrl: certificates.verificationUrl,
+          description: certificates.description,
+          position: certificates.position,
+        })
+        .from(certificates)
+        .where(published)
+        .orderBy(...order)
+        .limit(params.pageSize)
+        .offset(params.offset),
+      db.select({ total: count() }).from(certificates).where(published),
+    ]);
+    return paginate(rows.map(present), totals?.total ?? 0, params);
   }
 
   async get(id: string) {
@@ -380,8 +393,8 @@ export class AdminCertificatesController {
 
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.certificates.list();
+  list(@Query() query: Record<string, unknown>) {
+    return this.certificates.list(pageParams(query));
   }
 
   @Get(":id")
@@ -440,7 +453,7 @@ export class PublicCertificatesController {
   @Public()
   @Get()
   @Header("Cache-Control", "no-store")
-  list() {
-    return this.certificates.listPublished();
+  list(@Query() query: Record<string, unknown>) {
+    return this.certificates.listPublished(pageParams(query));
   }
 }
