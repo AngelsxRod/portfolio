@@ -19,6 +19,7 @@ import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import { publishCreated } from "@/components/admin/publish-created";
 import {
   FormPage,
   FormSection,
@@ -64,7 +65,7 @@ export function SkillForm({
   });
   const saving = form.formState.isSubmitting;
 
-  async function onSubmit(values: Values) {
+  async function onSubmit(values: Values, publishNow = false) {
     if (published) return;
     setSaved(false);
     try {
@@ -90,8 +91,14 @@ export function SkillForm({
         return;
       }
       setSaved(true);
-      if (!skill) router.replace(`/admin/skills/${result.id}/edit?saved=1`);
-      else router.refresh();
+      if (!skill) {
+        const published =
+          publishNow &&
+          (await publishCreated("skills", result.id, "Habilidad", true));
+        router.replace(
+          `/admin/skills/${result.id}/edit${published ? "" : "?saved=1"}`,
+        );
+      } else router.refresh();
     } catch {
       toast.error(
         "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.",
@@ -136,7 +143,7 @@ export function SkillForm({
         </Alert>
       )}
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit((values) => onSubmit(values))}
         noValidate
         className="space-y-6"
         aria-busy={saving}
@@ -246,6 +253,16 @@ export function SkillForm({
               feminine={true}
               completeHref={`/admin/skills/${skill.id}/edit`}
             />
+          )}
+          {!skill && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={saving}
+              onClick={form.handleSubmit((values) => onSubmit(values, true))}
+            >
+              Guardar y publicar
+            </Button>
           )}
           {!published && (
             <Button type="submit" disabled={saving}>

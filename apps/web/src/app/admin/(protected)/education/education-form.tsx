@@ -21,6 +21,7 @@ import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import { publishCreated } from "@/components/admin/publish-created";
 import {
   FormPage,
   FormSection,
@@ -92,7 +93,7 @@ export function EducationForm({
   });
   const saving = form.formState.isSubmitting;
 
-  async function onSubmit(values: Values) {
+  async function onSubmit(values: Values, publishNow = false) {
     if (published) return;
     setSaved(false);
     try {
@@ -122,9 +123,14 @@ export function EducationForm({
         return;
       }
       setSaved(true);
-      if (!education)
-        router.replace(`/admin/education/${result.id}/edit?saved=1`);
-      else router.refresh();
+      if (!education) {
+        const published =
+          publishNow &&
+          (await publishCreated("education", result.id, "Educación", true));
+        router.replace(
+          `/admin/education/${result.id}/edit${published ? "" : "?saved=1"}`,
+        );
+      } else router.refresh();
     } catch {
       toast.error(
         "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.",
@@ -158,7 +164,7 @@ export function EducationForm({
         </Alert>
       )}
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit((values) => onSubmit(values))}
         noValidate
         className="space-y-6"
         aria-busy={saving}
@@ -316,6 +322,16 @@ export function EducationForm({
               feminine={true}
               completeHref={`/admin/education/${education.id}/edit`}
             />
+          )}
+          {!education && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={saving}
+              onClick={form.handleSubmit((values) => onSubmit(values, true))}
+            >
+              Guardar y publicar
+            </Button>
           )}
           {!published && (
             <Button type="submit" disabled={saving}>

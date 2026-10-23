@@ -13,6 +13,7 @@ import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertTitle, AlertDescription } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import { publishCreated } from "@/components/admin/publish-created";
 import {
   FormPage,
   FormSection,
@@ -135,7 +136,7 @@ function DraftFormBody({
   const [saved, setSaved] = useState(justCreated);
   const saving = form.formState.isSubmitting;
 
-  async function onSubmit(values: Values) {
+  async function onSubmit(values: Values, publishNow = false) {
     setSaveError("");
     setSaved(false);
     const body = {
@@ -181,8 +182,14 @@ function DraftFormBody({
       if (!id) throw new Error("No se pudo identificar el proyecto guardado.");
       await images.save(id);
       setSaved(true);
-      if (!draft) router.replace(`/admin/projects/${id}/edit?saved=1`);
-      else router.refresh();
+      if (!draft) {
+        const published =
+          publishNow &&
+          (await publishCreated("projects", id, "Proyecto", false));
+        router.replace(
+          `/admin/projects/${id}/edit${published ? "" : "?saved=1"}`,
+        );
+      } else router.refresh();
     } catch (error) {
       const message =
         error instanceof Error && !(error instanceof TypeError)
@@ -237,7 +244,7 @@ function DraftFormBody({
         </Alert>
       )}
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit((values) => onSubmit(values))}
         noValidate
         className="space-y-6"
         aria-busy={saving}
@@ -412,6 +419,16 @@ function DraftFormBody({
               feminine={false}
               completeHref={`/admin/projects/${draft.id}/edit`}
             />
+          )}
+          {!draft && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={saving}
+              onClick={form.handleSubmit((values) => onSubmit(values, true))}
+            >
+              Guardar y publicar
+            </Button>
           )}
           <Button type="submit" disabled={saving}>
             {saving ? (
