@@ -10,6 +10,22 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+export const adminSessions = pgTable("admin_sessions", {
+  tokenHash: varchar("token_hash", { length: 64 }).primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+});
+
+export const adminLoginAttempts = pgTable("admin_login_attempts", {
+  sourceHash: varchar("source_hash", { length: 64 }).primaryKey(),
+  failedCount: integer("failed_count").notNull().default(0),
+  windowStartedAt: timestamp("window_started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const projectStatus = pgEnum("project_status", ["draft", "published"]);
 
 export const projects = pgTable(

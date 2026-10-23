@@ -40,7 +40,24 @@ pnpm lint
 pnpm test
 ```
 
+`pnpm check` ejecuta formato, lint, pruebas y compilación. Las pruebas HTTP de borradores con persistencia se habilitan con `TEST_DATABASE_URL`, que debe apuntar a un PostgreSQL temporal con las migraciones aplicadas. Sin esa variable se ejecutan las pruebas habituales, incluida la denegación de acceso a todas las rutas de borradores. Para incluir la persistencia en el control completo:
+
+```sh
+DATABASE_URL="$TEST_DATABASE_URL" pnpm --filter api db:migrate
+TEST_DATABASE_URL="$TEST_DATABASE_URL" pnpm check
+```
+
+Configura `TEST_DATABASE_URL` antes de esos comandos; usa una base aislada de los datos del portafolio. Las pruebas crean registros propios con slugs únicos y los eliminan al finalizar.
+
+## Acceso administrativo
+
+Inicia PostgreSQL y aplica la migración con `pnpm --filter api db:migrate`. En una terminal interactiva ejecuta `pnpm admin:hash`, usa una contraseña de al menos 12 caracteres y copia el hash resultante a `ADMIN_PASSWORD_HASH` en `apps/api/.env`; configura también `ADMIN_USERNAME` y `WEB_ORIGIN=http://localhost:3000`. Genera una cadena aleatoria de al menos 32 caracteres para `ADMIN_PROXY_SECRET` y configúrala con el mismo valor en `apps/api/.env` y `apps/web/.env`. La web usa `WEB_ORIGIN=http://localhost:3000` y `API_URL=http://localhost:3001` (ambos valores son los predeterminados locales). Abre `/admin/login`. La cookie vence después de ocho horas y el cierre de sesión la revoca en la API.
+
+En Vercel, configura `WEB_ORIGIN` y el mismo `ADMIN_PROXY_SECRET` en ambos proyectos con el origen HTTPS exacto de `portfolio-web`; configura `ADMIN_USERNAME` y `ADMIN_PASSWORD_HASH` únicamente en `portfolio-api`. Aplica la migración antes de habilitar el panel. Los despliegues de vista previa necesitan un `WEB_ORIGIN` propio. Consulta `docs/adr/0002-admin-access.md` para la decisión de seguridad.
+
 La web usa `API_URL` del proyecto `portfolio-web` para comunicarse con el API desde una ruta del servidor. En otros entornos, configura `DATABASE_URL` con la URL de tu instancia PostgreSQL. La API conserva `GET /status`, `GET /status/db` y `GET /message/:name`; la conexión a PostgreSQL se abre al necesitarla.
+
+Después de entrar, `/admin` muestra borradores y proyectos publicados. El formulario permite crear y editar borradores, propone un slug editable y conserva lo escrito cuando la API devuelve errores. El panel permite publicar un borrador con resumen y descripción, o retirar un proyecto publicado para volver a editarlo. El listado público está en `/projects` y cada detalle en `/projects/[slug]`; solo muestran proyectos publicados. Las operaciones y los límites están en `docs/architecture.md`.
 
 ## Despliegue en Vercel
 
@@ -83,6 +100,8 @@ GitHub Actions ejecuta el mismo control en cada push a `main` y en los pull requ
 ```sh
 docker compose up --build -d
 ```
+
+Para habilitar el panel también en Compose, proporciona `ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH` y `ADMIN_PROXY_SECRET` como variables de entorno del proceso que ejecuta Compose. El servicio web usa `http://api:3001` dentro de la red de Docker.
 
 La web estará en http://localhost:3000 y la API en http://localhost:3001/status. Compose inicia PostgreSQL antes que el API. Para detener los contenedores:
 

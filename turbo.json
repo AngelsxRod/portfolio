@@ -2,7 +2,15 @@
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
   "globalEnv": ["PORT"],
-  "globalPassThroughEnv": ["API_URL", "DATABASE_URL"],
+  "globalPassThroughEnv": [
+    "API_URL",
+    "DATABASE_URL",
+    "ADMIN_USERNAME",
+    "ADMIN_PASSWORD_HASH",
+    "ADMIN_PROXY_SECRET",
+    "WEB_ORIGIN",
+    "NODE_ENV"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -16,7 +24,10 @@
       ],
       "env": ["API_URL"]
     },
-    "test": {},
+    "test": {
+      "env": ["TEST_DATABASE_URL"],
+      "cache": false
+    },
     "lint": {
       "dependsOn": ["^build"]
     },

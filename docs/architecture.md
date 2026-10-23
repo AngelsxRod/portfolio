@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-El repositorio tiene una web Next.js, una API NestJS con Fastify, PostgreSQL con Drizzle y componentes compartidos en `packages/ui`. Existe la tabla de proyectos y su migración; todavía no hay autenticación ni panel administrativo. Este documento distingue la base implementada de las capacidades futuras.
+El repositorio tiene una web Next.js, una API NestJS con Fastify, PostgreSQL con Drizzle y componentes compartidos en `packages/ui`. Existen la tabla de proyectos, la autenticación de un administrador, la edición de borradores, la publicación y las páginas públicas de proyectos. Los medios y los demás tipos de contenido siguen pendientes.
 
 ## Responsabilidades
 
@@ -44,6 +44,20 @@ Los registros editables deben tener identificadores no secuenciales, `createdAt`
 - Tratar descripciones, enlaces e imágenes como datos no confiables. Validar URLs y evitar HTML arbitrario sin sanitización.
 - Registrar acciones administrativas relevantes sin incluir contraseñas, sesiones ni datos secretos.
 - Usar la skill `security-best-practices` para revisar las referencias aplicables a Next.js, React y el servidor HTTP antes de implementar autenticación, archivos o nuevas rutas privadas.
+
+## Borradores de proyectos
+
+NestJS expone `GET` y `POST /admin/projects/drafts`, y `GET` y `PUT /admin/projects/drafts/:id`. Todas requieren una sesión administrativa vigente. Las escrituras también exigen el `WEB_ORIGIN` exacto. Next.js lee los borradores desde el servidor y recibe las escrituras en rutas del mismo origen, comprueba `Origin` y reenvía la cookie a la API. Las lecturas y respuestas privadas usan `no-store`.
+
+Crear fija `status=draft`; el cliente no puede enviar estado, identificador ni fechas. Listar, recuperar y editar filtran por `draft`. Un UUID inexistente o de un proyecto publicado devuelve `404`; un identificador mal formado devuelve `400`. `PUT` reemplaza los campos editables y actualiza `updatedAt`. Un proyecto publicado debe retirarse antes de volver a editarse como borrador; no existe eliminación.
+
+La validación en tiempo de ejecución exige título de 1–200 caracteres y slug de 1–160 con letras ASCII minúsculas, números y guiones entre palabras. El slug es único entre todos los estados; un conflicto devuelve `409`. Resumen y descripción son opcionales, con máximos de 1.000 y 50.000 caracteres. Las URLs opcionales admiten HTTP(S), sin credenciales y hasta 2.048 caracteres. Se admiten hasta 30 tecnologías de 1–80 caracteres, sin duplicados exactos tras recortar espacios, y una posición entera entre 0 y 2.147.483.647. Los textos se recortan; los opcionales vacíos se guardan como `null`. Las tecnologías y la posición omitidas se restablecen a `[]` y `0`. Los errores de entrada devuelven `400` con un mapa `fields` para el formulario; los campos desconocidos se rechazan. La descripción se edita como texto Markdown, sin renderizar HTML.
+
+## Publicación de proyectos
+
+La API ofrece `GET /admin/projects/published`, `POST /admin/projects/:id/publish` y `POST /admin/projects/:id/unpublish`. Todas requieren sesión administrativa; las escrituras también exigen el `WEB_ORIGIN` exacto. Publicar solo acepta borradores con resumen y descripción no vacíos y devuelve `400` con `fields` si faltan. Retirar convierte un proyecto publicado en borrador editable. Las transiciones filtran por el estado de origen, devuelven `404` cuando no corresponde y actualizan `updatedAt`.
+
+`GET /projects` y `GET /projects/:slug` son públicos y consultan únicamente el estado `published`, ordenando el listado por posición, creación e ID. Un slug inexistente o retirado devuelve `404`. La web sirve `/projects` y `/projects/[slug]` con lecturas `no-store` y renderizado por petición; la API envía `Cache-Control: no-store`. La descripción se renderiza como Markdown sin HTML incrustado ni imágenes, y solo admite destinos seguros en los enlaces. Los medios se incorporarán en la etapa 5.
 
 ## Entrega por capacidades
 

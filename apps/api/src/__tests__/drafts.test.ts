@@ -1,0 +1,427 @@
+import "reflect-metadata";
+import { randomBytes, randomUUID, createHash } from "node:crypto";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { Test } from "@nestjs/testing";
+import {
+  FastifyAdapter,
+  type NestFastifyApplication,
+} from "@nestjs/platform-fastify";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { eq, inArray } from "drizzle-orm";
+import { AppModule } from "../server.js";
+import { DatabaseService } from "../database.js";
+import * as schema from "../db/schema.js";
+import { hashPassword } from "../auth/password.js";
+
+// Run against a migrated disposable database, never the portfolio database.
+describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
+  "draft HTTP routes",
+  () => {
+    const pool = new Pool({ connectionString: process.env.TEST_DATABASE_URL });
+    const db = drizzle({ client: pool, schema });
+    const origin = "http://localhost:3000";
+    const secret = "draft-test-proxy-secret-at-least-32-characters";
+    const ids: string[] = [];
+    const previous = { ...process.env };
+    let app: NestFastifyApplication;
+    let cookie: string;
+
+    beforeAll(async () => {
+      process.env.WEB_ORIGIN = origin;
+      process.env.ADMIN_PROXY_SECRET = secret;
+      process.env.ADMIN_USERNAME = "draft-test-admin";
+      process.env.ADMIN_PASSWORD_HASH = await hashPassword(
+        "draft-test-password",
+        randomBytes(32),
+      );
+      const module = await Test.createTestingModule({ imports: [AppModule] })
+        .overrideProvider(DatabaseService)
+        .useValue({ getDatabase: () => db })
+        .compile();
+      app = module.createNestApplication<NestFastifyApplication>(
+        new FastifyAdapter(),
+      );
+      await app.init();
+      await app.getHttpAdapter().getInstance().ready();
+      const login = await app.inject({
+        method: "POST",
+        url: "/auth/login",
+        headers: { origin, "x-admin-proxy-secret": secret },
+        payload: {
+          username: "draft-test-admin",
+          password: "draft-test-password",
+        },
+      });
+      expect(login.statusCode).toBe(200);
+      cookie = String(login.headers["set-cookie"]).split(";")[0]!;
+    });
+
+    afterAll(async () => {
+      if (ids.length)
+        await db
+          .delete(schema.projects)
+          .where(inArray(schema.projects.id, ids));
+      if (cookie) {
+        const token = cookie.slice(cookie.indexOf("=") + 1);
+        await db
+          .delete(schema.adminSessions)
+          .where(
+            eq(
+              schema.adminSessions.tokenHash,
+              createHash("sha256").update(token).digest("hex"),
+            ),
+          );
+      }
+      await app?.close();
+      await pool.end();
+      for (const key of [
+        "WEB_ORIGIN",
+        "ADMIN_PROXY_SECRET",
+        "ADMIN_USERNAME",
+        "ADMIN_PASSWORD_HASH",
+      ]) {
+        if (previous[key] === undefined) delete process.env[key];
+        else process.env[key] = previous[key];
+      }
+    });
+
+    function payload() {
+      return {
+        title: "Proyecto de prueba",
+        slug: `prueba-${randomUUID()}`,
+        summary: "",
+        description: "",
+        demoUrl: "",
+        codeUrl: "",
+        technologies: ["TypeScript"],
+        position: 0,
+      };
+    }
+
+    async function create(body = payload()) {
+      const result = await app.inject({
+        method: "POST",
+        url: "/admin/projects/drafts",
+        headers: { cookie, origin },
+        payload: body,
+      });
+      if (result.statusCode === 201) ids.push(result.json().id);
+      return result;
+    }
+
+    it("lets the admin save, list and recover an incomplete draft", async () => {
+      const body = payload();
+      const saved = await create(body);
+      expect(saved.statusCode).toBe(201);
+      expect(saved.json()).toMatchObject({
+        title: body.title,
+        slug: body.slug,
+        status: "draft",
+        summary: null,
+        description: null,
+      });
+      const recovered = await app.inject({
+        method: "GET",
+        url: `/admin/projects/drafts/${saved.json().id}`,
+        headers: { cookie },
+      });
+      expect(recovered.statusCode).toBe(200);
+      expect(recovered.json()).toEqual(saved.json());
+      expect(recovered.headers["cache-control"]).toBe("no-store");
+      const listed = await app.inject({
+        method: "GET",
+        url: "/admin/projects/drafts",
+        headers: { cookie },
+      });
+      expect(listed.statusCode).toBe(200);
+      expect(listed.json()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: saved.json().id }),
+        ]),
+      );
+    });
+
+    it("lets the admin edit and recover a draft with a new modification date", async () => {
+      const saved = (await create()).json();
+      const updated = await app.inject({
+        method: "PUT",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie, origin },
+        payload: {
+          ...payload(),
+          title: "Proyecto actualizado",
+          summary: "Resumen",
+          description: "## Descripción",
+          demoUrl: "https://example.com/demo",
+          codeUrl: null,
+          technologies: ["React", "NestJS"],
+          position: 2,
+        },
+      });
+      expect(updated.statusCode).toBe(200);
+      expect(updated.json()).toMatchObject({
+        id: saved.id,
+        title: "Proyecto actualizado",
+        position: 2,
+        technologies: ["React", "NestJS"],
+        status: "draft",
+        createdAt: saved.createdAt,
+      });
+      expect(Date.parse(updated.json().updatedAt)).toBeGreaterThan(
+        Date.parse(saved.updatedAt),
+      );
+      const recovered = await app.inject({
+        method: "GET",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie },
+      });
+      expect(recovered.json()).toEqual(updated.json());
+    });
+
+    it("rejects invalid data before writing", async () => {
+      const invalidBodies = [
+        null,
+        [],
+        { ...payload(), title: " " },
+        { ...payload(), title: "x".repeat(201) },
+        { ...payload(), slug: "Slug Inválido" },
+        { ...payload(), slug: "x".repeat(161) },
+        { ...payload(), position: 1.5 },
+        { ...payload(), position: -1 },
+        { ...payload(), demoUrl: "javascript:alert(1)" },
+        { ...payload(), codeUrl: "https://user:secret@example.com" },
+        { ...payload(), technologies: [123] },
+        { ...payload(), technologies: [""] },
+        { ...payload(), summary: "x".repeat(1001) },
+        { ...payload(), description: 123 },
+        { ...payload(), status: "published" },
+        { ...payload(), id: randomUUID() },
+      ];
+      for (const body of invalidBodies) {
+        const result = await app.inject({
+          method: "POST",
+          url: "/admin/projects/drafts",
+          headers: { cookie, origin, "content-type": "application/json" },
+          payload: JSON.stringify(body),
+        });
+        expect(result.statusCode).toBe(400);
+      }
+      const saved = (await create()).json();
+      const invalidEdit = await app.inject({
+        method: "PUT",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie, origin },
+        payload: { ...payload(), title: "" },
+      });
+      expect(invalidEdit.statusCode).toBe(400);
+      const recovered = await app.inject({
+        method: "GET",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie },
+      });
+      expect(recovered.json()).toEqual(saved);
+    });
+
+    it("reports slug conflicts on create and update without replacing a draft", async () => {
+      const body = payload();
+      const saved = (await create(body)).json();
+      const duplicate = await create(body);
+      expect(duplicate.statusCode).toBe(409);
+      expect(duplicate.json()).toMatchObject({
+        fields: { slug: "Elige otro slug." },
+      });
+      const other = (await create()).json();
+      const conflict = await app.inject({
+        method: "PUT",
+        url: `/admin/projects/drafts/${other.id}`,
+        headers: { cookie, origin },
+        payload: body,
+      });
+      expect(conflict.statusCode).toBe(409);
+      const recovered = await app.inject({
+        method: "GET",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie },
+      });
+      expect(recovered.json()).toEqual(saved);
+    });
+
+    it("rejects missing and foreign origins for writes even with a session", async () => {
+      const saved = (await create()).json();
+      for (const requestOrigin of [undefined, "https://other.example"]) {
+        for (const method of ["POST", "PUT"] as const) {
+          const result = await app.inject({
+            method,
+            url: `/admin/projects/drafts${method === "PUT" ? `/${saved.id}` : ""}`,
+            headers: {
+              cookie,
+              ...(requestOrigin ? { origin: requestOrigin } : {}),
+            },
+            payload: payload(),
+          });
+          expect(result.statusCode).toBe(403);
+        }
+      }
+    });
+
+    it("does not list, read or edit published projects through draft routes", async () => {
+      const [published] = await db
+        .insert(schema.projects)
+        .values({
+          ...payload(),
+          title: "Publicado",
+          summary: "Resumen",
+          description: "Contenido",
+          status: "published",
+        })
+        .returning();
+      ids.push(published!.id);
+      const listed = await app.inject({
+        method: "GET",
+        url: "/admin/projects/drafts",
+        headers: { cookie },
+      });
+      expect(listed.json()).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: published!.id }),
+        ]),
+      );
+      for (const id of [published!.id, randomUUID()]) {
+        const read = await app.inject({
+          method: "GET",
+          url: `/admin/projects/drafts/${id}`,
+          headers: { cookie },
+        });
+        expect(read.statusCode).toBe(404);
+        const edit = await app.inject({
+          method: "PUT",
+          url: `/admin/projects/drafts/${id}`,
+          headers: { cookie, origin },
+          payload: payload(),
+        });
+        expect(edit.statusCode).toBe(404);
+      }
+      const malformed = await app.inject({
+        method: "GET",
+        url: "/admin/projects/drafts/not-a-uuid",
+        headers: { cookie },
+      });
+      expect(malformed.statusCode).toBe(400);
+    });
+
+    it("keeps drafts private, publishes complete projects, and removes them when withdrawn", async () => {
+      const saved = (await create()).json();
+      const publicList = () => app.inject({ method: "GET", url: "/projects" });
+      const publicDetail = () =>
+        app.inject({ method: "GET", url: `/projects/${saved.slug}` });
+      expect((await publicList()).json()).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
+      );
+      expect((await publicDetail()).statusCode).toBe(404);
+
+      const publish = () =>
+        app.inject({
+          method: "POST",
+          url: `/admin/projects/${saved.id}/publish`,
+          headers: { cookie, origin },
+        });
+      const incomplete = await publish();
+      expect(incomplete.statusCode).toBe(400);
+      expect(incomplete.json().fields).toMatchObject({
+        summary: expect.any(String),
+        description: expect.any(String),
+      });
+
+      const edited = await app.inject({
+        method: "PUT",
+        url: `/admin/projects/drafts/${saved.id}`,
+        headers: { cookie, origin },
+        payload: {
+          ...payload(),
+          slug: saved.slug,
+          summary: "Resumen público",
+          description: "## Detalle público",
+        },
+      });
+      expect(edited.statusCode).toBe(200);
+      const published = await publish();
+      expect(published.statusCode).toBe(200);
+      expect(published.json().status).toBe("published");
+      expect(Date.parse(published.json().updatedAt)).toBeGreaterThanOrEqual(
+        Date.parse(edited.json().updatedAt),
+      );
+      const listed = await publicList();
+      expect(listed.statusCode).toBe(200);
+      expect(listed.headers["cache-control"]).toBe("no-store");
+      expect(listed.json()).toEqual(
+        expect.arrayContaining([expect.objectContaining({ slug: saved.slug })]),
+      );
+      const detail = await publicDetail();
+      expect(detail.statusCode).toBe(200);
+      expect(detail.json()).toMatchObject({
+        id: saved.id,
+        description: "## Detalle público",
+      });
+      const adminPublished = await app.inject({
+        method: "GET",
+        url: "/admin/projects/published",
+        headers: { cookie },
+      });
+      expect(adminPublished.json()).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
+      );
+
+      const withdrawn = await app.inject({
+        method: "POST",
+        url: `/admin/projects/${saved.id}/unpublish`,
+        headers: { cookie, origin },
+      });
+      expect(withdrawn.statusCode).toBe(200);
+      expect(withdrawn.json().status).toBe("draft");
+      expect(Date.parse(withdrawn.json().updatedAt)).toBeGreaterThanOrEqual(
+        Date.parse(published.json().updatedAt),
+      );
+      expect((await publicList()).json()).not.toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: saved.id })]),
+      );
+      expect((await publicDetail()).statusCode).toBe(404);
+    });
+
+    it("requires the admin origin and valid project state for publication", async () => {
+      const saved = (await create()).json();
+      const path = `/admin/projects/${saved.id}/publish`;
+      expect(
+        (await app.inject({ method: "POST", url: path, headers: { cookie } }))
+          .statusCode,
+      ).toBe(403);
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: path,
+            headers: { cookie, origin: "https://other.example" },
+          })
+        ).statusCode,
+      ).toBe(403);
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: "/admin/projects/not-a-uuid/publish",
+            headers: { cookie, origin },
+          })
+        ).statusCode,
+      ).toBe(400);
+      expect(
+        (
+          await app.inject({
+            method: "POST",
+            url: `/admin/projects/${randomUUID()}/unpublish`,
+            headers: { cookie, origin },
+          })
+        ).statusCode,
+      ).toBe(404);
+    });
+  },
+);

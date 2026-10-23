@@ -5,6 +5,10 @@ services:
       context: .
       dockerfile: ./apps/web/Dockerfile
     restart: always
+    environment:
+      API_URL: http://api:3001
+      WEB_ORIGIN: http://localhost:3000
+      ADMIN_PROXY_SECRET: ${ADMIN_PROXY_SECRET:-}
     ports:
       - 3000:3000
     networks:
@@ -17,6 +21,10 @@ services:
     restart: always
     environment:
       DATABASE_URL: postgresql://portfolio:portfolio@db:5432/portfolio
+      WEB_ORIGIN: http://localhost:3000
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      ADMIN_PROXY_SECRET: ${ADMIN_PROXY_SECRET:-}
     depends_on:
       db:
         condition: service_healthy
