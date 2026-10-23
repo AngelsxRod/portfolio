@@ -30,7 +30,11 @@ export function PublicHeader({ current }: { current?: "home" | "projects" }) {
             >
               Proyectos
             </Link>
+            <Link href="/#perfil">Perfil</Link>
             <Link href="/#habilidades">Habilidades</Link>
+            <Link href="/#experiencia">Experiencia</Link>
+            <Link href="/#educacion">Educación</Link>
+            <Link href="/#certificados">Certificados</Link>
           </nav>
         </div>
       </header>

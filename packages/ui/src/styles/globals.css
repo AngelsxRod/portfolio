@@ -420,6 +420,65 @@
     color: var(--folio-ink);
     overflow-wrap: anywhere;
   }
+  .experience-section {
+    padding-block: 0 7rem;
+  }
+  .experience-list {
+    border-top: 1px solid var(--folio-rule);
+  }
+  .experience-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr);
+    gap: 1rem 3rem;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--folio-rule);
+  }
+  .experience-period {
+    color: #395863;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .experience-body {
+    max-width: 44rem;
+    overflow-wrap: anywhere;
+  }
+  .experience-body h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .experience-organization {
+    color: #145b68;
+    font-weight: 600;
+  }
+  .experience-body p + p,
+  .experience-body p + ul {
+    margin-top: 0.75rem;
+  }
+  .profile-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-weight: 600;
+  }
+  .profile-links a {
+    color: #145b68;
+    text-underline-offset: 4px;
+  }
+  .education-level {
+    color: #395863;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .experience-achievements {
+    padding-left: 1.2rem;
+    list-style: disc;
+  }
+  .experience-achievements li + li {
+    margin-top: 0.35rem;
+  }
   .home-work > [data-slot="button"] {
     margin-top: 2rem;
   }
@@ -666,13 +725,17 @@
     }
     .header-inner {
       min-height: 4.25rem;
-      gap: 1rem;
+      flex-wrap: wrap;
+      gap: 0 1rem;
+      padding-block: 0.25rem;
     }
     .brand-link {
       gap: 0.5rem;
     }
     .header-nav {
-      gap: 0.75rem;
+      flex: 1 1 100%;
+      flex-wrap: wrap;
+      gap: 0 0.75rem;
       font-size: 0.82rem;
     }
     .display-title {
@@ -693,8 +756,13 @@
     .detail-main {
       padding-block: 4rem 5rem;
     }
-    .skills-section {
+    .skills-section,
+    .experience-section {
       padding-bottom: 5rem;
+    }
+    .experience-entry {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
     }
     .skills-group {
       grid-template-columns: minmax(0, 1fr);
