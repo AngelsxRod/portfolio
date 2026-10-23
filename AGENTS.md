@@ -14,6 +14,8 @@ If a `.codegraph/` directory exists at the repository root, use CodeGraph before
 - Always use the installed shadcn/ui components from `@repo/ui/components/*` for application controls and UI patterns when a matching component exists.
 - Add missing components with `pnpm dlx shadcn@canary add <component> -c apps/web`; keep shared components in `packages/ui/src/components`.
 - Use Tailwind CSS v4 and the theme tokens in `packages/ui/src/styles/globals.css` for styling.
+- Never use native date controls (`type="date"`, `type="month"`). Use the shadcn `Calendar` with `Popover`; `@repo/ui/components/month-picker` covers month/year values.
+- Build every form with React Hook Form, a Zod schema (`zodResolver`) and `FormField` from `apps/web/src/components/form-field.tsx` (`Controller` + shadcn `Field`). Map API `fields` errors with `applyServerErrors` in `apps/web/src/lib/form.ts`.
 - Keep semantic HTML for page structure and accessibility; do not duplicate an available shadcn/ui component with a custom control.
 
 ## Portfolio CMS
