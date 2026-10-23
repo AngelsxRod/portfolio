@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@repo/ui/components/badge";
 import type { PublishedProject } from "@/lib/drafts";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function PublicHeader({ current }: { current?: "home" | "projects" }) {
   return (
@@ -17,25 +18,28 @@ export function PublicHeader({ current }: { current?: "home" | "projects" }) {
             </span>
             <span>Portafolio</span>
           </Link>
-          <nav aria-label="Navegación principal" className="header-nav">
-            <Link
-              href="/"
-              aria-current={current === "home" ? "page" : undefined}
-            >
-              Inicio
-            </Link>
-            <Link
-              href="/projects"
-              aria-current={current === "projects" ? "page" : undefined}
-            >
-              Proyectos
-            </Link>
-            <Link href="/#perfil">Perfil</Link>
-            <Link href="/#habilidades">Habilidades</Link>
-            <Link href="/#experiencia">Experiencia</Link>
-            <Link href="/#educacion">Educación</Link>
-            <Link href="/#certificados">Certificados</Link>
-          </nav>
+          <div className="header-tools">
+            <nav aria-label="Navegación principal" className="header-nav">
+              <Link
+                href="/"
+                aria-current={current === "home" ? "page" : undefined}
+              >
+                Inicio
+              </Link>
+              <Link
+                href="/projects"
+                aria-current={current === "projects" ? "page" : undefined}
+              >
+                Proyectos
+              </Link>
+              <Link href="/#perfil">Perfil</Link>
+              <Link href="/#habilidades">Habilidades</Link>
+              <Link href="/#experiencia">Experiencia</Link>
+              <Link href="/#educacion">Educación</Link>
+              <Link href="/#certificados">Certificados</Link>
+            </nav>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
     </>
