@@ -54,9 +54,9 @@ export function PublicFooter() {
   return (
     <footer className="public-footer">
       <div className="page-frame footer-inner">
-        <span>Portafolio</span>
+        <span>{"</>"} Portafolio</span>
         <span>Proyectos y procesos documentados.</span>
-        <Link href="/contacto">Contacto</Link>
+        <Link href="/contacto">Contacto ↗</Link>
       </div>
     </footer>
   );
@@ -74,7 +74,7 @@ export function ProjectCard({
     project.media[0];
   const title = <Link href={`/projects/${project.slug}`}>{project.title}</Link>;
   return (
-    <article className="project-card">
+    <article className="project-card reveal">
       <Link
         href={`/projects/${project.slug}`}
         className="project-card-visual"
@@ -111,7 +111,7 @@ export function ProjectCard({
               <li key={technology}>
                 <Badge
                   variant="default"
-                  className="rounded-none px-2 py-0.5 text-xs"
+                  className="border-2 border-(--folio-edge) bg-white px-2 py-0.5 font-mono text-xs text-[#0d0d0d]"
                 >
                   {technology}
                 </Badge>
