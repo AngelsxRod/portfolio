@@ -1,10 +1,12 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  date,
   uniqueIndex,
   check,
   customType,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -149,5 +151,188 @@ export const skills = pgTable(
     uniqueIndex("skills_name_lower_idx").on(sql`lower(${table.name})`),
     index("skills_status_position_idx").on(table.status, table.position),
     index("skills_category_id_idx").on(table.categoryId),
+  ],
+);
+
+export const experienceStatus = pgEnum("experience_status", [
+  "draft",
+  "published",
+]);
+
+export const experiences = pgTable(
+  "experiences",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    organization: varchar("organization", { length: 120 }).notNull(),
+    title: varchar("title", { length: 120 }).notNull(),
+    startDate: date("start_date", { mode: "string" }).notNull(),
+    endDate: date("end_date", { mode: "string" }),
+    description: text("description"),
+    achievements: text("achievements")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    position: integer("position").notNull().default(0),
+    status: experienceStatus("status").notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check(
+      "experiences_organization_not_blank",
+      sql`btrim(${table.organization}) <> ''`,
+    ),
+    check("experiences_title_not_blank", sql`btrim(${table.title}) <> ''`),
+    check(
+      "experiences_description_not_blank",
+      sql`${table.description} IS NULL OR btrim(${table.description}) <> ''`,
+    ),
+    check(
+      "experiences_dates_ordered",
+      sql`${table.endDate} IS NULL OR ${table.endDate} >= ${table.startDate}`,
+    ),
+    check(
+      "experiences_achievements_max",
+      sql`cardinality(${table.achievements}) <= 10`,
+    ),
+    index("experiences_status_position_idx").on(table.status, table.position),
+  ],
+);
+
+export const educationStatus = pgEnum("education_status", [
+  "draft",
+  "published",
+]);
+
+export const educationLevel = pgEnum("education_level", [
+  "secondary",
+  "university",
+  "other",
+]);
+
+export const education = pgTable(
+  "education",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    institution: varchar("institution", { length: 120 }).notNull(),
+    level: educationLevel("level").notNull(),
+    program: varchar("program", { length: 120 }).notNull(),
+    startDate: date("start_date", { mode: "string" }).notNull(),
+    endDate: date("end_date", { mode: "string" }),
+    description: text("description"),
+    position: integer("position").notNull().default(0),
+    status: educationStatus("status").notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check(
+      "education_institution_not_blank",
+      sql`btrim(${table.institution}) <> ''`,
+    ),
+    check("education_program_not_blank", sql`btrim(${table.program}) <> ''`),
+    check(
+      "education_description_not_blank",
+      sql`${table.description} IS NULL OR btrim(${table.description}) <> ''`,
+    ),
+    check(
+      "education_dates_ordered",
+      sql`${table.endDate} IS NULL OR ${table.endDate} >= ${table.startDate}`,
+    ),
+    index("education_status_position_idx").on(table.status, table.position),
+  ],
+);
+
+export const certificateStatus = pgEnum("certificate_status", [
+  "draft",
+  "published",
+]);
+
+export const certificates = pgTable(
+  "certificates",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 160 }).notNull(),
+    issuer: varchar("issuer", { length: 120 }).notNull(),
+    issueDate: date("issue_date", { mode: "string" }).notNull(),
+    verificationUrl: varchar("verification_url", { length: 2048 }),
+    description: text("description"),
+    position: integer("position").notNull().default(0),
+    status: certificateStatus("status").notNull().default("draft"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check("certificates_name_not_blank", sql`btrim(${table.name}) <> ''`),
+    check("certificates_issuer_not_blank", sql`btrim(${table.issuer}) <> ''`),
+    check(
+      "certificates_url_not_blank",
+      sql`${table.verificationUrl} IS NULL OR btrim(${table.verificationUrl}) <> ''`,
+    ),
+    check(
+      "certificates_description_not_blank",
+      sql`${table.description} IS NULL OR btrim(${table.description}) <> ''`,
+    ),
+    index("certificates_status_position_idx").on(table.status, table.position),
+  ],
+);
+
+export const profileVersion = pgEnum("profile_version", ["draft", "published"]);
+
+export type ProfileLink = { label: string; url: string };
+
+// A single profile with two versions: the draft being edited and the published copy.
+export const profile = pgTable(
+  "profile",
+  {
+    version: profileVersion("version").primaryKey(),
+    displayName: varchar("display_name", { length: 120 }).notNull(),
+    presentation: text("presentation").notNull(),
+    location: varchar("location", { length: 120 }),
+    email: varchar("email", { length: 254 }),
+    links: jsonb("links")
+      .$type<ProfileLink[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    check(
+      "profile_display_name_not_blank",
+      sql`btrim(${table.displayName}) <> ''`,
+    ),
+    check(
+      "profile_presentation_not_blank",
+      sql`btrim(${table.presentation}) <> ''`,
+    ),
+    check(
+      "profile_location_not_blank",
+      sql`${table.location} IS NULL OR btrim(${table.location}) <> ''`,
+    ),
+    check(
+      "profile_email_not_blank",
+      sql`${table.email} IS NULL OR btrim(${table.email}) <> ''`,
+    ),
+    check(
+      "profile_links_array",
+      sql`jsonb_typeof(${table.links}) = 'array' AND jsonb_array_length(${table.links}) <= 10`,
+    ),
   ],
 );

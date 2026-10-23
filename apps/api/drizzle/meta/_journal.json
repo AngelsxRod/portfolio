@@ -50,6 +50,34 @@
       "when": 1792745847291,
       "tag": "0006_sloppy_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792746563262,
+      "tag": "0007_amusing_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792767350380,
+      "tag": "0008_right_nehzno",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792768276237,
+      "tag": "0009_robust_spirit",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792768862409,
+      "tag": "0010_daffy_bug",
+      "breakpoints": true
     }
   ]
 }
