@@ -22,4 +22,5 @@ If a `.codegraph/` directory exists at the repository root, use CodeGraph before
 - Read `docs/architecture.md` before changing the content model, publication flow, authentication, or admin routes.
 - Keep the public portfolio read-only. Every content mutation belongs behind server-side authentication and authorization in the API.
 - Validate request data at runtime and keep database access in the API. Never expose secrets or unpublished content through client bundles or public endpoints.
+- Project skills live in `.agents/skills`; `.claude/skills` holds symlinks to them so Claude Code reads the same files, and `CLAUDE.md` imports this file.
 - Use the project skills in `.agents/skills` when relevant: `codebase-design` and `improve-codebase-architecture` for architectural reviews, `security-best-practices` for security-sensitive changes, `frontend-design` for the public site, `tdd` for important behavior, and `agent-browser` for end-to-end checks.
