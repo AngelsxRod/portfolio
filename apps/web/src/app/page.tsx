@@ -183,10 +183,9 @@ export default async function Home() {
               ],
               [
                 "/experiencia",
-                "Experiencia",
-                "Cargos, prácticas y responsabilidades.",
+                "Trayectoria",
+                "Experiencia, educación y certificados.",
               ],
-              ["/educacion", "Educación", "Estudios y certificados."],
               [
                 "/contacto",
                 "Contacto",

@@ -5,14 +5,13 @@ import type { PublishedProject } from "@/lib/drafts";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export type PublicPage =
-  "home" | "projects" | "about" | "experience" | "education" | "contact";
+  "home" | "projects" | "about" | "experience" | "contact";
 
 const navigation: { page: PublicPage; href: string; label: string }[] = [
   { page: "home", href: "/", label: "Inicio" },
   { page: "projects", href: "/projects", label: "Proyectos" },
   { page: "about", href: "/sobre-mi", label: "Sobre mí" },
-  { page: "experience", href: "/experiencia", label: "Experiencia" },
-  { page: "education", href: "/educacion", label: "Educación" },
+  { page: "experience", href: "/experiencia", label: "Trayectoria" },
   { page: "contact", href: "/contacto", label: "Contacto" },
 ];
 

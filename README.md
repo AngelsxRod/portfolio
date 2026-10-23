@@ -61,7 +61,7 @@ Después de entrar, `/admin` muestra borradores y proyectos publicados. El formu
 
 ## Sitio público y contacto
 
-El sitio público tiene varias páginas: `/` (portada), `/projects`, `/sobre-mi` (presentación y habilidades), `/experiencia`, `/educacion` (estudios y certificados) y `/contacto`.
+El sitio público tiene varias páginas: `/` (portada), `/projects`, `/sobre-mi` (presentación y habilidades), `/experiencia` (trayectoria con pestañas de experiencia, educación y certificados; `/educacion` redirige aquí) y `/contacto`.
 
 El formulario de `/contacto` usa Cloudflare Turnstile (`@marsidev/react-turnstile`). El navegador envía el mensaje a `POST /api/contact` de la web, que lo reenvía a `POST /contact` de la API; la API valida los datos, comprueba el token de Turnstile en el servidor y entrega el mensaje. Configura `TURNSTILE_SITE_KEY` en `apps/web` y `TURNSTILE_SECRET_KEY` en `apps/api` (en local sirven las claves de prueba de Cloudflare indicadas en los `.env.example`). Sin `TURNSTILE_SITE_KEY` la página muestra que el formulario no está disponible.
 
