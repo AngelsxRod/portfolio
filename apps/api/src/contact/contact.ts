@@ -64,14 +64,19 @@ export class TurnstileService {
     const body = new URLSearchParams({ secret, response: token });
     if (remoteIp) body.set("remoteip", remoteIp);
     try {
-      const response = await fetch(
+      // El compilador de Vercel resuelve `Response` sin los tipos de Node.
+      const response = (await fetch(
         "https://challenges.cloudflare.com/turnstile/v0/siteverify",
         {
           method: "POST",
           body,
           signal: AbortSignal.timeout(8000),
         },
-      );
+      )) as unknown as {
+        ok: boolean;
+        status: number;
+        json(): Promise<unknown>;
+      };
       if (!response.ok) throw new Error(`siteverify ${response.status}`);
       const result = (await response.json()) as { success?: boolean };
       return result.success === true;
