@@ -2,12 +2,20 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { ResourceList } from "@/components/admin/resource-list";
-import { getAdminExperiences } from "@/lib/admin-api";
+import { getAdminExperiencesPage } from "@/lib/admin-api";
+import { ListPagination } from "@/components/admin/list-pagination";
+import { parsePage } from "@/lib/pagination";
 import { formatMonth } from "@/lib/experience";
 import { formatDateTime } from "@/lib/format";
 
-export default async function AdminExperience() {
-  const experiences = await getAdminExperiences();
+export default async function AdminExperience({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const experiences = await getAdminExperiencesPage(
+    parsePage((await searchParams).page),
+  );
   return (
     <div className="space-y-6">
       <PageHeader
@@ -34,7 +42,7 @@ export default async function AdminExperience() {
           description:
             "Crea la primera para mostrarla en el portafolio cuando la publiques.",
         }}
-        rows={experiences.map((item) => ({
+        rows={experiences.items.map((item) => ({
           id: item.id,
           title: item.title,
           subtitle: item.organization,
@@ -48,6 +56,13 @@ export default async function AdminExperience() {
           editHref: `/admin/experience/${item.id}/edit`,
           completeHref: `/admin/experience/${item.id}/edit`,
         }))}
+      />
+      <ListPagination
+        basePath="/admin/experience"
+        page={experiences.page}
+        totalPages={experiences.totalPages}
+        total={experiences.total}
+        pageSize={experiences.pageSize}
       />
     </div>
   );

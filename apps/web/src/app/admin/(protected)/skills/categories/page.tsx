@@ -2,10 +2,18 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { ResourceList } from "@/components/admin/resource-list";
-import { getSkillCategories } from "@/lib/admin-api";
+import { getSkillCategoriesPage } from "@/lib/admin-api";
+import { ListPagination } from "@/components/admin/list-pagination";
+import { parsePage } from "@/lib/pagination";
 
-export default async function SkillCategories() {
-  const categories = await getSkillCategories();
+export default async function SkillCategories({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const categories = await getSkillCategoriesPage(
+    parsePage((await searchParams).page),
+  );
   return (
     <div className="space-y-6">
       <PageHeader
@@ -39,12 +47,19 @@ export default async function SkillCategories() {
           title: "Todavía no hay categorías",
           description: "Crea una categoría antes de añadir habilidades.",
         }}
-        rows={categories.map((category) => ({
+        rows={categories.items.map((category) => ({
           id: category.id,
           title: category.name,
           cells: [String(category.position), String(category.skillCount)],
           editHref: `/admin/skills/categories/${category.id}/edit`,
         }))}
+      />
+      <ListPagination
+        basePath="/admin/skills/categories"
+        page={categories.page}
+        totalPages={categories.totalPages}
+        total={categories.total}
+        pageSize={categories.pageSize}
       />
     </div>
   );

@@ -2,11 +2,17 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { ResourceList } from "@/components/admin/resource-list";
-import { getAdminSkills } from "@/lib/admin-api";
+import { getAdminSkillsPage } from "@/lib/admin-api";
+import { ListPagination } from "@/components/admin/list-pagination";
+import { parsePage } from "@/lib/pagination";
 import { formatDateTime } from "@/lib/format";
 
-export default async function AdminSkills() {
-  const skills = await getAdminSkills();
+export default async function AdminSkills({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const skills = await getAdminSkillsPage(parsePage((await searchParams).page));
   return (
     <div className="space-y-6">
       <PageHeader
@@ -43,7 +49,7 @@ export default async function AdminSkills() {
           description:
             "Crea la primera para mostrarla en el portafolio cuando la publiques.",
         }}
-        rows={skills.map((item) => ({
+        rows={skills.items.map((item) => ({
           id: item.id,
           title: item.name,
           cells: [
@@ -57,6 +63,13 @@ export default async function AdminSkills() {
           editHref: `/admin/skills/${item.id}/edit`,
           completeHref: `/admin/skills/${item.id}/edit`,
         }))}
+      />
+      <ListPagination
+        basePath="/admin/skills"
+        page={skills.page}
+        totalPages={skills.totalPages}
+        total={skills.total}
+        pageSize={skills.pageSize}
       />
     </div>
   );

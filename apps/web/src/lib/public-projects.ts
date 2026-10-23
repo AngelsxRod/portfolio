@@ -2,15 +2,19 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { apiUrl } from "@/lib/admin-session";
 import type { PublishedProject } from "@/lib/drafts";
+import { allPages, type Page, pageQuery } from "@/lib/pagination";
 
 async function publicApi(path: string) {
   return fetch(`${apiUrl()}/projects${path}`, { cache: "no-store" });
 }
 
 export async function getPublicProjects() {
-  const response = await publicApi("");
-  if (!response.ok) throw new Error("No se pudieron recuperar los proyectos.");
-  return response.json() as Promise<PublishedProject[]>;
+  return allPages(async (page, pageSize) => {
+    const response = await publicApi(pageQuery(page, pageSize));
+    if (!response.ok)
+      throw new Error("No se pudieron recuperar los proyectos.");
+    return response.json() as Promise<Page<PublishedProject>>;
+  });
 }
 
 export async function getPublicProject(slug: string) {

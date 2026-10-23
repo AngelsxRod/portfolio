@@ -2,13 +2,21 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { ResourceList } from "@/components/admin/resource-list";
-import { getAdminEducationList } from "@/lib/admin-api";
+import { getAdminEducationPage } from "@/lib/admin-api";
+import { ListPagination } from "@/components/admin/list-pagination";
+import { parsePage } from "@/lib/pagination";
 import { educationLevels } from "@/lib/education";
 import { formatMonth } from "@/lib/experience";
 import { formatDateTime } from "@/lib/format";
 
-export default async function AdminEducation() {
-  const items = await getAdminEducationList();
+export default async function AdminEducation({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const items = await getAdminEducationPage(
+    parsePage((await searchParams).page),
+  );
   return (
     <div className="space-y-6">
       <PageHeader
@@ -35,7 +43,7 @@ export default async function AdminEducation() {
           description:
             "Crea el primer registro para mostrarlo en el portafolio cuando lo publiques.",
         }}
-        rows={items.map((item) => ({
+        rows={items.items.map((item) => ({
           id: item.id,
           title: item.program,
           subtitle: item.institution,
@@ -50,6 +58,13 @@ export default async function AdminEducation() {
           editHref: `/admin/education/${item.id}/edit`,
           completeHref: `/admin/education/${item.id}/edit`,
         }))}
+      />
+      <ListPagination
+        basePath="/admin/education"
+        page={items.page}
+        totalPages={items.totalPages}
+        total={items.total}
+        pageSize={items.pageSize}
       />
     </div>
   );

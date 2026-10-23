@@ -8,6 +8,7 @@ import type { AdminProfile } from "@/lib/profile";
 import type { AdminEducation } from "@/lib/education";
 import type { AdminExperience } from "@/lib/experience";
 import type { AdminSkill, SkillCategory } from "@/lib/skills";
+import { allPages, type Page, pageQuery, PAGE_SIZE } from "@/lib/pagination";
 
 export function adminProjectsApi(path: string, init: RequestInit = {}) {
   return adminResource("projects", path, init);
@@ -62,19 +63,30 @@ async function readDrafts<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getDraftsPage(page = 1, pageSize = PAGE_SIZE) {
+  return readDrafts<Page<DraftProject>>(pageQuery(page, pageSize));
+}
 export function getDrafts() {
-  return readDrafts<DraftProject[]>("");
+  return allPages((page, size) => getDraftsPage(page, size));
 }
 export function getDraft(id: string) {
   return readDrafts<DraftProject>(`/${encodeURIComponent(id)}`);
 }
 
-export async function getPublishedProjects() {
-  const response = await adminProjectsApi("/published");
+async function getPublishedProjectsPage(page: number, pageSize: number) {
+  const response = await adminProjectsApi(
+    `/published${pageQuery(page, pageSize)}`,
+  );
   if (response.status === 401) redirect("/admin/login");
   if (!response.ok)
     throw new Error("No se pudieron recuperar los proyectos publicados.");
-  return response.json() as Promise<import("@/lib/drafts").PublishedProject[]>;
+  return response.json() as Promise<
+    Page<import("@/lib/drafts").PublishedProject>
+  >;
+}
+
+export function getPublishedProjects() {
+  return allPages(getPublishedProjectsPage);
 }
 
 export async function getAdminProject(id: string) {
@@ -106,15 +118,25 @@ async function readSkills<T>(path: string, api = adminSkillsApi): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getAdminSkillsPage(page = 1, pageSize = PAGE_SIZE) {
+  return readSkills<Page<AdminSkill>>(pageQuery(page, pageSize));
+}
 export function getAdminSkills() {
-  return readSkills<AdminSkill[]>("");
+  return allPages((page, size) => getAdminSkillsPage(page, size));
 }
 export function getAdminSkill(id: string) {
   return readSkills<AdminSkill>(`/${encodeURIComponent(id)}`);
 }
 
+export function getSkillCategoriesPage(page = 1, pageSize = PAGE_SIZE) {
+  return readSkills<Page<SkillCategory>>(
+    pageQuery(page, pageSize),
+    adminSkillCategoriesApi,
+  );
+}
+/** Todas las categorías, para selectores y filtros. */
 export function getSkillCategories() {
-  return readSkills<SkillCategory[]>("", adminSkillCategoriesApi);
+  return allPages((page, size) => getSkillCategoriesPage(page, size));
 }
 export function getSkillCategory(id: string) {
   return readSkills<SkillCategory>(
@@ -135,8 +157,11 @@ async function readExperience<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getAdminExperiencesPage(page = 1, pageSize = PAGE_SIZE) {
+  return readExperience<Page<AdminExperience>>(pageQuery(page, pageSize));
+}
 export function getAdminExperiences() {
-  return readExperience<AdminExperience[]>("");
+  return allPages((page, size) => getAdminExperiencesPage(page, size));
 }
 export function getAdminExperience(id: string) {
   return readExperience<AdminExperience>(`/${encodeURIComponent(id)}`);
@@ -154,8 +179,11 @@ async function readEducation<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getAdminEducationPage(page = 1, pageSize = PAGE_SIZE) {
+  return readEducation<Page<AdminEducation>>(pageQuery(page, pageSize));
+}
 export function getAdminEducationList() {
-  return readEducation<AdminEducation[]>("");
+  return allPages((page, size) => getAdminEducationPage(page, size));
 }
 export function getAdminEducation(id: string) {
   return readEducation<AdminEducation>(`/${encodeURIComponent(id)}`);
@@ -173,8 +201,11 @@ async function readCertificates<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getAdminCertificatesPage(page = 1, pageSize = PAGE_SIZE) {
+  return readCertificates<Page<AdminCertificate>>(pageQuery(page, pageSize));
+}
 export function getAdminCertificates() {
-  return readCertificates<AdminCertificate[]>("");
+  return allPages((page, size) => getAdminCertificatesPage(page, size));
 }
 export function getAdminCertificate(id: string) {
   return readCertificates<AdminCertificate>(`/${encodeURIComponent(id)}`);

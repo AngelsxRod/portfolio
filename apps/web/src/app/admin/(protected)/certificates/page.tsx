@@ -2,12 +2,20 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { PageHeader } from "@/components/admin/page-header";
 import { ResourceList } from "@/components/admin/resource-list";
-import { getAdminCertificates } from "@/lib/admin-api";
+import { getAdminCertificatesPage } from "@/lib/admin-api";
+import { ListPagination } from "@/components/admin/list-pagination";
+import { parsePage } from "@/lib/pagination";
 import { formatMonth } from "@/lib/experience";
 import { formatDateTime } from "@/lib/format";
 
-export default async function AdminCertificates() {
-  const items = await getAdminCertificates();
+export default async function AdminCertificates({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const items = await getAdminCertificatesPage(
+    parsePage((await searchParams).page),
+  );
   return (
     <div className="space-y-6">
       <PageHeader
@@ -33,7 +41,7 @@ export default async function AdminCertificates() {
           description:
             "Crea el primero para mostrarlo en el portafolio cuando lo publiques.",
         }}
-        rows={items.map((item) => ({
+        rows={items.items.map((item) => ({
           id: item.id,
           title: item.name,
           subtitle: item.issuer,
@@ -47,6 +55,13 @@ export default async function AdminCertificates() {
           editHref: `/admin/certificates/${item.id}/edit`,
           completeHref: `/admin/certificates/${item.id}/edit`,
         }))}
+      />
+      <ListPagination
+        basePath="/admin/certificates"
+        page={items.page}
+        totalPages={items.totalPages}
+        total={items.total}
+        pageSize={items.pageSize}
       />
     </div>
   );
