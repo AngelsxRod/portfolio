@@ -26,8 +26,9 @@ export default async function AdminLayout({
         </div>
       </header>
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <nav aria-label="Panel" className="mb-6 text-sm font-medium">
+        <nav aria-label="Panel" className="mb-6 flex gap-6 text-sm font-medium">
           <Link href="/admin">Proyectos</Link>
+          <Link href="/admin/skills">Habilidades</Link>
         </nav>
         <Separator className="mb-8" />
         {children}

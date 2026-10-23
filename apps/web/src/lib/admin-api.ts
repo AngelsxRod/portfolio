@@ -3,13 +3,14 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { apiUrl, SESSION_COOKIE, webOrigin } from "@/lib/admin-session";
 import type { DraftProject } from "@/lib/drafts";
+import type { AdminSkill } from "@/lib/skills";
 
 export function adminProjectsApi(path: string, init: RequestInit = {}) {
   return adminResource("projects", path, init);
 }
 
 async function adminResource(
-  resource: "projects",
+  resource: "projects" | "skills",
   path: string,
   init: RequestInit = {},
 ) {
@@ -75,4 +76,24 @@ export async function getAdminProject(id: string) {
       media: import("@/lib/drafts").ProjectImage[];
     }
   >;
+}
+
+export function adminSkillsApi(path: string, init: RequestInit = {}) {
+  return adminResource("skills", path, init);
+}
+
+async function readSkills<T>(path: string): Promise<T> {
+  const response = await adminSkillsApi(path);
+  if (response.status === 401) redirect("/admin/login");
+  if (response.status === 404 || response.status === 400) notFound();
+  if (!response.ok)
+    throw new Error("No se pudieron recuperar las habilidades.");
+  return response.json() as Promise<T>;
+}
+
+export function getAdminSkills() {
+  return readSkills<AdminSkill[]>("");
+}
+export function getAdminSkill(id: string) {
+  return readSkills<AdminSkill>(`/${encodeURIComponent(id)}`);
 }
