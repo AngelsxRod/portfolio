@@ -60,3 +60,13 @@ La etapa de medios permite mostrar imágenes publicadas con texto alternativo. C
 ## Para páginas futuras
 
 Una página de perfil, cuando tenga datos reales, debería abrir con su información confirmada y continuar con secciones separadas por reglas. Un certificado se mostraría con emisor y fecha reales. Evitar la secuencia automática de hero con eslogan, cuatro tarjetas de métricas y carrusel de testimonios cuando esos datos no existan.
+
+## Panel administrativo
+
+El panel usa los mismos tokens con la sobriedad de una herramienta de trabajo: superficies blancas sobre Bruma, reglas finas en lugar de sombras y petróleo solo para la acción primaria y la sección activa. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
+
+- **Navegación:** barra lateral fija agrupada en «Contenido» y «Sitio»; en móvil, `Sheet`. Cabecera con migas y «Ver sitio».
+- **Estados:** `Publicado` en petróleo sólido y `Borrador` en Hielo, siempre con texto.
+- **Listados:** título, descripción y acción principal arriba; búsqueda y filtro de estado; tabla en escritorio y tarjetas bajo 768 px. Retirar siempre pide confirmación.
+- **Formularios:** secciones con título y descripción a la izquierda y campos a la derecha (apiladas en móvil), y una barra de acciones fija abajo.
+- **Accesibilidad:** «Saltar al contenido», `aria-current`, foco visible y `prefers-reduced-motion` respetado en el panel.

@@ -113,6 +113,20 @@ Las rutas privadas son `GET /admin/profile` (devuelve `draft`, `published` y `ha
 
 La portada muestra la sección `#perfil` (con estado vacío y enlace en la cabecera), con el correo como `mailto:` y los enlaces con `target="_blank"` y `rel="noopener noreferrer"`. El panel edita el borrador en `/admin/profile` con la lista de enlaces gestionada con `useFieldArray`; muestra si hay cambios sin publicar y permite publicar los cambios o retirar el perfil.
 
+## Estructura del panel
+
+El panel vive en `apps/web/src/app/admin/(protected)` y comparte un único layout (`layout.tsx`): enlace «Saltar al contenido», `SidebarProvider` con la barra lateral, cabecera con rastro de migas y «Ver sitio», y una sola región `<main id="contenido">`. Las páginas no declaran su propio `main`. En escritorio la barra lateral es fija; por debajo de 768 px pasa a un `Sheet` con foco atrapado, cierre con Escape y retorno del foco al botón. Los destinos y etiquetas de la navegación están en `components/admin/admin-nav.ts`; la sección activa usa `aria-current="page"` por prefijo de ruta.
+
+| Ruta                                                                                             | Contenido                                                                               |
+| ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `/admin`                                                                                         | Inicio: una tarjeta por sección con recuentos y últimos cambios (`Promise.allSettled`). |
+| `/admin/projects`, `/skills`, `/skills/categories`, `/experience`, `/education`, `/certificates` | Listados con `ResourceList`.                                                            |
+| `.../new`, `.../[id]/edit`, `/admin/profile`                                                     | Formularios con `FormPage`.                                                             |
+
+`/admin` dejó de ser el listado de proyectos, que ahora está en `/admin/projects` (ruta nueva); el resto de URLs no cambió. El inicio solo reutiliza las listas que ya devuelve la API; no hay endpoints nuevos.
+
+Componentes compartidos en `apps/web/src/components/admin`: `PageHeader`, `StatusBadge`, `ResourceList` (búsqueda y filtros en el cliente; tabla desde 768 px y tarjetas en móvil), `PublicationButton` (publica; retirar pide confirmación con `AlertDialog`; sustituye a las cinco acciones duplicadas) y `FormPage`, `FormSection` y `StickyActions` (cabecera, secciones con título y barra de acciones fija con «Guardar borrador» y «Publicar»/«Retirar»). «Publicar» solo aparece si el formulario no tiene cambios sin guardar. Los formularios siguen usando React Hook Form, Zod, `FormField`, `applyServerErrors` y `MonthPicker`. El perfil conserva su flujo propio (publicar cambios y retirar con confirmación, que conserva el borrador). Los tokens `--sidebar*` viven en `packages/ui/src/styles/globals.css`; el modo oscuro no se activa.
+
 ## Entrega por capacidades
 
 La primera entrega completa debe permitir crear un proyecto como borrador, editarlo, publicarlo y verlo en la página pública. Esa trayectoria verifica el esquema, la autenticación, la autorización, la validación y las vistas de extremo a extremo. Luego se agregan habilidades, experiencia, educación y certificados con las mismas reglas de publicación. Las pruebas deben cubrir el comportamiento observable de cada trayectoria crítica; las migraciones deben revisarse antes de aplicarlas a datos existentes.

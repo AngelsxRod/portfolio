@@ -5,7 +5,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 ## Estado actual
 
 - **Etapa activa:** ninguna; la etapa 6 (Resto del contenido) quedó completa con sus cinco entregas.
-- **Última revisión:** 2026-10-23.
+- **Última revisión:** 2026-10-23 (rediseño de la interfaz del panel).
 - **Siguiente entrega:** ninguna dentro de la etapa 6. Pendientes: el archivo opcional de certificados y cargar desde el panel el contenido real (categorías, habilidades, experiencia, educación, certificados y perfil).
 
 ### Base disponible
@@ -211,6 +211,8 @@ Implementar cada tipo en una entrega separada, con su esquema, edición, publica
 | 2026-10-23 | 6 certificados | Modelo, migración 0009, API, panel y sección pública de certificados (sin archivo). | `pnpm check`: 220 pruebas API con PostgreSQL temporal, sin omitidas; migración con copia de datos reales y aplicada (6/18, 10 migraciones, 0 certificados); Chrome: ciclo completo, errores por campo, URL insegura rechazada, solo lectura, 375 px sin desbordamiento. | Perfil y contacto; archivo opcional de certificados; cargar los certificados reales desde el panel. |
 
 | 2026-10-23 | 6 perfil | Modelo con borrador y versión publicada, migración 0010, API, panel y sección pública del perfil. | `pnpm check`: 253 pruebas API con PostgreSQL temporal, sin omitidas; migración con copia de datos reales y aplicada (6/18, 11 migraciones, 0 perfil); Chrome: borrador, publicación, cambios sin publicar, retirada, errores por campo, 375 px. | Archivo opcional de certificados; cargar el contenido real desde el panel. |
+
+| 2026-10-23 | Panel UI | Rediseño del panel: barra lateral y shell compartido, inicio con resumen, listados con búsqueda/filtros y confirmación al retirar, formularios con secciones y barra fija; listado de proyectos movido a `/admin/projects`. Sin cambios de API, esquema ni migraciones. | `pnpm format:check`, `pnpm lint`, 253 pruebas de API con PostgreSQL temporal y `next build` (en copia aislada) correctos; Chrome sobre pila temporal: login, inicio, listado de proyectos (tabla y tarjetas), formulario de experiencia con errores por campo, publicar y retirar con confirmación, menú móvil (foco atrapado, Escape, retorno del foco), una región `main`, sin errores de consola. | No verificados en navegador: crear/editar/publicar/retirar de cada uno de los seis tipos (solo experiencia completo y la confirmación en proyectos), perfil y habilidades; 375 px medido sin elementos fuera de ancho con la ventana mínima de 500 px; modo oscuro no incluido; `agent-browser` no estaba instalado y se usó Chrome. |
 
 ## Reglas para futuras sesiones
 
