@@ -33,6 +33,26 @@ import {
   SkillCategoriesService,
 } from "./skills/categories.js";
 import {
+  AdminExperienceController,
+  ExperienceService,
+  PublicExperienceController,
+} from "./experience/experience.js";
+import {
+  AdminCertificatesController,
+  CertificatesService,
+  PublicCertificatesController,
+} from "./certificates/certificates.js";
+import {
+  AdminEducationController,
+  EducationService,
+  PublicEducationController,
+} from "./education/education.js";
+import {
+  AdminProfileController,
+  ProfileService,
+  PublicProfileController,
+} from "./profile/profile.js";
+import {
   AdminSkillsController,
   PublicSkillsController,
   SkillsService,
@@ -86,6 +106,14 @@ class MessageController {
     AdminSkillsController,
     SkillCategoriesController,
     PublicSkillsController,
+    AdminExperienceController,
+    PublicExperienceController,
+    AdminEducationController,
+    PublicEducationController,
+    AdminCertificatesController,
+    PublicCertificatesController,
+    AdminProfileController,
+    PublicProfileController,
   ],
   providers: [
     DatabaseService,
@@ -95,6 +123,10 @@ class MessageController {
     PublicationService,
     SkillsService,
     SkillCategoriesService,
+    ExperienceService,
+    EducationService,
+    CertificatesService,
+    ProfileService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })
