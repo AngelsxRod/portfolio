@@ -65,7 +65,7 @@ El sitio público tiene varias páginas: `/` (portada), `/projects`, `/sobre-mi`
 
 El formulario de `/contacto` usa Cloudflare Turnstile (`@marsidev/react-turnstile`). El navegador envía el mensaje a `POST /api/contact` de la web, que lo reenvía a `POST /contact` de la API; la API valida los datos, comprueba el token de Turnstile en el servidor y entrega el mensaje. Configura `TURNSTILE_SITE_KEY` en `apps/web` y `TURNSTILE_SECRET_KEY` en `apps/api` (en local sirven las claves de prueba de Cloudflare indicadas en los `.env.example`). Sin `TURNSTILE_SITE_KEY` la página muestra que el formulario no está disponible.
 
-**Pendiente: Resend.** `ContactMailer` (`apps/api/src/contact/contact.ts`) todavía no envía correos y la API responde `503` tras verificar el token, de modo que ningún mensaje se pierde en silencio. Para activarlo, instala `resend`, implementa `ContactMailer.send` y configura `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (declarándolas en `turbo.json`).
+**Resend.** `ContactMailer` (`apps/api/src/contact/contact.ts`) envía el mensaje con Resend, con `replyTo` hacia quien escribió. Necesita `RESEND_API_KEY` (una clave de acceso de envío), `CONTACT_TO_EMAIL` (destino) y `CONTACT_FROM_EMAIL` (remitente con un dominio verificado en Resend, por ejemplo `Portafolio <contacto@kaled.dev>`) en `portfolio-api`. Sin ellas la API responde `503` y ningún mensaje se pierde en silencio.
 
 ## Despliegue en Vercel
 
