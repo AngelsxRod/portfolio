@@ -5,7 +5,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 ## Estado actual
 
 - **Etapa activa:** ninguna; la etapa 6 (Resto del contenido) quedó completa con sus cinco entregas.
-- **Última revisión:** 2026-10-23 (rediseño de la interfaz del panel).
+- **Última revisión:** 2026-10-23 (sitio multipágina y formulario de contacto).
 - **Siguiente entrega:** ninguna dentro de la etapa 6. Pendientes: el archivo opcional de certificados y cargar desde el panel el contenido real (categorías, habilidades, experiencia, educación, certificados y perfil).
 
 ### Base disponible
@@ -217,6 +217,8 @@ Implementar cada tipo en una entrega separada, con su esquema, edición, publica
 | 2026-10-23 | Edición de publicados | Los registros publicados se editan sin retirarlos: la versión visible no cambia hasta publicar. Columna `pending` (migración 0011), `PUT` guarda cambios pendientes, `publish` los aplica, nuevo `discard`, `unpublish` conserva la última versión editada; formularios y listados con «Cambios sin publicar» y «Descartar cambios». | `pnpm exec tsc` y lint de API y web correctos; 254 pruebas de API con PostgreSQL temporal (nuevas: cambios pendientes en los cinco recursos, sin fuga de `pending` en rutas públicas); Chrome sobre pila temporal: guardar borrador de un publicado (la API pública sigue con la versión anterior), badge en formulario, descartar con confirmación. | Migración 0011 **no aplicada** a la base real (se probó solo en una temporal): ejecutar `pnpm --filter api db:migrate`. En el navegador no se ejecutó «Publicar» sobre un publicado con cambios (cubierto por pruebas de API) ni el flujo con proyectos y habilidades. |
 
 | 2026-10-23 | Perfil y portada | Campo opcional «Título profesional» en el perfil (migración 0012, API, formulario y hero) y grid de proyectos de 3 columnas en escritorio, 2 hasta 1024 px y 1 hasta 640 px. | `tsc` y lint correctos; 256 pruebas de API con PostgreSQL temporal; Chrome: título como subtítulo del hero (claro/oscuro) y 3 columnas en escritorio; reglas CSS de 2 y 1 columnas confirmadas en las hojas de estilo (no se pudo redimensionar el viewport). | Migración 0012 **no aplicada** a ninguna base real (local ni producción): `pnpm --filter api db:migrate`. Producción despliega desde `main`, así que migrar antes de subir. |
+
+| 2026-10-23 | Sitio multipágina y contacto | Portada reducida a hero, proyectos y accesos; nuevas páginas `/sobre-mi`, `/experiencia`, `/educacion` (con certificados) y `/contacto`; navegación y listas públicas compartidas. Formulario de contacto (React Hook Form + Zod) con Turnstile (`@marsidev/react-turnstile`) y endpoint `POST /contact` en la API que verifica el token. Resend queda pendiente: `ContactMailer` responde 503. | `tsc`, lint y Prettier de web y API correctos; 5 pruebas nuevas de contacto (origen, validación por campo, Turnstile inválido, 503 sin Resend); Chrome con claves de prueba de Cloudflare: las seis rutas responden 200 y el formulario completo verifica, recibe 503, muestra el aviso y reinicia el widget. | Configurar `TURNSTILE_SITE_KEY` (web) y `TURNSTILE_SECRET_KEY` (API) en Vercel; integrar Resend. No verificado: 375 px ni modo oscuro de las páginas nuevas; `pnpm check` completo no ejecutado. |
 
 ## Reglas para futuras sesiones
 

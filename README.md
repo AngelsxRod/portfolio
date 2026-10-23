@@ -59,6 +59,14 @@ La web usa `API_URL` del proyecto `portfolio-web` para comunicarse con el API de
 
 Después de entrar, `/admin` muestra borradores y proyectos publicados. El formulario permite crear y editar borradores, propone un slug editable y conserva lo escrito cuando la API devuelve errores. El panel permite publicar un borrador con resumen y descripción, o retirar un proyecto publicado para volver a editarlo. El listado público está en `/projects` y cada detalle en `/projects/[slug]`; solo muestran proyectos publicados. Las operaciones y los límites están en `docs/architecture.md`.
 
+## Sitio público y contacto
+
+El sitio público tiene varias páginas: `/` (portada), `/projects`, `/sobre-mi` (presentación y habilidades), `/experiencia`, `/educacion` (estudios y certificados) y `/contacto`.
+
+El formulario de `/contacto` usa Cloudflare Turnstile (`@marsidev/react-turnstile`). El navegador envía el mensaje a `POST /api/contact` de la web, que lo reenvía a `POST /contact` de la API; la API valida los datos, comprueba el token de Turnstile en el servidor y entrega el mensaje. Configura `TURNSTILE_SITE_KEY` en `apps/web` y `TURNSTILE_SECRET_KEY` en `apps/api` (en local sirven las claves de prueba de Cloudflare indicadas en los `.env.example`). Sin `TURNSTILE_SITE_KEY` la página muestra que el formulario no está disponible.
+
+**Pendiente: Resend.** `ContactMailer` (`apps/api/src/contact/contact.ts`) todavía no envía correos y la API responde `503` tras verificar el token, de modo que ningún mensaje se pierde en silencio. Para activarlo, instala `resend`, implementa `ContactMailer.send` y configura `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (declarándolas en `turbo.json`).
+
 ## Despliegue en Vercel
 
 El repositorio está vinculado a dos proyectos Vercel: `portfolio-web` (directorio raíz `apps/web`, preset Next.js) y `portfolio-api` (directorio raíz `apps/api`, preset NestJS). Ambos usan Node.js 24 y se despliegan desde `main`.
