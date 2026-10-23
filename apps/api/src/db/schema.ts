@@ -69,6 +69,11 @@ export const projects = pgTable(
       "projects_published_content_required",
       sql`${table.status} <> 'published' or (nullif(btrim(${table.summary}), '') is not null and nullif(btrim(${table.description}), '') is not null)`,
     ),
+    index("projects_status_position_idx").on(
+      table.status,
+      table.position,
+      table.createdAt,
+    ),
   ],
 );
 

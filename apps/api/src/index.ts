@@ -6,13 +6,19 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from "@nestjs/platform-fastify";
+import { configureApp } from "./app.config.js";
 import { AppModule } from "./server.js";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ bodyLimit: 7 * 1024 * 1024 }),
+    new FastifyAdapter({
+      bodyLimit: 7 * 1024 * 1024,
+      // Detrás del proxy de Vercel: respeta X-Forwarded-* para IP y protocolo.
+      trustProxy: true,
+    }),
   );
+  await configureApp(app);
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 3001);
