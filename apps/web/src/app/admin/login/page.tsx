@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@repo/ui/components/button";
 import {
   Card,
   CardContent,
@@ -8,10 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
 import { hasAdminSession } from "@/lib/admin-session";
 import { LoginErrorToast } from "./login-error-toast";
+import { LoginForm } from "./login-form";
 
 const errors: Record<string, string> = {
   invalid: "Revisa el usuario y la contraseña.",
@@ -54,32 +52,7 @@ export default async function AdminLogin({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action="/api/admin/login" method="post" className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username">Usuario</Label>
-              <Input
-                id="username"
-                name="username"
-                autoComplete="username"
-                required
-                maxLength={128}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                maxLength={1024}
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Entrar
-            </Button>
-          </form>
+          <LoginForm />
         </CardContent>
       </Card>
     </main>

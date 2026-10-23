@@ -1,28 +1,39 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
 import { Card, CardContent } from "@repo/ui/components/card";
-import {
-  Field,
-  FieldLabel,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-} from "@repo/ui/components/field";
+import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertTitle, AlertDescription } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
+import { FormField } from "@/components/form-field";
+import {
+  applyServerErrors,
+  lengthMessage,
+  notifySessionExpired,
+  optionalUrl,
+  positionField,
+  requiredText,
+} from "@/lib/form";
 import type {
   DraftProject,
   PublishedProject,
   ProjectImage,
 } from "@/lib/drafts";
 
-import { ProjectImages, useProjectImages } from "./project-images";
+import {
+  imageDefaults,
+  imagesShape,
+  ProjectImages,
+  useProjectImages,
+} from "./project-images";
 
 function suggestSlug(title: string) {
   return title
@@ -35,47 +46,101 @@ function suggestSlug(title: string) {
     .replace(/-$/, "");
 }
 
-export function DraftForm({
-  draft,
-  justCreated = false,
-  initialImages = [],
-}: {
+function technologyList(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+const schema = z.object({
+  title: requiredText(200),
+  slug: z
+    .string()
+    .trim()
+    .min(1, lengthMessage(1, 160))
+    .max(160, lengthMessage(1, 160))
+    .regex(
+      /^[a-z0-9]+(-[a-z0-9]+)*$/,
+      "Usa letras minúsculas, números y guiones entre palabras.",
+    ),
+  summary: z.string().trim().max(1000, "Usa hasta 1.000 caracteres."),
+  description: z.string().trim().max(50000, "Usa hasta 50.000 caracteres."),
+  demoUrl: optionalUrl,
+  codeUrl: optionalUrl,
+  technologies: z.string().superRefine((value, ctx) => {
+    const items = technologyList(value);
+    if (items.length > 30)
+      ctx.addIssue({ code: "custom", message: "Usa hasta 30 tecnologías." });
+    else if (items.some((item) => item.length > 80))
+      ctx.addIssue({
+        code: "custom",
+        message: "Cada tecnología debe tener entre 1 y 80 caracteres.",
+      });
+    else if (new Set(items).size !== items.length)
+      ctx.addIssue({ code: "custom", message: "No repitas tecnologías." });
+  }),
+  position: positionField,
+  ...imagesShape,
+});
+
+type Values = z.infer<typeof schema>;
+
+type Props = {
   draft?: DraftProject | PublishedProject;
   initialImages?: ProjectImage[];
   justCreated?: boolean;
-}) {
+};
+
+export function DraftForm({ draft, initialImages = [], justCreated }: Props) {
+  const form = useForm<Values>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      title: draft?.title ?? "",
+      slug: draft?.slug ?? "",
+      summary: draft?.summary ?? "",
+      description: draft?.description ?? "",
+      demoUrl: draft?.demoUrl ?? "",
+      codeUrl: draft?.codeUrl ?? "",
+      technologies: draft?.technologies.join(", ") ?? "",
+      position: String(draft?.position ?? 0),
+      ...imageDefaults(initialImages),
+    },
+  });
+  return (
+    <FormProvider {...form}>
+      <DraftFormBody draft={draft} justCreated={justCreated} />
+    </FormProvider>
+  );
+}
+
+function DraftFormBody({
+  draft,
+  justCreated = false,
+}: Omit<Props, "initialImages">) {
+  const form = useFormContext<Values>();
   const router = useRouter();
   const creationKey = useRef<string | null>(null);
-  const images = useProjectImages(initialImages);
+  const images = useProjectImages();
   const [projectId, setProjectId] = useState(draft?.id);
   const published = draft?.status === "published";
   const [saveError, setSaveError] = useState("");
-  const [slug, setSlug] = useState(draft?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(Boolean(draft));
-  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(justCreated);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const saving = form.formState.isSubmitting;
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (saving || !images.validate()) return;
-    const form = new FormData(event.currentTarget);
+  async function onSubmit(values: Values) {
     setSaveError("");
-    setSaving(true);
     setSaved(false);
-    setErrors({});
     const body = {
-      title: form.get("title"),
-      slug: form.get("slug"),
-      summary: form.get("summary"),
-      description: form.get("description"),
-      demoUrl: form.get("demoUrl"),
-      codeUrl: form.get("codeUrl"),
-      technologies: String(form.get("technologies") ?? "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      position: Number(form.get("position")),
+      title: values.title,
+      slug: values.slug,
+      summary: values.summary,
+      description: values.description,
+      demoUrl: values.demoUrl,
+      codeUrl: values.codeUrl,
+      technologies: technologyList(values.technologies),
+      position: Number(values.position),
     };
     try {
       let id = projectId;
@@ -95,23 +160,13 @@ export function DraftForm({
             body: JSON.stringify(body),
           },
         );
-        if (response.status === 401) {
-          toast.error("Tu sesión venció.", {
-            description: "Inicia sesión para continuar.",
-            action: {
-              label: "Iniciar sesión",
-              onClick: () =>
-                window.open("/admin/login", "_blank", "noopener,noreferrer"),
-            },
-          });
-          return;
-        }
+        if (response.status === 401) return notifySessionExpired();
         const result = await response.json();
         if (!response.ok) {
           toast.error(result.message ?? "No se pudo guardar el borrador.", {
             description: result.fields?.form,
           });
-          setErrors(result.fields ?? {});
+          applyServerErrors(form, result.fields);
           return;
         }
         id = result.id;
@@ -129,21 +184,7 @@ export function DraftForm({
           : "No se pudo conectar. Inténtalo de nuevo; tus cambios siguen en el formulario.";
       setSaveError(message);
       toast.error(message);
-    } finally {
-      setSaving(false);
     }
-  }
-
-  function fieldError(name: string) {
-    return errors[name] ? (
-      <FieldError id={`${name}-error`}>{errors[name]}</FieldError>
-    ) : null;
-  }
-  function accessibility(name: string) {
-    return {
-      "aria-invalid": Boolean(errors[name]),
-      "aria-describedby": errors[name] ? `${name}-error` : undefined,
-    };
   }
 
   return (
@@ -196,130 +237,130 @@ export function DraftForm({
       )}
       <Card>
         <CardContent>
-          <form onSubmit={submit} className="space-y-6" aria-busy={saving}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            noValidate
+            className="space-y-6"
+            aria-busy={saving}
+          >
             <fieldset disabled={saving || published}>
               <FieldGroup>
-                <Field data-invalid={Boolean(errors.title)}>
-                  <FieldLabel htmlFor="title">Título</FieldLabel>
-                  <Input
-                    id="title"
-                    name="title"
-                    defaultValue={draft?.title ?? ""}
-                    required
-                    maxLength={200}
-                    {...accessibility("title")}
-                    onChange={(event) => {
-                      if (!slugEdited) setSlug(suggestSlug(event.target.value));
-                    }}
-                  />
-                  {fieldError("title")}
-                </Field>
-                <Field data-invalid={Boolean(errors.slug)}>
-                  <FieldLabel htmlFor="slug">Slug</FieldLabel>
-                  <Input
-                    id="slug"
-                    name="slug"
-                    value={slug}
-                    required
-                    maxLength={160}
-                    pattern="[a-z0-9]+(-[a-z0-9]+)*"
-                    {...accessibility("slug")}
-                    onChange={(event) => {
-                      setSlugEdited(true);
-                      setSlug(event.target.value);
-                    }}
-                  />
-                  <FieldDescription>
-                    Identificador único con letras minúsculas, números y
-                    guiones. Puedes modificar la propuesta.
-                  </FieldDescription>
-                  {fieldError("slug")}
-                </Field>
-                <Field data-invalid={Boolean(errors.summary)}>
-                  <FieldLabel htmlFor="summary">Resumen</FieldLabel>
-                  <Textarea
-                    id="summary"
-                    name="summary"
-                    defaultValue={draft?.summary ?? ""}
-                    maxLength={1000}
-                    {...accessibility("summary")}
-                  />
-                  {fieldError("summary")}
-                </Field>
-                <Field data-invalid={Boolean(errors.description)}>
-                  <FieldLabel htmlFor="description">Descripción</FieldLabel>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    defaultValue={draft?.description ?? ""}
-                    maxLength={50000}
-                    className="min-h-48 font-mono"
-                    {...accessibility("description")}
-                  />
-                  <FieldDescription>
-                    Puedes escribir Markdown. El contenido se guarda como texto.
-                  </FieldDescription>
-                  {fieldError("description")}
-                </Field>
-                <Field data-invalid={Boolean(errors.demoUrl)}>
-                  <FieldLabel htmlFor="demoUrl">URL de la demo</FieldLabel>
-                  <Input
-                    id="demoUrl"
-                    name="demoUrl"
-                    type="url"
-                    defaultValue={draft?.demoUrl ?? ""}
-                    maxLength={2048}
-                    placeholder="https://"
-                    {...accessibility("demoUrl")}
-                  />
-                  {fieldError("demoUrl")}
-                </Field>
-                <Field data-invalid={Boolean(errors.codeUrl)}>
-                  <FieldLabel htmlFor="codeUrl">URL del código</FieldLabel>
-                  <Input
-                    id="codeUrl"
-                    name="codeUrl"
-                    type="url"
-                    defaultValue={draft?.codeUrl ?? ""}
-                    maxLength={2048}
-                    placeholder="https://"
-                    {...accessibility("codeUrl")}
-                  />
-                  {fieldError("codeUrl")}
-                </Field>
-                <Field data-invalid={Boolean(errors.technologies)}>
-                  <FieldLabel htmlFor="technologies">Tecnologías</FieldLabel>
-                  <Input
-                    id="technologies"
-                    name="technologies"
-                    defaultValue={draft?.technologies.join(", ") ?? ""}
-                    maxLength={2500}
-                    {...accessibility("technologies")}
-                  />
-                  <FieldDescription>
-                    Separa las tecnologías con comas, por ejemplo: React,
-                    NestJS, PostgreSQL. Máximo 30.
-                  </FieldDescription>
-                  {fieldError("technologies")}
-                </Field>
-                <Field data-invalid={Boolean(errors.position)}>
-                  <FieldLabel htmlFor="position">Posición</FieldLabel>
-                  <Input
-                    id="position"
-                    name="position"
-                    type="number"
-                    min={0}
-                    max={2147483647}
-                    step={1}
-                    defaultValue={draft?.position ?? 0}
-                    required
-                    {...accessibility("position")}
-                  />
-                  <FieldDescription>
-                    Los números menores aparecen primero en la lista.
-                  </FieldDescription>
-                  {fieldError("position")}
-                </Field>
+                <FormField control={form.control} name="title" label="Título">
+                  {({ field, control }) => (
+                    <Input
+                      {...field}
+                      {...control}
+                      maxLength={200}
+                      onChange={(event) => {
+                        field.onChange(event);
+                        if (!slugEdited)
+                          form.setValue(
+                            "slug",
+                            suggestSlug(event.target.value),
+                          );
+                      }}
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="slug"
+                  label="Slug"
+                  description="Identificador único con letras minúsculas, números y guiones. Puedes modificar la propuesta."
+                >
+                  {({ field, control }) => (
+                    <Input
+                      {...field}
+                      {...control}
+                      maxLength={160}
+                      onChange={(event) => {
+                        setSlugEdited(true);
+                        field.onChange(event);
+                      }}
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="summary"
+                  label="Resumen"
+                >
+                  {({ field, control }) => (
+                    <Textarea {...field} {...control} maxLength={1000} />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  label="Descripción"
+                  description="Puedes escribir Markdown. El contenido se guarda como texto."
+                >
+                  {({ field, control }) => (
+                    <Textarea
+                      {...field}
+                      {...control}
+                      maxLength={50000}
+                      className="min-h-48 font-mono"
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="demoUrl"
+                  label="URL de la demo"
+                >
+                  {({ field, control }) => (
+                    <Input
+                      {...field}
+                      {...control}
+                      type="url"
+                      maxLength={2048}
+                      placeholder="https://"
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="codeUrl"
+                  label="URL del código"
+                >
+                  {({ field, control }) => (
+                    <Input
+                      {...field}
+                      {...control}
+                      type="url"
+                      maxLength={2048}
+                      placeholder="https://"
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="technologies"
+                  label="Tecnologías"
+                  description="Separa las tecnologías con comas, por ejemplo: React, NestJS, PostgreSQL. Máximo 30."
+                >
+                  {({ field, control }) => (
+                    <Input {...field} {...control} maxLength={2500} />
+                  )}
+                </FormField>
+                <FormField
+                  control={form.control}
+                  name="position"
+                  label="Posición"
+                  description="Los números menores aparecen primero en la lista."
+                >
+                  {({ field, control }) => (
+                    <Input
+                      {...field}
+                      {...control}
+                      type="number"
+                      min={0}
+                      max={2147483647}
+                      step={1}
+                    />
+                  )}
+                </FormField>
               </FieldGroup>
             </fieldset>
             <ProjectImages editor={images} disabled={saving} />

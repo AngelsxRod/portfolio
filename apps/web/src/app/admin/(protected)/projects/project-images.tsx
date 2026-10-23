@@ -8,23 +8,60 @@ import {
   type DragEvent,
 } from "react";
 import Image from "next/image";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { Field, FieldLabel, FieldError } from "@repo/ui/components/field";
+import { Label } from "@repo/ui/components/label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
+import { FormField } from "@/components/form-field";
 import type { ProjectImage } from "@/lib/drafts";
 
-type Entry = {
-  key: string;
-  image?: ProjectImage;
-  file?: File;
-  preview: string;
-  altText: string;
-  removed?: boolean;
-  error?: string;
-  done?: boolean;
+const altMessage = "Describe la imagen en 1 a 300 caracteres.";
+
+/** Imagen del formulario: ya guardada (`image`) o pendiente de cargar (`file`). */
+const entrySchema = z
+  .object({
+    key: z.string(),
+    altText: z.string(),
+    removed: z.boolean(),
+    done: z.boolean(),
+    preview: z.string(),
+    file: z.custom<File>().optional(),
+    image: z.custom<ProjectImage>().optional(),
+  })
+  .superRefine((entry, ctx) => {
+    const length = entry.altText.trim().length;
+    if (!entry.removed && (length < 1 || length > 300))
+      ctx.addIssue({ code: "custom", path: ["altText"], message: altMessage });
+  });
+
+/** Campos de imágenes que se suman al esquema del formulario del proyecto. */
+export const imagesShape = {
+  images: z.array(entrySchema),
+  featured: z.string(),
 };
+export type ImageEntry = z.infer<typeof entrySchema>;
+export type ImagesValues = { images: ImageEntry[]; featured: string };
+
+export function imageDefaults(initialImages: ProjectImage[]): ImagesValues {
+  return {
+    images: initialImages.map((image) => ({
+      key: image.id,
+      image,
+      altText: image.altText,
+      removed: false,
+      done: false,
+      preview: `/api/admin/projects/${image.projectId}/media/${image.id}/file`,
+    })),
+    featured:
+      initialImages.find((image) => image.isFeatured)?.id ??
+      initialImages[0]?.id ??
+      "",
+  };
+}
+
 const maxBytes = 5 * 1024 * 1024;
 
 async function request(
@@ -63,20 +100,14 @@ async function request(
   return result;
 }
 
-export function useProjectImages(initialImages: ProjectImage[] = []) {
-  const [entries, setEntries] = useState<Entry[]>(() =>
-    initialImages.map((image) => ({
-      key: image.id,
-      image,
-      altText: image.altText,
-      preview: `/api/admin/projects/${image.projectId}/media/${image.id}/file`,
-    })),
-  );
-  const [featured, setFeatured] = useState(
-    initialImages.find((image) => image.isFeatured)?.id ??
-      initialImages[0]?.id ??
-      "",
-  );
+export function useProjectImages() {
+  const form = useFormContext<ImagesValues>();
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "images",
+  });
+  const entries = useWatch({ control: form.control, name: "images" }) ?? [];
+  const featuredValue = useWatch({ control: form.control, name: "featured" });
   const [notice, setNotice] = useState("");
   const urls = useRef(new Set<string>());
   useEffect(() => {
@@ -86,15 +117,33 @@ export function useProjectImages(initialImages: ProjectImage[] = []) {
       current.clear();
     };
   }, []);
-  function patch(key: string, values: Partial<Entry>) {
-    setEntries((current) =>
-      current.map((entry) =>
-        entry.key === key ? { ...entry, ...values } : entry,
-      ),
-    );
+
+  const visible = entries.filter((entry) => !entry.removed);
+  const featured = visible.some((entry) => entry.key === featuredValue)
+    ? featuredValue
+    : (visible[0]?.key ?? "");
+
+  function indexOf(key: string) {
+    return form.getValues("images").findIndex((entry) => entry.key === key);
+  }
+  function patch(key: string, values: Partial<ImageEntry>) {
+    const index = indexOf(key);
+    if (index < 0) return;
+    form.setValue(`images.${index}`, {
+      ...form.getValues(`images.${index}`),
+      ...values,
+    });
+  }
+  function fail(key: string, message: string) {
+    const index = indexOf(key);
+    if (index >= 0)
+      form.setError(`images.${index}.altText`, { type: "server", message });
+  }
+  function setFeatured(key: string) {
+    form.setValue("featured", key);
   }
   function add(files: File[]) {
-    const accepted: Entry[] = [];
+    const accepted: ImageEntry[] = [];
     const rejected: string[] = [];
     files.forEach((file) => {
       if (
@@ -107,58 +156,46 @@ export function useProjectImages(initialImages: ProjectImage[] = []) {
       }
       const preview = URL.createObjectURL(file);
       urls.current.add(preview);
-      accepted.push({ key: crypto.randomUUID(), file, preview, altText: "" });
+      accepted.push({
+        key: crypto.randomUUID(),
+        file,
+        preview,
+        altText: "",
+        removed: false,
+        done: false,
+      });
     });
-    setEntries((current) => [...current, ...accepted]);
+    if (accepted.length) append(accepted);
     if (!featured && accepted[0]) setFeatured(accepted[0].key);
     setNotice(rejected.join(" "));
-  }
-  function validate() {
-    let valid = true;
-    entries
-      .filter((entry) => !entry.removed)
-      .forEach((entry) => {
-        if (!entry.altText.trim() || entry.altText.trim().length > 300) {
-          valid = false;
-          patch(entry.key, {
-            error: "Describe la imagen en 1 a 300 caracteres.",
-          });
-        }
-      });
-    return valid;
   }
   async function save(projectId: string) {
     let failed = false;
     const saved = new Map<string, ProjectImage>();
     const base = `/api/admin/projects/${projectId}`;
-    for (const entry of entries) {
+    for (const entry of form.getValues("images")) {
       try {
-        patch(entry.key, { error: undefined });
+        form.clearErrors(`images.${indexOf(entry.key)}.altText`);
         if (entry.removed) {
           if (entry.image)
             await request(`${base}/media/${entry.image.id}`, "DELETE");
-          setEntries((current) =>
-            current.filter((item) => item.key !== entry.key),
-          );
+          remove(indexOf(entry.key));
           continue;
         }
         let image = entry.image;
         if (!image && entry.file) {
+          const file = entry.file;
           const data = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = () => resolve(String(reader.result).split(",")[1]!);
             reader.onerror = () =>
               reject(new Error("No se pudo leer el archivo."));
-            reader.readAsDataURL(entry.file!);
+            reader.readAsDataURL(file);
           });
           image = await request(
             `${base}/media`,
             "POST",
-            {
-              altText: entry.altText,
-              mimeType: entry.file.type,
-              data,
-            },
+            { altText: entry.altText, mimeType: file.type, data },
             entry.key,
           );
           patch(entry.key, { image, file: undefined, done: true });
@@ -171,12 +208,12 @@ export function useProjectImages(initialImages: ProjectImage[] = []) {
         if (image) saved.set(entry.key, image);
       } catch (error) {
         failed = true;
-        patch(entry.key, {
-          error:
-            error instanceof Error
-              ? error.message
-              : "No se pudo guardar la imagen.",
-        });
+        fail(
+          entry.key,
+          error instanceof Error
+            ? error.message
+            : "No se pudo guardar la imagen.",
+        );
       }
     }
     const target = saved.get(featured);
@@ -198,7 +235,16 @@ export function useProjectImages(initialImages: ProjectImage[] = []) {
       );
     setNotice("");
   }
-  return { entries, featured, setFeatured, notice, patch, add, validate, save };
+  return {
+    fields,
+    entries,
+    featured,
+    setFeatured,
+    notice,
+    patch,
+    add,
+    save,
+  };
 }
 
 export function ProjectImages({
@@ -208,6 +254,7 @@ export function ProjectImages({
   editor: ReturnType<typeof useProjectImages>;
   disabled: boolean;
 }) {
+  const form = useFormContext<ImagesValues>();
   const { entries, featured, setFeatured, notice, patch, add } = editor;
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -278,87 +325,81 @@ export function ProjectImages({
         </p>
       )}
       <RadioGroup
-        value={
-          visible.some((entry) => entry.key === featured)
-            ? featured
-            : (visible[0]?.key ?? "")
-        }
+        value={featured}
         onValueChange={(value) => {
           if (value) setFeatured(value);
         }}
         disabled={disabled}
         aria-label="Imagen destacada"
       >
-        {visible.map((entry, index) => (
-          <div
-            key={entry.key}
-            className="w-full space-y-3 rounded-md border p-4"
-          >
-            <div className="relative aspect-video w-full">
-              <Image
-                src={entry.preview}
-                alt={entry.altText || "Vista previa pendiente de descripción"}
-                fill
-                unoptimized
-                sizes="(max-width:768px) 100vw, 700px"
-                className="object-contain"
-              />
-            </div>
-            <Field data-invalid={Boolean(entry.error)}>
-              <FieldLabel htmlFor={`alt-${entry.key}`}>
-                Texto alternativo de la imagen {index + 1}
-              </FieldLabel>
-              <Input
-                id={`alt-${entry.key}`}
-                value={entry.altText}
-                required
-                maxLength={300}
-                disabled={disabled}
-                aria-invalid={Boolean(entry.error)}
-                aria-describedby={
-                  entry.error ? `error-${entry.key}` : undefined
-                }
-                onChange={(event) =>
-                  patch(entry.key, {
-                    altText: event.target.value,
-                    error: undefined,
-                    done: false,
-                  })
-                }
-              />
-              {entry.error && (
-                <FieldError id={`error-${entry.key}`}>{entry.error}</FieldError>
-              )}
-            </Field>
-            <div className="flex flex-wrap items-center gap-3">
-              <RadioGroupItem id={`featured-${entry.key}`} value={entry.key} />
-              <label htmlFor={`featured-${entry.key}`}>
-                Usar como destacada
-              </label>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={disabled}
-                onClick={() => {
-                  patch(entry.key, { removed: true });
-                  if (featured === entry.key)
-                    setFeatured(
-                      visible.find((item) => item.key !== entry.key)?.key ?? "",
-                    );
-                }}
+        {entries.map((entry, entryIndex) =>
+          entry.removed ? null : (
+            <div
+              key={entry.key}
+              className="w-full space-y-3 rounded-md border p-4"
+            >
+              <div className="relative aspect-video w-full">
+                <Image
+                  src={entry.preview}
+                  alt={entry.altText || "Vista previa pendiente de descripción"}
+                  fill
+                  unoptimized
+                  sizes="(max-width:768px) 100vw, 700px"
+                  className="object-contain"
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name={`images.${entryIndex}.altText`}
+                label={`Texto alternativo de la imagen ${visible.indexOf(entry) + 1}`}
               >
-                Quitar imagen {index + 1}
-              </Button>
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    maxLength={300}
+                    disabled={disabled}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      patch(entry.key, { done: false });
+                    }}
+                  />
+                )}
+              </FormField>
+              <div className="flex flex-wrap items-center gap-3">
+                <RadioGroupItem
+                  id={`featured-${entry.key}`}
+                  value={entry.key}
+                />
+                <Label htmlFor={`featured-${entry.key}`}>
+                  Usar como destacada
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={disabled}
+                  onClick={() => {
+                    patch(entry.key, { removed: true });
+                    if (featured === entry.key)
+                      setFeatured(
+                        visible.find((item) => item.key !== entry.key)?.key ??
+                          "",
+                      );
+                  }}
+                >
+                  Quitar imagen {visible.indexOf(entry) + 1}
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground" role="status">
+                {entry.image
+                  ? entry.done
+                    ? "Imagen guardada"
+                    : "Imagen asociada"
+                  : "Pendiente de guardar"}
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground" role="status">
-              {entry.image
-                ? entry.done
-                  ? "Imagen guardada"
-                  : "Imagen asociada"
-                : "Pendiente de guardar"}
-            </p>
-          </div>
-        ))}
+          ),
+        )}
       </RadioGroup>
       {entries.some((entry) => entry.removed) && (
         <div className="space-y-2">
@@ -373,17 +414,10 @@ export function ProjectImages({
                   type="button"
                   variant="outline"
                   disabled={disabled}
-                  onClick={() =>
-                    patch(entry.key, { removed: false, error: undefined })
-                  }
+                  onClick={() => patch(entry.key, { removed: false })}
                 >
                   Restaurar {entry.altText || "imagen"}
                 </Button>
-                {entry.error && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {entry.error}
-                  </p>
-                )}
               </div>
             ))}
         </div>

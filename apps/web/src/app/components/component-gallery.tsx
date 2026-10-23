@@ -257,15 +257,15 @@ function Preview({ slug }: { slug: string }) {
       );
     case "checkbox":
       return (
-        <label className="flex items-center gap-3 text-sm">
+        <Label className="flex items-center gap-3 text-sm">
           <Checkbox defaultChecked /> Recibir actualizaciones
-        </label>
+        </Label>
       );
     case "switch":
       return (
-        <label className="flex items-center gap-3 text-sm">
+        <Label className="flex items-center gap-3 text-sm">
           <Switch defaultChecked /> Notificaciones activas
-        </label>
+        </Label>
       );
     case "slider":
       return (
@@ -277,12 +277,12 @@ function Preview({ slug }: { slug: string }) {
     case "radio-group":
       return (
         <RadioGroup defaultValue="personal">
-          <label className="flex items-center gap-2 text-sm">
+          <Label className="flex items-center gap-2 text-sm">
             <RadioGroupItem value="personal" /> Personal
-          </label>
-          <label className="flex items-center gap-2 text-sm">
+          </Label>
+          <Label className="flex items-center gap-2 text-sm">
             <RadioGroupItem value="equipo" /> Equipo
-          </label>
+          </Label>
         </RadioGroup>
       );
     case "select":
