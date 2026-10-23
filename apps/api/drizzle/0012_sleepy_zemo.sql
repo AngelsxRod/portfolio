@@ -1,0 +1,2 @@
+ALTER TABLE "profile" ADD COLUMN "headline" varchar(120);--> statement-breakpoint
+ALTER TABLE "profile" ADD CONSTRAINT "profile_headline_not_blank" CHECK ("profile"."headline" IS NULL OR btrim("profile"."headline") <> '');

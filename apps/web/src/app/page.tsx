@@ -46,6 +46,9 @@ export default async function Home() {
                 <h1 id="hero-title" className="display-title hero-name">
                   {profile.displayName}
                 </h1>
+                {profile.headline && (
+                  <p className="hero-role">{profile.headline}</p>
+                )}
                 <p className="hero-intro whitespace-pre-line">
                   {profile.presentation}
                 </p>

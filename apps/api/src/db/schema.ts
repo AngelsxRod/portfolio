@@ -304,6 +304,7 @@ export const profile = pgTable(
   {
     version: profileVersion("version").primaryKey(),
     displayName: varchar("display_name", { length: 120 }).notNull(),
+    headline: varchar("headline", { length: 120 }),
     presentation: text("presentation").notNull(),
     location: varchar("location", { length: 120 }),
     email: varchar("email", { length: 254 }),
@@ -326,6 +327,10 @@ export const profile = pgTable(
     check(
       "profile_presentation_not_blank",
       sql`btrim(${table.presentation}) <> ''`,
+    ),
+    check(
+      "profile_headline_not_blank",
+      sql`${table.headline} IS NULL OR btrim(${table.headline}) <> ''`,
     ),
     check(
       "profile_location_not_blank",

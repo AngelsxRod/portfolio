@@ -19,6 +19,7 @@ import { invalid } from "../projects/drafts.js";
 
 type ProfileInput = {
   displayName: string;
+  headline: string | null;
   presentation: string;
   location: string | null;
   email: string | null;
@@ -27,6 +28,7 @@ type ProfileInput = {
 
 const allowed = [
   "displayName",
+  "headline",
   "presentation",
   "location",
   "email",
@@ -92,6 +94,7 @@ function profileInput(body: unknown): ProfileInput {
     errors.form = "La solicitud contiene campos no permitidos.";
 
   const displayName = text(data, "displayName", 120, errors);
+  const headline = optionalText(data, "headline", 120, errors);
   const presentation = text(data, "presentation", 2000, errors);
   const location = optionalText(data, "location", 120, errors);
 
@@ -137,7 +140,14 @@ function profileInput(body: unknown): ProfileInput {
   }
 
   if (Object.keys(errors).length) invalid(errors);
-  return { displayName, presentation, location, email: emailValue, links };
+  return {
+    displayName,
+    headline,
+    presentation,
+    location,
+    email: emailValue,
+    links,
+  };
 }
 
 function sameContent(a: ProfileInput, b: ProfileInput) {
@@ -146,6 +156,7 @@ function sameContent(a: ProfileInput, b: ProfileInput) {
 
 const content = (row: ProfileInput): ProfileInput => ({
   displayName: row.displayName,
+  headline: row.headline,
   presentation: row.presentation,
   location: row.location,
   email: row.email,
@@ -190,6 +201,7 @@ export class ProfileService {
       .getDatabase()
       .select({
         displayName: profile.displayName,
+        headline: profile.headline,
         presentation: profile.presentation,
         location: profile.location,
         email: profile.email,

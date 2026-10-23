@@ -42,6 +42,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const schema = z.object({
   displayName: requiredText(120),
+  headline: z.string().trim().max(120, "Usa hasta 120 caracteres."),
   presentation: requiredText(2000),
   location: z.string().trim().max(120, "Usa hasta 120 caracteres."),
   email: z
@@ -77,6 +78,7 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
     resolver: zodResolver(schema),
     defaultValues: {
       displayName: draft?.displayName ?? "",
+      headline: draft?.headline ?? "",
       presentation: draft?.presentation ?? "",
       location: draft?.location ?? "",
       email: draft?.email ?? "",
@@ -109,6 +111,7 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
         method: "PUT",
         body: JSON.stringify({
           displayName: values.displayName,
+          headline: values.headline || null,
           presentation: values.presentation,
           location: values.location || null,
           email: values.email || null,
@@ -202,6 +205,16 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
                 control={form.control}
                 name="displayName"
                 label="Nombre público"
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="headline"
+                label="Título profesional"
+                description="Opcional. Por ejemplo: Junior Frontend Developer o Fullstack Developer."
               >
                 {({ field, control }) => (
                   <Input {...field} {...control} maxLength={120} />

@@ -2,6 +2,8 @@ export type ProfileLink = { label: string; url: string };
 
 export type ProfileContent = {
   displayName: string;
+  /** Título profesional opcional, p. ej. «Junior Frontend Developer». */
+  headline: string | null;
   presentation: string;
   location: string | null;
   email: string | null;

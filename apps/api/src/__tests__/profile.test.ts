@@ -124,6 +124,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       const saved = await put({
         displayName: "  Persona  ",
         presentation: " Hola ",
+        headline: "  Frontend Developer  ",
         location: "   ",
         email: " a@b.co ",
         links: [{ label: " GitHub ", url: " https://github.com/x " }],
@@ -134,6 +135,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
         version: "draft",
         displayName: "Persona",
         presentation: "Hola",
+        headline: "Frontend Developer",
         location: null,
         email: "a@b.co",
         links: [{ label: "GitHub", url: "https://github.com/x" }],
@@ -154,6 +156,8 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       [{ ...valid, presentation: "x".repeat(2001) }, "presentation"],
       [{ ...valid, location: "x".repeat(121) }, "location"],
       [{ ...valid, location: 5 }, "location"],
+      [{ ...valid, headline: "x".repeat(121) }, "headline"],
+      [{ ...valid, headline: 5 }, "headline"],
       [{ ...valid, email: "no-es-correo" }, "email"],
       [{ ...valid, email: "a@b" }, "email"],
       [{ ...valid, email: 5 }, "email"],
@@ -227,6 +231,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(visible.headers["cache-control"]).toBe("no-store");
       expect(visible.json()).toEqual({
         displayName: "Persona de prueba",
+        headline: null,
         presentation: "Presentación de prueba.",
         location: null,
         email: null,
@@ -293,6 +298,7 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       expect(keys).toEqual([
         "displayName",
         "email",
+        "headline",
         "links",
         "location",
         "presentation",
