@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProjects } from "@/lib/public-projects";
+import { getPublicSkills } from "@/lib/public-skills";
 import {
   PublicFooter,
   PublicHeader,
@@ -10,7 +11,11 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const projects = await getPublicProjects();
+  const [projects, skills] = await Promise.all([
+    getPublicProjects(),
+    getPublicSkills(),
+  ]);
+  const categories = Map.groupBy(skills, (skill) => skill.category);
 
   return (
     <div className="public-site min-h-svh">
@@ -81,6 +86,44 @@ export default async function Home() {
           )}
         </section>
       </main>
+      <section
+        id="habilidades"
+        className="page-frame skills-section"
+        aria-labelledby="skills-title"
+      >
+        <div className="section-heading">
+          <div>
+            <p className="folio-caption">Archivo público</p>
+            <h2 id="skills-title" className="section-title">
+              Habilidades
+            </h2>
+          </div>
+          <p className="section-aside">
+            Agrupadas por categoría, según lo publicado.
+          </p>
+        </div>
+        {skills.length > 0 ? (
+          <dl className="skills-list">
+            {[...categories].map(([category, items]) => (
+              <div key={category} className="skills-group">
+                <dt>{category}</dt>
+                <dd>
+                  <ul>
+                    {items.map((skill) => (
+                      <li key={skill.id}>{skill.name}</li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <div className="empty-panel">
+            <h3>Aún no hay habilidades publicadas</h3>
+            <p>Aparecerán aquí cuando se publiquen desde el panel.</p>
+          </div>
+        )}
+      </section>
       <PublicFooter />
     </div>
   );

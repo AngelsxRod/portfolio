@@ -30,6 +30,7 @@ export function PublicHeader({ current }: { current?: "home" | "projects" }) {
             >
               Proyectos
             </Link>
+            <Link href="/#habilidades">Habilidades</Link>
           </nav>
         </div>
       </header>
