@@ -3,6 +3,10 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { apiUrl, SESSION_COOKIE, webOrigin } from "@/lib/admin-session";
 import type { DraftProject } from "@/lib/drafts";
+import type { AdminCertificate } from "@/lib/certificates";
+import type { AdminProfile } from "@/lib/profile";
+import type { AdminEducation } from "@/lib/education";
+import type { AdminExperience } from "@/lib/experience";
 import type { AdminSkill, SkillCategory } from "@/lib/skills";
 
 export function adminProjectsApi(path: string, init: RequestInit = {}) {
@@ -10,7 +14,14 @@ export function adminProjectsApi(path: string, init: RequestInit = {}) {
 }
 
 async function adminResource(
-  resource: "projects" | "skills" | "skill-categories",
+  resource:
+    | "projects"
+    | "skills"
+    | "skill-categories"
+    | "experience"
+    | "education"
+    | "certificates"
+    | "profile",
   path: string,
   init: RequestInit = {},
 ) {
@@ -110,4 +121,72 @@ export function getSkillCategory(id: string) {
     `/${encodeURIComponent(id)}`,
     adminSkillCategoriesApi,
   );
+}
+
+export function adminExperienceApi(path: string, init: RequestInit = {}) {
+  return adminResource("experience", path, init);
+}
+
+async function readExperience<T>(path: string): Promise<T> {
+  const response = await adminExperienceApi(path);
+  if (response.status === 401) redirect("/admin/login");
+  if (response.status === 404 || response.status === 400) notFound();
+  if (!response.ok) throw new Error("No se pudo recuperar la experiencia.");
+  return response.json() as Promise<T>;
+}
+
+export function getAdminExperiences() {
+  return readExperience<AdminExperience[]>("");
+}
+export function getAdminExperience(id: string) {
+  return readExperience<AdminExperience>(`/${encodeURIComponent(id)}`);
+}
+
+export function adminEducationApi(path: string, init: RequestInit = {}) {
+  return adminResource("education", path, init);
+}
+
+async function readEducation<T>(path: string): Promise<T> {
+  const response = await adminEducationApi(path);
+  if (response.status === 401) redirect("/admin/login");
+  if (response.status === 404 || response.status === 400) notFound();
+  if (!response.ok) throw new Error("No se pudo recuperar la educación.");
+  return response.json() as Promise<T>;
+}
+
+export function getAdminEducationList() {
+  return readEducation<AdminEducation[]>("");
+}
+export function getAdminEducation(id: string) {
+  return readEducation<AdminEducation>(`/${encodeURIComponent(id)}`);
+}
+
+export function adminCertificatesApi(path: string, init: RequestInit = {}) {
+  return adminResource("certificates", path, init);
+}
+
+async function readCertificates<T>(path: string): Promise<T> {
+  const response = await adminCertificatesApi(path);
+  if (response.status === 401) redirect("/admin/login");
+  if (response.status === 404 || response.status === 400) notFound();
+  if (!response.ok) throw new Error("No se pudo recuperar los certificados.");
+  return response.json() as Promise<T>;
+}
+
+export function getAdminCertificates() {
+  return readCertificates<AdminCertificate[]>("");
+}
+export function getAdminCertificate(id: string) {
+  return readCertificates<AdminCertificate>(`/${encodeURIComponent(id)}`);
+}
+
+export function adminProfileApi(path: string, init: RequestInit = {}) {
+  return adminResource("profile", path, init);
+}
+
+export async function getAdminProfile() {
+  const response = await adminProfileApi("");
+  if (response.status === 401) redirect("/admin/login");
+  if (!response.ok) throw new Error("No se pudo recuperar el perfil.");
+  return response.json() as Promise<AdminProfile>;
 }
