@@ -1,6 +1,6 @@
-# Dirección visual: brutalismo suave
+# Dirección visual: nocturno violeta
 
-Este portafolio presenta trabajo publicado sin atribuir biografía, especialidades ni resultados que todavía no estén documentados. Su carácter visual es un brutalismo suave: bordes de 2 px, sombras sólidas desplazadas sin desenfoque, radios amables, etiquetas ligeramente rotadas y un acento amarillo sobre la paleta morada. La forma memorable es la composición de formas gruesas de la portada; el resto de la interfaz deja hablar a los casos.
+Este portafolio presenta trabajo publicado sin atribuir biografía, especialidades ni resultados que todavía no estén documentados. Su carácter es sobrio y nocturno: fondo negro violáceo, superficies con borde fino de 1 px, esquinas redondeadas y el violeta lavanda como único acento. Es oscuro por defecto, con tema claro opcional. La portada combina un titular grande, una ficha de datos del perfil (solo con datos reales) y anillos finos de fondo; los proyectos se listan como un índice numerado.
 
 ## Principios
 
@@ -20,13 +20,13 @@ Este portafolio presenta trabajo publicado sin atribuir biografía, especialidad
 
 Los tokens compartidos viven en `packages/ui/src/styles/globals.css` y alimentan shadcn/ui, incluidas las vistas del panel.
 
-| Papel       | Valor     | Uso                                             |
-| ----------- | --------- | ----------------------------------------------- |
-| Jet Black   | `#0d0d0d` | Texto principal en claro; fondo y pie en oscuro |
-| Deep Purple | `#433075` | Acción primaria, enlaces y símbolo en claro     |
-| Lavender    | `#a58cf4` | Acción primaria y enlaces en oscuro; detalles   |
-| Soft White  | `#fafafa` | Fondo en claro; texto en oscuro                 |
-| Blanco      | `#ffffff` | Superficies y estados en claro                  |
+| Papel          | Valor     | Uso                                                      |
+| -------------- | --------- | -------------------------------------------------------- |
+| Negro violáceo | `#120d1f` | Fondo en oscuro; superficies `#1b1430`, bordes `#2e2450` |
+| Deep Purple    | `#433075` | Acción primaria, enlaces y símbolo en claro              |
+| Lavender       | `#a78bfa` | Acción primaria y enlaces en oscuro; detalles            |
+| Soft White     | `#fafafa` | Fondo en claro; texto en oscuro                          |
+| Blanco         | `#ffffff` | Superficies y estados en claro                           |
 
 Paleta propuesta por el usuario (Deep Purple, Lavender, Soft White y Jet Black), con grises neutros intermedios para superficies, reglas y texto secundario.
 
