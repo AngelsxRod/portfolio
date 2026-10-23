@@ -9,6 +9,13 @@ import { DatabaseService } from "../database.js";
 import { ContactMailer, TurnstileService } from "../contact/contact.js";
 import { AppModule } from "../server.js";
 
+const resendSend = vi.hoisted(() => vi.fn());
+vi.mock("resend", () => ({
+  Resend: class {
+    emails = { send: resendSend };
+  },
+}));
+
 const origin = "http://localhost:3000";
 const valid = {
   name: "Ada",
@@ -112,8 +119,35 @@ describe("POST /contact", () => {
   });
 
   it("responde 503 mientras Resend no esté configurado", async () => {
+    delete process.env.RESEND_API_KEY;
     await create(new ContactMailer());
     const response = await post(valid);
     expect(response.statusCode).toBe(503);
+  });
+
+  it("envía el correo con Resend y responde a quien escribió", async () => {
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.CONTACT_TO_EMAIL = "yo@example.com";
+    process.env.CONTACT_FROM_EMAIL = "Portafolio <contacto@example.com>";
+    resendSend.mockResolvedValue({ data: { id: "1" }, error: null });
+    await create(new ContactMailer());
+    const response = await post(valid);
+    expect(response.statusCode).toBe(202);
+    expect(resendSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "Portafolio <contacto@example.com>",
+        to: "yo@example.com",
+        replyTo: "ada@example.com",
+      }),
+    );
+  });
+
+  it("responde 503 si Resend devuelve un error", async () => {
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.CONTACT_TO_EMAIL = "yo@example.com";
+    process.env.CONTACT_FROM_EMAIL = "contacto@example.com";
+    resendSend.mockResolvedValue({ data: null, error: { message: "fallo" } });
+    await create(new ContactMailer());
+    expect((await post(valid)).statusCode).toBe(503);
   });
 });

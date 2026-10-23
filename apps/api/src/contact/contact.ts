@@ -9,6 +9,7 @@ import {
   Req,
   ServiceUnavailableException,
 } from "@nestjs/common";
+import { Resend } from "resend";
 import { Public, requireWebOrigin } from "../auth/auth.js";
 import { invalid } from "../projects/drafts.js";
 
@@ -83,20 +84,31 @@ export class TurnstileService {
   }
 }
 
-/**
- * Entrega los mensajes del formulario.
- *
- * Pendiente: integrar Resend (`resend.emails.send`) cuando existan
- * `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL`. Mientras tanto
- * la API responde 503 y no descarta mensajes en silencio.
- */
+/** Entrega los mensajes del formulario por correo con Resend. */
 @Injectable()
 export class ContactMailer {
-  async send(message: ContactMessage) {
-    void message;
-    throw new ServiceUnavailableException(
-      "El envío de mensajes todavía no está configurado.",
-    );
+  async send({ name, email, message }: ContactMessage) {
+    const apiKey = process.env.RESEND_API_KEY;
+    const to = process.env.CONTACT_TO_EMAIL;
+    const from = process.env.CONTACT_FROM_EMAIL;
+    if (!apiKey || !to || !from)
+      throw new ServiceUnavailableException(
+        "El envío de mensajes todavía no está configurado.",
+      );
+
+    const { error } = await new Resend(apiKey).emails.send({
+      from,
+      to,
+      replyTo: email,
+      subject: `Mensaje de contacto de ${name}`.slice(0, 200),
+      text: `Nombre: ${name}\nCorreo: ${email}\n\n${message}`,
+    });
+    if (error) {
+      new Logger("ContactMailer").error(error);
+      throw new ServiceUnavailableException(
+        "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+      );
+    }
   }
 }
 
