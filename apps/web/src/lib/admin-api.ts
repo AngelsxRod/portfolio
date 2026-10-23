@@ -190,3 +190,23 @@ export async function getAdminProfile() {
   if (!response.ok) throw new Error("No se pudo recuperar el perfil.");
   return response.json() as Promise<AdminProfile>;
 }
+
+/** Tecnologías ya usadas en proyectos, de más a menos frecuentes, para sugerirlas. */
+export async function getTechnologySuggestions() {
+  try {
+    const [drafts, published] = await Promise.all([
+      getDrafts(),
+      getPublishedProjects(),
+    ]);
+    const counts = new Map<string, number>();
+    for (const project of [...drafts, ...published])
+      for (const tag of project.technologies)
+        counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "es"))
+      .map(([tag]) => tag)
+      .slice(0, 30);
+  } catch {
+    return [];
+  }
+}

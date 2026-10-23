@@ -8,12 +8,12 @@ import {
   type DragEvent,
 } from "react";
 import Image from "next/image";
+import { ImagePlusIcon, StarIcon, Trash2Icon, Undo2Icon } from "lucide-react";
+import { Badge } from "@repo/ui/components/badge";
 import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { FormField } from "@/components/form-field";
 import type { ProjectImage } from "@/lib/drafts";
@@ -274,10 +274,7 @@ export function ProjectImages({
     if (!disabled) add(Array.from(event.dataTransfer.files));
   }
   return (
-    <section className="space-y-4" aria-labelledby="images-title">
-      <h2 id="images-title" className="text-xl font-semibold">
-        Imágenes del proyecto
-      </h2>
+    <div className="space-y-5">
       <div
         tabIndex={disabled ? -1 : 0}
         onPaste={paste}
@@ -291,20 +288,33 @@ export function ProjectImages({
             setDragging(false);
         }}
         aria-label="Zona de carga de imágenes. Selecciona, arrastra o pega imágenes."
-        className={`space-y-3 rounded-md border border-dashed p-5 focus-visible:outline-2 focus-visible:outline-ring ${dragging ? "bg-accent" : "bg-muted/30"}`}
+        className={`flex flex-col items-center gap-3 rounded-lg border-2 border-dashed px-5 py-8 text-center transition-colors focus-visible:outline-2 focus-visible:outline-ring ${dragging ? "border-primary bg-accent" : "bg-muted/30"}`}
       >
-        <p>
-          Selecciona archivos, arrástralos aquí o enfoca esta zona y pega
-          imágenes del portapapeles.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          PNG, JPEG o WebP. Máximo 5 MiB por imagen. Cada imagen necesita un
-          texto alternativo.
-        </p>
-        <Input
+        <ImagePlusIcon
+          className="size-8 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <div className="space-y-1">
+          <p className="font-medium">
+            Arrastra imágenes aquí o pégalas desde el portapapeles
+          </p>
+          <p className="text-sm text-muted-foreground">
+            PNG, JPEG o WebP · máximo 5 MiB cada una
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          onClick={() => fileInput.current?.click()}
+        >
+          Seleccionar imágenes
+        </Button>
+        <input
           ref={fileInput}
           type="file"
           multiple
+          hidden
           accept="image/png,image/jpeg,image/webp"
           disabled={disabled}
           aria-label="Seleccionar imágenes"
@@ -319,109 +329,131 @@ export function ProjectImages({
           <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
-      {visible.length === 0 && (
+      {visible.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           Este proyecto todavía no tiene imágenes.
         </p>
-      )}
-      <RadioGroup
-        value={featured}
-        onValueChange={(value) => {
-          if (value) setFeatured(value);
-        }}
-        disabled={disabled}
-        aria-label="Imagen destacada"
-      >
-        {entries.map((entry, entryIndex) =>
-          entry.removed ? null : (
-            <div
-              key={entry.key}
-              className="w-full space-y-3 rounded-md border p-4"
-            >
-              <div className="relative aspect-video w-full">
-                <Image
-                  src={entry.preview}
-                  alt={entry.altText || "Vista previa pendiente de descripción"}
-                  fill
-                  unoptimized
-                  sizes="(max-width:768px) 100vw, 700px"
-                  className="object-contain"
-                />
-              </div>
-              <FormField
-                control={form.control}
-                name={`images.${entryIndex}.altText`}
-                label={`Texto alternativo de la imagen ${visible.indexOf(entry) + 1}`}
+      ) : (
+        <ul
+          className="grid gap-4 sm:grid-cols-2"
+          aria-label="Imágenes del proyecto"
+        >
+          {entries.map((entry, entryIndex) => {
+            if (entry.removed) return null;
+            const number = visible.indexOf(entry) + 1;
+            const isFeatured = featured === entry.key;
+            return (
+              <li
+                key={entry.key}
+                className="flex flex-col overflow-hidden rounded-lg border bg-card"
               >
-                {({ field, control }) => (
-                  <Input
-                    {...field}
-                    {...control}
-                    maxLength={300}
-                    disabled={disabled}
-                    onChange={(event) => {
-                      field.onChange(event);
-                      patch(entry.key, { done: false });
-                    }}
+                <div className="relative aspect-video w-full bg-muted">
+                  <Image
+                    src={entry.preview}
+                    alt={
+                      entry.altText || "Vista previa pendiente de descripción"
+                    }
+                    fill
+                    unoptimized
+                    sizes="(max-width:640px) 100vw, 340px"
+                    className="object-contain"
                   />
-                )}
-              </FormField>
-              <div className="flex flex-wrap items-center gap-3">
-                <RadioGroupItem
-                  id={`featured-${entry.key}`}
-                  value={entry.key}
-                />
-                <Label htmlFor={`featured-${entry.key}`}>
-                  Usar como destacada
-                </Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={disabled}
-                  onClick={() => {
-                    patch(entry.key, { removed: true });
-                    if (featured === entry.key)
-                      setFeatured(
-                        visible.find((item) => item.key !== entry.key)?.key ??
-                          "",
-                      );
-                  }}
-                >
-                  Quitar imagen {visible.indexOf(entry) + 1}
-                </Button>
-              </div>
-              <p className="text-sm text-muted-foreground" role="status">
-                {entry.image
-                  ? entry.done
-                    ? "Imagen guardada"
-                    : "Imagen asociada"
-                  : "Pendiente de guardar"}
-              </p>
-            </div>
-          ),
-        )}
-      </RadioGroup>
+                  <div className="absolute top-2 left-2 flex gap-1.5">
+                    {isFeatured && (
+                      <Badge className="bg-background text-foreground shadow">
+                        <StarIcon aria-hidden="true" />
+                        Destacada
+                      </Badge>
+                    )}
+                    {!entry.image && (
+                      <Badge className="bg-background text-foreground shadow">
+                        Sin guardar
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col gap-3 p-3">
+                  <FormField
+                    control={form.control}
+                    name={`images.${entryIndex}.altText`}
+                    label={`Texto alternativo de la imagen ${number}`}
+                  >
+                    {({ field, control }) => (
+                      <Input
+                        {...field}
+                        {...control}
+                        maxLength={300}
+                        disabled={disabled}
+                        placeholder="Describe lo que se ve"
+                        onChange={(event) => {
+                          field.onChange(event);
+                          patch(entry.key, { done: false });
+                        }}
+                      />
+                    )}
+                  </FormField>
+                  <div className="mt-auto flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={isFeatured ? "secondary" : "outline"}
+                      aria-pressed={isFeatured}
+                      disabled={disabled}
+                      onClick={() => setFeatured(entry.key)}
+                    >
+                      <StarIcon aria-hidden="true" />
+                      {isFeatured ? "Destacada" : "Usar como destacada"}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="ml-auto text-destructive hover:text-destructive"
+                      disabled={disabled}
+                      aria-label={`Quitar imagen ${number}`}
+                      onClick={() => {
+                        patch(entry.key, { removed: true });
+                        if (isFeatured)
+                          setFeatured(
+                            visible.find((item) => item.key !== entry.key)
+                              ?.key ?? "",
+                          );
+                      }}
+                    >
+                      <Trash2Icon aria-hidden="true" />
+                      Quitar
+                    </Button>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {entries.some((entry) => entry.removed) && (
-        <div className="space-y-2">
-          <p className="text-sm">
-            Las imágenes retiradas se eliminarán al guardar.
+        <div className="space-y-2 rounded-lg border border-dashed p-3">
+          <p className="text-sm text-muted-foreground">
+            Las imágenes quitadas se eliminarán al guardar.
           </p>
-          {entries
-            .filter((entry) => entry.removed)
-            .map((entry) => (
-              <div key={entry.key}>
+          <div className="flex flex-wrap gap-2">
+            {entries
+              .filter((entry) => entry.removed)
+              .map((entry) => (
                 <Button
+                  key={entry.key}
                   type="button"
+                  size="sm"
                   variant="outline"
                   disabled={disabled}
                   onClick={() => patch(entry.key, { removed: false })}
                 >
+                  <Undo2Icon aria-hidden="true" />
                   Restaurar {entry.altText || "imagen"}
                 </Button>
-              </div>
-            ))}
+              ))}
+          </div>
         </div>
       )}
-    </section>
+    </div>
   );
 }

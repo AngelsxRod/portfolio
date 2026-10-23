@@ -24,7 +24,7 @@ export function FormPage({
 }) {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div className="sticky top-14 z-10 -mx-4 flex flex-wrap items-start justify-between gap-4 border-b bg-background/95 px-4 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:-mx-6 sm:px-6">
+      <div className="sticky top-14 z-10 -mx-4 flex flex-wrap items-start justify-between gap-4 border-b bg-background px-4 py-4 sm:-mx-6 sm:px-6">
         <div className="min-w-0 space-y-2">
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight break-words">
@@ -47,17 +47,21 @@ export function FormPage({
 /** Sección con título y descripción a un lado y los campos al otro. */
 export function FormSection({
   title,
+  titleId,
   description,
   children,
 }: {
   title: string;
+  titleId?: string;
   description?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="grid gap-4 border-t pt-6 md:grid-cols-[13rem_1fr] md:gap-8">
       <div className="space-y-1">
-        <h2 className="text-base font-semibold">{title}</h2>
+        <h2 id={titleId} className="text-base font-semibold">
+          {title}
+        </h2>
         {description && (
           <p className="text-sm text-muted-foreground">{description}</p>
         )}

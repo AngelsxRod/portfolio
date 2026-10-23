@@ -1,5 +1,5 @@
 import { DraftForm } from "@/app/admin/(protected)/projects/draft-form";
-import { getAdminProject } from "@/lib/admin-api";
+import { getAdminProject, getTechnologySuggestions } from "@/lib/admin-api";
 
 export default async function EditDraft({
   params,
@@ -17,6 +17,7 @@ export default async function EditDraft({
       draft={draft}
       initialImages={draft.media}
       justCreated={saved === "1"}
+      suggestions={await getTechnologySuggestions()}
     />
   );
 }

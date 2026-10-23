@@ -16,6 +16,7 @@ import { publishCreated } from "@/components/admin/publish-created";
 import { FormPage, FormSection } from "@/components/admin/form-page";
 import { PublicationButton } from "@/components/admin/publication-button";
 import { SaveMenu } from "@/components/admin/save-menu";
+import { TagInput } from "@/components/admin/tag-input";
 import { DiscardPendingButton } from "@/components/admin/discard-pending-button";
 import {
   applyServerErrors,
@@ -93,6 +94,8 @@ type Props = {
   draft?: DraftProject | PublishedProject;
   initialImages?: ProjectImage[];
   justCreated?: boolean;
+  /** Tecnologías de otros proyectos, para añadirlas con un clic. */
+  suggestions?: string[];
 };
 
 /** Un proyecto publicado se edita sobre sus cambios pendientes, si los hay. */
@@ -111,7 +114,12 @@ function textValues(
   };
 }
 
-export function DraftForm({ draft, initialImages = [], justCreated }: Props) {
+export function DraftForm({
+  draft,
+  initialImages = [],
+  justCreated,
+  suggestions = [],
+}: Props) {
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -121,7 +129,11 @@ export function DraftForm({ draft, initialImages = [], justCreated }: Props) {
   });
   return (
     <FormProvider {...form}>
-      <DraftFormBody draft={draft} justCreated={justCreated} />
+      <DraftFormBody
+        draft={draft}
+        justCreated={justCreated}
+        suggestions={suggestions}
+      />
     </FormProvider>
   );
 }
@@ -129,6 +141,7 @@ export function DraftForm({ draft, initialImages = [], justCreated }: Props) {
 function DraftFormBody({
   draft,
   justCreated = false,
+  suggestions = [],
 }: Omit<Props, "initialImages">) {
   const form = useFormContext<Values>();
   const router = useRouter();
@@ -355,8 +368,8 @@ function DraftFormBody({
             </FieldGroup>
           </FormSection>
           <FormSection
-            title="Enlaces y tecnologías"
-            description="Demo, código y tecnologías usadas."
+            title="Enlaces"
+            description="Dónde ver el proyecto en funcionamiento y su código."
           >
             <FieldGroup>
               <FormField
@@ -389,14 +402,27 @@ function DraftFormBody({
                   />
                 )}
               </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Tecnologías"
+            description="Lo que usaste en el proyecto; se muestran en el sitio."
+          >
+            <FieldGroup>
               <FormField
                 control={form.control}
                 name="technologies"
                 label="Tecnologías"
-                description="Separa las tecnologías con comas, por ejemplo: React, NestJS, PostgreSQL. Máximo 30."
+                description="Escribe una y presiona Enter o coma. Máximo 30."
               >
                 {({ field, control }) => (
-                  <Input {...field} {...control} maxLength={2500} />
+                  <TagInput
+                    {...control}
+                    value={technologyList(field.value)}
+                    onChange={(next) => field.onChange(next.join(", "))}
+                    suggestions={suggestions}
+                    disabled={field.disabled}
+                  />
                 )}
               </FormField>
             </FieldGroup>
@@ -426,9 +452,13 @@ function DraftFormBody({
             </FieldGroup>
           </FormSection>
         </fieldset>
-        <div className="border-t pt-6">
+        <FormSection
+          title="Imágenes"
+          titleId="images-title"
+          description="Capturas del proyecto. Cada una necesita un texto alternativo; la destacada es la que se ve en la portada."
+        >
           <ProjectImages editor={images} disabled={saving} />
-        </div>
+        </FormSection>
         <button type="submit" hidden />
       </form>
     </FormPage>
