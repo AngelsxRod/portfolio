@@ -8,11 +8,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { Card, CardContent } from "@repo/ui/components/card";
 import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import {
+  FormPage,
+  FormSection,
+  StickyActions,
+} from "@/components/admin/form-page";
+import { Spinner } from "@repo/ui/components/spinner";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -81,22 +86,10 @@ export function CategoryForm({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-2">
-        <Link
-          href="/admin/skills/categories"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Volver a categorías
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {category ? "Editar categoría" : "Nueva categoría"}
-        </h1>
-        <p className="text-muted-foreground">
-          Las habilidades eligen una categoría de esta lista. Renombrarla
-          actualiza todas sus habilidades.
-        </p>
-      </div>
+    <FormPage
+      title={category ? "Editar categoría" : "Nueva categoría"}
+      description="Las habilidades eligen una categoría de esta lista. Renombrarla actualiza todas sus habilidades."
+    >
       {saved && (
         <Alert role="status">
           <AlertTitle>Categoría guardada</AlertTitle>
@@ -105,60 +98,75 @@ export function CategoryForm({
           </AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="space-y-6"
-            aria-busy={saving}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-6"
+        aria-busy={saving}
+      >
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
+          <FormSection
+            title="Categoría"
+            description="Nombre con el que se agrupan las habilidades."
           >
-            <fieldset disabled={saving}>
-              <FieldGroup>
-                <FormField
-                  control={form.control}
-                  name="name"
-                  label="Nombre"
-                  description="Hasta 80 caracteres. No puede repetirse, sin distinguir mayúsculas."
-                >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={80} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="position"
-                  label="Posición"
-                  description="Los números menores aparecen primero en la portada."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="number"
-                      min={0}
-                      max={2147483647}
-                      step={1}
-                    />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </fieldset>
-            <div className="flex flex-wrap gap-3">
-              <Button type="submit" disabled={saving}>
-                {saving ? "Guardando…" : "Guardar categoría"}
-              </Button>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/admin/skills/categories" />}
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="name"
+                label="Nombre"
+                description="Hasta 80 caracteres. No puede repetirse, sin distinguir mayúsculas."
               >
-                Volver a la lista
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={80} />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Orden"
+            description="Define qué categoría aparece primero."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="position"
+                label="Posición"
+                description="Los números menores aparecen primero en la portada."
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="number"
+                    min={0}
+                    max={2147483647}
+                    step={1}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+        </fieldset>
+        <StickyActions>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/admin/skills/categories" />}
+          >
+            Volver a la lista
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Spinner role="presentation" aria-hidden="true" />
+                Guardando…
+              </>
+            ) : (
+              "Guardar"
+            )}
+          </Button>
+        </StickyActions>
+      </form>
+    </FormPage>
   );
 }

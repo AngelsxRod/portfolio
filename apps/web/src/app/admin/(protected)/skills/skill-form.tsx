@@ -15,11 +15,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/select";
-import { Card, CardContent } from "@repo/ui/components/card";
 import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import {
+  FormPage,
+  FormSection,
+  StickyActions,
+} from "@/components/admin/form-page";
+import { PublicationButton } from "@/components/admin/publication-button";
+import { Spinner } from "@repo/ui/components/spinner";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -94,27 +100,22 @@ export function SkillForm({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-2">
-        <Link
-          href="/admin/skills"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Volver a habilidades
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {published
-            ? "Habilidad publicada"
-            : skill
-              ? "Editar habilidad"
-              : "Nueva habilidad"}
-        </h1>
-        <p className="text-muted-foreground">
-          {published
-            ? "Retírala desde la lista para poder editarla."
-            : "Nombre y categoría son obligatorios. La habilidad se guarda como borrador."}
-        </p>
-      </div>
+    <FormPage
+      title={
+        published
+          ? "Habilidad publicada"
+          : skill
+            ? "Editar habilidad"
+            : "Nueva habilidad"
+      }
+      description={
+        published
+          ? "Retírala para poder editarla."
+          : "Nombre y categoría son obligatorios. La habilidad se guarda como borrador."
+      }
+      status={skill?.status}
+      feminine={true}
+    >
       {categories.length === 0 && !published && (
         <Alert role="status">
           <AlertTitle>Primero crea una categoría</AlertTitle>
@@ -134,102 +135,132 @@ export function SkillForm({
           </AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="space-y-6"
-            aria-busy={saving}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-6"
+        aria-busy={saving}
+      >
+        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+          <FormSection
+            title="Habilidad"
+            description="Nombre y categoría con la que se agrupa en la portada."
           >
-            <fieldset disabled={saving || published}>
-              <FieldGroup>
-                <FormField
-                  control={form.control}
-                  name="name"
-                  label="Nombre"
-                  description="Hasta 80 caracteres. No puede repetirse, sin distinguir mayúsculas."
-                >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={80} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="categoryId"
-                  label="Categoría"
-                  description={
-                    <>
-                      Las categorías se administran en{" "}
-                      <Link
-                        className="underline"
-                        href="/admin/skills/categories"
-                      >
-                        Categorías
-                      </Link>
-                      .
-                    </>
-                  }
-                >
-                  {({ field, control }) => (
-                    <Select
-                      name={field.name}
-                      value={field.value || null}
-                      onValueChange={(value) => field.onChange(value ?? "")}
-                      items={categories.map((category) => ({
-                        value: category.id,
-                        label: category.name,
-                      }))}
-                    >
-                      <SelectTrigger {...control} className="w-full">
-                        <SelectValue placeholder="Elige una categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="position"
-                  label="Posición"
-                  description="Los números menores aparecen primero."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="number"
-                      min={0}
-                      max={2147483647}
-                      step={1}
-                    />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </fieldset>
-            <div className="flex flex-wrap gap-3">
-              {!published && (
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Guardando…" : "Guardar borrador"}
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/admin/skills" />}
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="name"
+                label="Nombre"
+                description="Hasta 80 caracteres. No puede repetirse, sin distinguir mayúsculas."
               >
-                Volver a la lista
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={80} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="categoryId"
+                label="Categoría"
+                description={
+                  <>
+                    Las categorías se administran en{" "}
+                    <Link className="underline" href="/admin/skills/categories">
+                      Categorías
+                    </Link>
+                    .
+                  </>
+                }
+              >
+                {({ field, control }) => (
+                  <Select
+                    name={field.name}
+                    value={field.value || null}
+                    onValueChange={(value) => field.onChange(value ?? "")}
+                    items={categories.map((category) => ({
+                      value: category.id,
+                      label: category.name,
+                    }))}
+                  >
+                    <SelectTrigger {...control} className="w-full">
+                      <SelectValue placeholder="Elige una categoría" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection title="Orden" description="Define qué aparece primero.">
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="position"
+                label="Posición"
+                description="Los números menores aparecen primero."
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="number"
+                    min={0}
+                    max={2147483647}
+                    step={1}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+        </fieldset>
+        <StickyActions>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/admin/skills" />}
+          >
+            Volver a la lista
+          </Button>
+          {skill && published && (
+            <PublicationButton
+              resource="skills"
+              id={skill.id}
+              name={skill.name}
+              status="published"
+              noun="Habilidad"
+              feminine={true}
+            />
+          )}
+          {skill && !published && !form.formState.isDirty && (
+            <PublicationButton
+              resource="skills"
+              id={skill.id}
+              name={skill.name}
+              status="draft"
+              noun="Habilidad"
+              feminine={true}
+              completeHref={`/admin/skills/${skill.id}/edit`}
+            />
+          )}
+          {!published && (
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <Spinner role="presentation" aria-hidden="true" />
+                  Guardando…
+                </>
+              ) : (
+                "Guardar borrador"
+              )}
+            </Button>
+          )}
+        </StickyActions>
+      </form>
+    </FormPage>
   );
 }

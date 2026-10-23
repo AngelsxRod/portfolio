@@ -9,11 +9,17 @@ import * as z from "zod";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Card, CardContent } from "@repo/ui/components/card";
 import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertTitle, AlertDescription } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import {
+  FormPage,
+  FormSection,
+  StickyActions,
+} from "@/components/admin/form-page";
+import { PublicationButton } from "@/components/admin/publication-button";
+import { Spinner } from "@repo/ui/components/spinner";
 import {
   applyServerErrors,
   lengthMessage,
@@ -188,27 +194,22 @@ function DraftFormBody({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-2">
-        <Link
-          href="/admin/projects"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Volver a borradores
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {published
-            ? "Imágenes del proyecto publicado"
-            : draft
-              ? "Editar borrador"
-              : "Nuevo borrador"}
-        </h1>
-        <p className="text-muted-foreground">
-          {published
-            ? "Puedes gestionar las imágenes. Retira el proyecto desde el panel para editar su texto."
-            : "Título y slug obligatorios. Si añades imágenes, describe cada una antes de guardar."}
-        </p>
-      </div>
+    <FormPage
+      title={
+        published
+          ? "Imágenes del proyecto publicado"
+          : draft
+            ? "Editar borrador"
+            : "Nuevo borrador"
+      }
+      description={
+        published
+          ? "Puedes gestionar las imágenes. Retira el proyecto desde el panel para editar su texto."
+          : "Título y slug obligatorios. Si añades imágenes, describe cada una antes de guardar."
+      }
+      status={draft?.status}
+      feminine={false}
+    >
       {saveError && (
         <Alert role="alert">
           <AlertTitle>Guardado pendiente</AlertTitle>
@@ -235,154 +236,197 @@ function DraftFormBody({
           </AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="space-y-6"
-            aria-busy={saving}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-6"
+        aria-busy={saving}
+      >
+        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+          <FormSection
+            title="Identidad"
+            description="Cómo se llama el proyecto y en qué dirección se publica."
           >
-            <fieldset disabled={saving || published}>
-              <FieldGroup>
-                <FormField control={form.control} name="title" label="Título">
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      maxLength={200}
-                      onChange={(event) => {
-                        field.onChange(event);
-                        if (!slugEdited)
-                          form.setValue(
-                            "slug",
-                            suggestSlug(event.target.value),
-                          );
-                      }}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="slug"
-                  label="Slug"
-                  description="Identificador único con letras minúsculas, números y guiones. Puedes modificar la propuesta."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      maxLength={160}
-                      onChange={(event) => {
-                        setSlugEdited(true);
-                        field.onChange(event);
-                      }}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="summary"
-                  label="Resumen"
-                >
-                  {({ field, control }) => (
-                    <Textarea {...field} {...control} maxLength={1000} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  label="Descripción"
-                  description="Puedes escribir Markdown. El contenido se guarda como texto."
-                >
-                  {({ field, control }) => (
-                    <Textarea
-                      {...field}
-                      {...control}
-                      maxLength={50000}
-                      className="min-h-48 font-mono"
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="demoUrl"
-                  label="URL de la demo"
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="url"
-                      maxLength={2048}
-                      placeholder="https://"
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="codeUrl"
-                  label="URL del código"
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="url"
-                      maxLength={2048}
-                      placeholder="https://"
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="technologies"
-                  label="Tecnologías"
-                  description="Separa las tecnologías con comas, por ejemplo: React, NestJS, PostgreSQL. Máximo 30."
-                >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={2500} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="position"
-                  label="Posición"
-                  description="Los números menores aparecen primero en la lista."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="number"
-                      min={0}
-                      max={2147483647}
-                      step={1}
-                    />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </fieldset>
-            <ProjectImages editor={images} disabled={saving} />
-            <div className="flex flex-wrap gap-3">
-              <Button type="submit" disabled={saving}>
-                {saving
-                  ? "Guardando…"
-                  : published
-                    ? "Guardar imágenes"
-                    : "Guardar borrador"}
-              </Button>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/admin/projects" />}
+            <FieldGroup>
+              <FormField control={form.control} name="title" label="Título">
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    maxLength={200}
+                    onChange={(event) => {
+                      field.onChange(event);
+                      if (!slugEdited)
+                        form.setValue("slug", suggestSlug(event.target.value));
+                    }}
+                  />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="slug"
+                label="Slug"
+                description="Identificador único con letras minúsculas, números y guiones. Puedes modificar la propuesta."
               >
-                Volver a la lista
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    maxLength={160}
+                    onChange={(event) => {
+                      setSlugEdited(true);
+                      field.onChange(event);
+                    }}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Contenido"
+            description="Resumen y descripción en Markdown que se muestran en el sitio."
+          >
+            <FieldGroup>
+              <FormField control={form.control} name="summary" label="Resumen">
+                {({ field, control }) => (
+                  <Textarea {...field} {...control} maxLength={1000} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="description"
+                label="Descripción"
+                description="Puedes escribir Markdown. El contenido se guarda como texto."
+              >
+                {({ field, control }) => (
+                  <Textarea
+                    {...field}
+                    {...control}
+                    maxLength={50000}
+                    className="min-h-48 font-mono"
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Enlaces y tecnologías"
+            description="Demo, código y tecnologías usadas."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="demoUrl"
+                label="URL de la demo"
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="url"
+                    maxLength={2048}
+                    placeholder="https://"
+                  />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="codeUrl"
+                label="URL del código"
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="url"
+                    maxLength={2048}
+                    placeholder="https://"
+                  />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="technologies"
+                label="Tecnologías"
+                description="Separa las tecnologías con comas, por ejemplo: React, NestJS, PostgreSQL. Máximo 30."
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={2500} />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Orden"
+            description="Define qué proyecto aparece primero."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="position"
+                label="Posición"
+                description="Los números menores aparecen primero en la lista."
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="number"
+                    min={0}
+                    max={2147483647}
+                    step={1}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+        </fieldset>
+        <div className="border-t pt-6">
+          <ProjectImages editor={images} disabled={saving} />
+        </div>
+        <StickyActions>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/admin/projects" />}
+          >
+            Volver a la lista
+          </Button>
+          {draft && published && (
+            <PublicationButton
+              resource="projects"
+              id={draft.id}
+              name={draft.title}
+              status="published"
+              noun="Proyecto"
+              feminine={false}
+            />
+          )}
+          {draft && !published && !form.formState.isDirty && (
+            <PublicationButton
+              resource="projects"
+              id={draft.id}
+              name={draft.title}
+              status="draft"
+              noun="Proyecto"
+              feminine={false}
+              completeHref={`/admin/projects/${draft.id}/edit`}
+            />
+          )}
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Spinner role="presentation" aria-hidden="true" />
+                Guardando…
+              </>
+            ) : published ? (
+              "Guardar imágenes"
+            ) : (
+              "Guardar borrador"
+            )}
+          </Button>
+        </StickyActions>
+      </form>
+    </FormPage>
   );
 }

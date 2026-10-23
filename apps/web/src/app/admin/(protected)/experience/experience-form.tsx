@@ -10,11 +10,17 @@ import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { MonthPicker } from "@repo/ui/components/month-picker";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Card, CardContent } from "@repo/ui/components/card";
 import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import {
+  FormPage,
+  FormSection,
+  StickyActions,
+} from "@/components/admin/form-page";
+import { PublicationButton } from "@/components/admin/publication-button";
+import { Spinner } from "@repo/ui/components/spinner";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -136,27 +142,22 @@ export function ExperienceForm({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-2">
-        <Link
-          href="/admin/experience"
-          className="text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Volver a experiencia
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {published
-            ? "Experiencia publicada"
-            : experience
-              ? "Editar experiencia"
-              : "Nueva experiencia"}
-        </h1>
-        <p className="text-muted-foreground">
-          {published
-            ? "Retírala desde la lista para poder editarla."
-            : "Organización, puesto y fecha de inicio son obligatorios. Se guarda como borrador."}
-        </p>
-      </div>
+    <FormPage
+      title={
+        published
+          ? "Experiencia publicada"
+          : experience
+            ? "Editar experiencia"
+            : "Nueva experiencia"
+      }
+      description={
+        published
+          ? "Retírala para poder editarla."
+          : "Organización, puesto y fecha de inicio son obligatorios. Se guarda como borrador."
+      }
+      status={experience?.status}
+      feminine={true}
+    >
       {saved && (
         <Alert role="status">
           <AlertTitle>Borrador guardado</AlertTitle>
@@ -165,122 +166,161 @@ export function ExperienceForm({
           </AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="space-y-6"
-            aria-busy={saving}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-6"
+        aria-busy={saving}
+      >
+        <fieldset disabled={saving || published} className="min-w-0 space-y-8">
+          <FormSection
+            title="Cargo"
+            description="Dónde trabajaste y con qué puesto."
           >
-            <fieldset disabled={saving || published}>
-              <FieldGroup>
-                <FormField
-                  control={form.control}
-                  name="organization"
-                  label="Organización"
-                >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={120} />
-                  )}
-                </FormField>
-                <FormField control={form.control} name="title" label="Puesto">
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={120} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  label="Inicio"
-                  description="Mes y año de inicio."
-                >
-                  {({ field, control }) => (
-                    <MonthPicker
-                      {...control}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Elige el mes de inicio"
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  label="Fin"
-                  description="Déjalo vacío si es tu cargo actual. No puede ser anterior al inicio."
-                >
-                  {({ field, control }) => (
-                    <MonthPicker
-                      {...control}
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Cargo actual (sin fin)"
-                      clearLabel="Quitar fecha de fin"
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="description"
-                  label="Descripción"
-                  description="Opcional. Texto plano de hasta 2.000 caracteres."
-                >
-                  {({ field, control }) => (
-                    <Textarea
-                      {...field}
-                      {...control}
-                      rows={5}
-                      maxLength={2000}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="achievements"
-                  label="Logros"
-                  description="Opcional. Un logro por línea: hasta 10, de 300 caracteres cada uno, sin repetir."
-                >
-                  {({ field, control }) => (
-                    <Textarea {...field} {...control} rows={5} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="position"
-                  label="Posición"
-                  description="Los números menores aparecen primero; con la misma posición, va antes el inicio más reciente."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="number"
-                      min={0}
-                      max={2147483647}
-                      step={1}
-                    />
-                  )}
-                </FormField>
-              </FieldGroup>
-            </fieldset>
-            <div className="flex flex-wrap gap-3">
-              {!published && (
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Guardando…" : "Guardar borrador"}
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/admin/experience" />}
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="organization"
+                label="Organización"
               >
-                Volver a la lista
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
+                )}
+              </FormField>
+              <FormField control={form.control} name="title" label="Puesto">
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection title="Periodo" description="Fechas de inicio y fin.">
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="startDate"
+                label="Inicio"
+                description="Mes y año de inicio."
+              >
+                {({ field, control }) => (
+                  <MonthPicker
+                    {...control}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Elige el mes de inicio"
+                  />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="endDate"
+                label="Fin"
+                description="Déjalo vacío si es tu cargo actual. No puede ser anterior al inicio."
+              >
+                {({ field, control }) => (
+                  <MonthPicker
+                    {...control}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Cargo actual (sin fin)"
+                    clearLabel="Quitar fecha de fin"
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Detalle"
+            description="Descripción y logros que se muestran en el sitio."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="description"
+                label="Descripción"
+                description="Opcional. Texto plano de hasta 2.000 caracteres."
+              >
+                {({ field, control }) => (
+                  <Textarea {...field} {...control} rows={5} maxLength={2000} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="achievements"
+                label="Logros"
+                description="Opcional. Un logro por línea: hasta 10, de 300 caracteres cada uno, sin repetir."
+              >
+                {({ field, control }) => (
+                  <Textarea {...field} {...control} rows={5} />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection title="Orden" description="Define qué aparece primero.">
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="position"
+                label="Posición"
+                description="Los números menores aparecen primero; con la misma posición, va antes el inicio más reciente."
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="number"
+                    min={0}
+                    max={2147483647}
+                    step={1}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+        </fieldset>
+        <StickyActions>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/admin/experience" />}
+          >
+            Volver a la lista
+          </Button>
+          {experience && published && (
+            <PublicationButton
+              resource="experience"
+              id={experience.id}
+              name={experience.title}
+              status="published"
+              noun="Experiencia"
+              feminine={true}
+            />
+          )}
+          {experience && !published && !form.formState.isDirty && (
+            <PublicationButton
+              resource="experience"
+              id={experience.id}
+              name={experience.title}
+              status="draft"
+              noun="Experiencia"
+              feminine={true}
+              completeHref={`/admin/experience/${experience.id}/edit`}
+            />
+          )}
+          {!published && (
+            <Button type="submit" disabled={saving}>
+              {saving ? (
+                <>
+                  <Spinner role="presentation" aria-hidden="true" />
+                  Guardando…
+                </>
+              ) : (
+                "Guardar borrador"
+              )}
+            </Button>
+          )}
+        </StickyActions>
+      </form>
+    </FormPage>
   );
 }

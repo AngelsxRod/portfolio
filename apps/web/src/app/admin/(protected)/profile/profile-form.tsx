@@ -9,11 +9,27 @@ import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
 import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
-import { Card, CardContent } from "@repo/ui/components/card";
 import { FieldGroup } from "@repo/ui/components/field";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
+import {
+  FormPage,
+  FormSection,
+  StickyActions,
+} from "@/components/admin/form-page";
+import { Spinner } from "@repo/ui/components/spinner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@repo/ui/components/alert-dialog";
 import {
   applyServerErrors,
   notifySessionExpired,
@@ -148,22 +164,19 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
   const dirty = form.formState.isDirty;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight">Perfil</h1>
-          {published ? (
-            <Badge>Publicado</Badge>
-          ) : (
-            <Badge variant="secondary">Sin publicar</Badge>
-          )}
-          {profile.hasUnpublishedChanges && published && (
-            <Badge variant="outline">Cambios sin publicar</Badge>
-          )}
-        </div>
-        <p className="text-muted-foreground">
-          Edita el borrador; la web pública no cambia hasta que lo publiques.
-        </p>
+    <FormPage
+      title="Perfil"
+      description="Edita el borrador; la web pública no cambia hasta que lo publiques."
+    >
+      <div className="-mt-4 flex flex-wrap items-center gap-2">
+        {published ? (
+          <Badge>Publicado</Badge>
+        ) : (
+          <Badge variant="secondary">Sin publicar</Badge>
+        )}
+        {profile.hasUnpublishedChanges && published && (
+          <Badge variant="outline">Cambios sin publicar</Badge>
+        )}
       </div>
       {saved && (
         <Alert role="status">
@@ -173,173 +186,198 @@ export function ProfileForm({ profile }: { profile: AdminProfile }) {
           </AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            noValidate
-            className="space-y-6"
-            aria-busy={saving}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-6"
+        aria-busy={saving}
+      >
+        <fieldset disabled={saving} className="min-w-0 space-y-8">
+          <FormSection
+            title="Identidad"
+            description="Cómo te presentas en el sitio."
           >
-            <fieldset disabled={saving}>
-              <FieldGroup>
-                <FormField
-                  control={form.control}
-                  name="displayName"
-                  label="Nombre público"
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="displayName"
+                label="Nombre público"
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="presentation"
+                label="Presentación"
+                description="Texto plano de hasta 2.000 caracteres."
+              >
+                {({ field, control }) => (
+                  <Textarea {...field} {...control} rows={6} maxLength={2000} />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Contacto"
+            description="Datos públicos opcionales."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="location"
+                label="Ubicación"
+                description="Opcional."
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="email"
+                label="Correo público"
+                description="Opcional. Se mostrará en la web."
+              >
+                {({ field, control }) => (
+                  <Input
+                    {...field}
+                    {...control}
+                    type="email"
+                    inputMode="email"
+                    maxLength={254}
+                  />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Enlaces"
+            description="Opcional. Hasta 10, con etiqueta y URL HTTP o HTTPS sin repetir."
+          >
+            <div className="space-y-4">
+              {" "}
+              {form.formState.errors.links?.message && (
+                <p role="alert" className="text-sm text-destructive">
+                  {form.formState.errors.links.message}
+                </p>
+              )}
+              {form.formState.errors.links?.root?.message && (
+                <p role="alert" className="text-sm text-destructive">
+                  {form.formState.errors.links.root.message}
+                </p>
+              )}
+              {fields.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="grid gap-4 rounded-lg border p-4 sm:grid-cols-[1fr_2fr_auto] sm:items-start"
                 >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={120} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="presentation"
-                  label="Presentación"
-                  description="Texto plano de hasta 2.000 caracteres."
-                >
-                  {({ field, control }) => (
-                    <Textarea
-                      {...field}
-                      {...control}
-                      rows={6}
-                      maxLength={2000}
-                    />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="location"
-                  label="Ubicación"
-                  description="Opcional."
-                >
-                  {({ field, control }) => (
-                    <Input {...field} {...control} maxLength={120} />
-                  )}
-                </FormField>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  label="Correo público"
-                  description="Opcional. Se mostrará en la web."
-                >
-                  {({ field, control }) => (
-                    <Input
-                      {...field}
-                      {...control}
-                      type="email"
-                      inputMode="email"
-                      maxLength={254}
-                    />
-                  )}
-                </FormField>
-                <section className="space-y-4" aria-labelledby="links-title">
-                  <div className="space-y-1">
-                    <h2 id="links-title" className="text-sm font-medium">
-                      Enlaces
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Opcional. Hasta 10, con etiqueta y URL HTTP o HTTPS sin
-                      repetir.
-                    </p>
-                  </div>
-                  {form.formState.errors.links?.message && (
-                    <p role="alert" className="text-sm text-destructive">
-                      {form.formState.errors.links.message}
-                    </p>
-                  )}
-                  {form.formState.errors.links?.root?.message && (
-                    <p role="alert" className="text-sm text-destructive">
-                      {form.formState.errors.links.root.message}
-                    </p>
-                  )}
-                  {fields.map((item, index) => (
-                    <div
-                      key={item.id}
-                      className="grid gap-4 rounded-lg border p-4 sm:grid-cols-[1fr_2fr_auto] sm:items-start"
-                    >
-                      <FormField
-                        control={form.control}
-                        name={`links.${index}.label`}
-                        label={`Etiqueta del enlace ${index + 1}`}
-                      >
-                        {({ field, control }) => (
-                          <Input {...field} {...control} maxLength={40} />
-                        )}
-                      </FormField>
-                      <FormField
-                        control={form.control}
-                        name={`links.${index}.url`}
-                        label={`URL del enlace ${index + 1}`}
-                      >
-                        {({ field, control }) => (
-                          <Input
-                            {...field}
-                            {...control}
-                            type="url"
-                            inputMode="url"
-                            maxLength={2048}
-                          />
-                        )}
-                      </FormField>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="sm:mt-6"
-                        onClick={() => remove(index)}
-                        aria-label={`Quitar el enlace ${index + 1}`}
-                      >
-                        Quitar
-                      </Button>
-                    </div>
-                  ))}
+                  <FormField
+                    control={form.control}
+                    name={`links.${index}.label`}
+                    label={`Etiqueta del enlace ${index + 1}`}
+                  >
+                    {({ field, control }) => (
+                      <Input {...field} {...control} maxLength={40} />
+                    )}
+                  </FormField>
+                  <FormField
+                    control={form.control}
+                    name={`links.${index}.url`}
+                    label={`URL del enlace ${index + 1}`}
+                  >
+                    {({ field, control }) => (
+                      <Input
+                        {...field}
+                        {...control}
+                        type="url"
+                        inputMode="url"
+                        maxLength={2048}
+                      />
+                    )}
+                  </FormField>
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={fields.length >= 10}
-                    onClick={() => append({ label: "", url: "" })}
+                    className="sm:mt-6"
+                    onClick={() => remove(index)}
+                    aria-label={`Quitar el enlace ${index + 1}`}
                   >
-                    Añadir enlace
+                    Quitar
                   </Button>
-                </section>
-              </FieldGroup>
-            </fieldset>
-            <div className="flex flex-wrap gap-3">
-              <Button type="submit" disabled={saving}>
-                {saving ? "Guardando…" : "Guardar borrador"}
-              </Button>
+                </div>
+              ))}
               <Button
                 type="button"
                 variant="outline"
-                disabled={
-                  pending ||
-                  dirty ||
-                  !profile.draft ||
-                  (published && !profile.hasUnpublishedChanges)
-                }
-                onClick={() => changePublication("publish")}
+                disabled={fields.length >= 10}
+                onClick={() => append({ label: "", url: "" })}
               >
-                {published ? "Publicar cambios" : "Publicar"}
+                Añadir enlace
               </Button>
-              {published && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={pending}
-                  onClick={() => changePublication("unpublish")}
-                >
-                  Retirar
-                </Button>
-              )}
             </div>
-            {dirty && (
-              <p className="text-sm text-muted-foreground">
-                Guarda el borrador antes de publicar.
-              </p>
+          </FormSection>
+        </fieldset>
+        <StickyActions>
+          {dirty && (
+            <p className="mr-auto text-sm text-muted-foreground">
+              Guarda el borrador antes de publicar.
+            </p>
+          )}
+          {published && (
+            <AlertDialog>
+              <AlertDialogTrigger
+                render={
+                  <Button type="button" variant="outline" disabled={pending} />
+                }
+              >
+                Retirar
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Retirar el perfil?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Dejará de mostrarse en el sitio. Conservas el borrador para
+                    editarlo y publicarlo de nuevo.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => changePublication("unpublish")}
+                  >
+                    Retirar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            disabled={
+              pending ||
+              dirty ||
+              !profile.draft ||
+              (published && !profile.hasUnpublishedChanges)
+            }
+            onClick={() => changePublication("publish")}
+          >
+            {published ? "Publicar cambios" : "Publicar"}
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? (
+              <>
+                <Spinner role="presentation" aria-hidden="true" />
+                Guardando…
+              </>
+            ) : (
+              "Guardar borrador"
             )}
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </Button>
+        </StickyActions>
+      </form>
+    </FormPage>
   );
 }
