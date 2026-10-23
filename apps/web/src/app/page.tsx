@@ -1,13 +1,7 @@
 import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProjects } from "@/lib/public-projects";
-import { getPublicExperience } from "@/lib/public-experience";
-import { educationLevels } from "@/lib/education";
-import { formatMonth } from "@/lib/experience";
 import { getPublicProfile } from "@/lib/public-profile";
-import { getPublicCertificates } from "@/lib/public-certificates";
-import { getPublicEducation } from "@/lib/public-education";
-import { getPublicSkills } from "@/lib/public-skills";
 import {
   PublicFooter,
   PublicHeader,
@@ -17,16 +11,10 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [projects, skills, experience, education, certificates, profile] =
-    await Promise.all([
-      getPublicProjects(),
-      getPublicSkills(),
-      getPublicExperience(),
-      getPublicEducation(),
-      getPublicCertificates(),
-      getPublicProfile(),
-    ]);
-  const categories = Map.groupBy(skills, (skill) => skill.category);
+  const [projects, profile] = await Promise.all([
+    getPublicProjects(),
+    getPublicProfile(),
+  ]);
 
   return (
     <div className="public-site min-h-svh">
@@ -94,13 +82,23 @@ export default async function Home() {
                 </p>
               </>
             )}
-            <Button
-              nativeButton={false}
-              render={<Link href="/projects" />}
-              size="lg"
-            >
-              Explorar proyectos
-            </Button>
+            <div className="hero-actions">
+              <Button
+                nativeButton={false}
+                render={<Link href="/projects" />}
+                size="lg"
+              >
+                Explorar proyectos
+              </Button>
+              <Button
+                variant="outline"
+                nativeButton={false}
+                render={<Link href="/contacto" />}
+                size="lg"
+              >
+                Contacto
+              </Button>
+            </div>
           </div>
           <div className="hero-mark" aria-hidden="true">
             <span className="hero-mark-line hero-mark-line-a" />
@@ -146,218 +144,43 @@ export default async function Home() {
             </Button>
           )}
         </section>
+        <section
+          className="page-frame home-sections"
+          aria-labelledby="explore-title"
+        >
+          <h2 id="explore-title" className="section-title">
+            Explora el sitio
+          </h2>
+          <ul className="home-section-list">
+            {[
+              [
+                "/sobre-mi",
+                "Sobre mí",
+                "Presentación y habilidades por categoría.",
+              ],
+              [
+                "/experiencia",
+                "Experiencia",
+                "Cargos, prácticas y responsabilidades.",
+              ],
+              ["/educacion", "Educación", "Estudios y certificados."],
+              [
+                "/contacto",
+                "Contacto",
+                "Escríbeme para hablar de un proyecto.",
+              ],
+            ].map(([href, title, text]) => (
+              <li key={href}>
+                <Link href={href}>
+                  <span className="home-section-title">{title}</span>
+                  <span className="home-section-text">{text}</span>
+                  <span aria-hidden="true">↗</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
-      <section
-        id="habilidades"
-        className="page-frame skills-section"
-        aria-labelledby="skills-title"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="folio-caption">Archivo público</p>
-            <h2 id="skills-title" className="section-title">
-              Habilidades
-            </h2>
-          </div>
-          <p className="section-aside">
-            Agrupadas por categoría, según lo publicado.
-          </p>
-        </div>
-        {skills.length > 0 ? (
-          <dl className="skills-list">
-            {[...categories].map(([category, items]) => (
-              <div key={category} className="skills-group">
-                <dt>{category}</dt>
-                <dd>
-                  <ul>
-                    {items.map((skill) => (
-                      <li key={skill.id}>{skill.name}</li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        ) : (
-          <div className="empty-panel">
-            <h3>Aún no hay habilidades publicadas</h3>
-            <p>Aparecerán aquí cuando se publiquen desde el panel.</p>
-          </div>
-        )}
-      </section>
-      <section
-        id="experiencia"
-        className="page-frame experience-section"
-        aria-labelledby="experience-title"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="folio-caption">Archivo público</p>
-            <h2 id="experience-title" className="section-title">
-              Experiencia
-            </h2>
-          </div>
-          <p className="section-aside">
-            Cargos publicados, ordenados por posición y por fecha de inicio.
-          </p>
-        </div>
-        {experience.length > 0 ? (
-          <ol className="experience-list">
-            {experience.map((item) => (
-              <li key={item.id}>
-                <article className="experience-entry">
-                  <p className="experience-period">
-                    <time dateTime={item.startDate}>
-                      {formatMonth(item.startDate)}
-                    </time>
-                    {" – "}
-                    {item.endDate ? (
-                      <time dateTime={item.endDate}>
-                        {formatMonth(item.endDate)}
-                      </time>
-                    ) : (
-                      "Actual"
-                    )}
-                  </p>
-                  <div className="experience-body">
-                    <h3>{item.title}</h3>
-                    <p className="experience-organization">
-                      {item.organization}
-                    </p>
-                    {item.description && <p>{item.description}</p>}
-                    {item.achievements.length > 0 && (
-                      <ul className="experience-achievements">
-                        {item.achievements.map((achievement) => (
-                          <li key={achievement}>{achievement}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <div className="empty-panel">
-            <h3>Aún no hay experiencia publicada</h3>
-            <p>Aparecerá aquí cuando se publique desde el panel.</p>
-          </div>
-        )}
-      </section>
-      <section
-        id="educacion"
-        className="page-frame experience-section"
-        aria-labelledby="education-title"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="folio-caption">Archivo público</p>
-            <h2 id="education-title" className="section-title">
-              Educación
-            </h2>
-          </div>
-          <p className="section-aside">
-            Estudios publicados, ordenados por posición y por fecha de inicio.
-          </p>
-        </div>
-        {education.length > 0 ? (
-          <ol className="experience-list">
-            {education.map((item) => (
-              <li key={item.id}>
-                <article className="experience-entry">
-                  <p className="experience-period">
-                    <time dateTime={item.startDate}>
-                      {formatMonth(item.startDate)}
-                    </time>
-                    {" – "}
-                    {item.endDate ? (
-                      <time dateTime={item.endDate}>
-                        {formatMonth(item.endDate)}
-                      </time>
-                    ) : (
-                      "En curso"
-                    )}
-                  </p>
-                  <div className="experience-body">
-                    <p className="education-level">
-                      {educationLevels[item.level]}
-                    </p>
-                    <h3>{item.program}</h3>
-                    <p className="experience-organization">
-                      {item.institution}
-                    </p>
-                    {item.description && <p>{item.description}</p>}
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <div className="empty-panel">
-            <h3>Aún no hay educación publicada</h3>
-            <p>Aparecerá aquí cuando se publique desde el panel.</p>
-          </div>
-        )}
-      </section>
-      <section
-        id="certificados"
-        className="page-frame experience-section"
-        aria-labelledby="certificates-title"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="folio-caption">Archivo público</p>
-            <h2 id="certificates-title" className="section-title">
-              Certificados
-            </h2>
-          </div>
-          <p className="section-aside">
-            Certificados y diplomas publicados, ordenados por posición y por
-            fecha de emisión.
-          </p>
-        </div>
-        {certificates.length > 0 ? (
-          <ol className="experience-list">
-            {certificates.map((item) => (
-              <li key={item.id}>
-                <article className="experience-entry">
-                  <p className="experience-period">
-                    <time dateTime={item.issueDate}>
-                      {formatMonth(item.issueDate)}
-                    </time>
-                  </p>
-                  <div className="experience-body">
-                    <h3>{item.name}</h3>
-                    <p className="experience-organization">{item.issuer}</p>
-                    {item.description && <p>{item.description}</p>}
-                    {item.verificationUrl && (
-                      <p>
-                        <a
-                          href={item.verificationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline underline-offset-4"
-                        >
-                          Verificar certificado
-                          <span className="sr-only">
-                            {" "}
-                            (se abre en otra pestaña)
-                          </span>
-                        </a>
-                      </p>
-                    )}
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ol>
-        ) : (
-          <div className="empty-panel">
-            <h3>Aún no hay certificados publicados</h3>
-            <p>Aparecerán aquí cuando se publiquen desde el panel.</p>
-          </div>
-        )}
-      </section>
       <PublicFooter />
     </div>
   );
