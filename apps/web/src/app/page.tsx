@@ -2,19 +2,31 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProjects } from "@/lib/public-projects";
 import { getPublicProfile } from "@/lib/public-profile";
+import { getPublicSkills } from "@/lib/public-skills";
 import {
   PublicFooter,
   PublicHeader,
-  ProjectCard,
+  ProjectRow,
 } from "@/components/public-site";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [projects, profile] = await Promise.all([
+  const [projects, profile, skills] = await Promise.all([
     getPublicProjects(),
     getPublicProfile(),
+    getPublicSkills().catch(() => []),
   ]);
+  const stack = skills
+    .slice(0, 5)
+    .map((skill) => skill.name)
+    .join(", ");
+  const facts = [
+    ["rol", profile?.headline],
+    ["ubicación", profile?.location],
+    ["stack", stack],
+    ["contacto", profile?.email],
+  ].filter((fact): fact is [string, string] => Boolean(fact[1]));
 
   return (
     <div className="public-site min-h-svh">
@@ -22,7 +34,7 @@ export default async function Home() {
       <main id="contenido">
         <section
           id="perfil"
-          className="hero-shell page-frame"
+          className={`hero-shell page-frame${facts.length === 0 ? " hero-shell-single" : ""}`}
           aria-labelledby="hero-title"
         >
           <div className="hero-copy">
@@ -100,12 +112,23 @@ export default async function Home() {
               </Button>
             </div>
           </div>
-          <div className="hero-mark" aria-hidden="true">
-            <span className="hero-mark-line hero-mark-line-a" />
-            <span className="hero-mark-line hero-mark-line-b" />
-            <span className="hero-mark-disc" />
-            <span className="hero-mark-corner" />
-          </div>
+          {facts.length > 0 && (
+            <div className="hero-card" aria-label="Datos del perfil">
+              <div className="hero-card-dots" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
+              <dl>
+                {facts.map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
         </section>
 
         <section className="page-frame home-work" aria-labelledby="work-title">
@@ -121,9 +144,9 @@ export default async function Home() {
             </p>
           </div>
           {projects.length > 0 ? (
-            <div className="project-grid">
-              {projects.slice(0, 3).map((project) => (
-                <ProjectCard key={project.id} project={project} />
+            <div className="project-list">
+              {projects.slice(0, 6).map((project, index) => (
+                <ProjectRow key={project.id} project={project} index={index} />
               ))}
             </div>
           ) : (
@@ -134,7 +157,7 @@ export default async function Home() {
               </p>
             </div>
           )}
-          {projects.length > 3 && (
+          {projects.length > 6 && (
             <Button
               variant="outline"
               nativeButton={false}
@@ -179,6 +202,23 @@ export default async function Home() {
               </li>
             ))}
           </ul>
+        </section>
+        <section
+          className="page-frame home-sections"
+          aria-labelledby="cta-title"
+        >
+          <div className="contact-cta">
+            <h2 id="cta-title" className="section-title">
+              Hablemos de tu próximo proyecto
+            </h2>
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={<Link href="/contacto" />}
+            >
+              Escríbeme
+            </Button>
+          </div>
         </section>
       </main>
       <PublicFooter />

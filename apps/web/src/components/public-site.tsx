@@ -62,6 +62,44 @@ export function PublicFooter() {
   );
 }
 
+export function ProjectRow({
+  project,
+  index,
+}: {
+  project: PublishedProject;
+  index: number;
+}) {
+  return (
+    <article className="project-row">
+      <span className="project-row-index">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3>
+        <Link href={`/projects/${project.slug}`}>{project.title}</Link>
+      </h3>
+      <ul
+        aria-label={`Tecnologías de ${project.title}`}
+        className="technology-list"
+      >
+        {project.technologies.slice(0, 4).map((technology) => (
+          <li key={technology}>
+            <Badge variant="outline" className="font-mono text-xs">
+              {technology}
+            </Badge>
+          </li>
+        ))}
+      </ul>
+      <Link
+        className="text-link"
+        href={`/projects/${project.slug}`}
+        aria-label={`Ver proyecto ${project.title}`}
+      >
+        Ver proyecto <span aria-hidden="true">↗</span>
+      </Link>
+    </article>
+  );
+}
+
 export function ProjectCard({
   project,
   headingLevel = "h3",
@@ -111,7 +149,7 @@ export function ProjectCard({
               <li key={technology}>
                 <Badge
                   variant="default"
-                  className="rounded-none px-2 py-0.5 text-xs"
+                  className="px-2 py-0.5 font-mono text-xs"
                 >
                   {technology}
                 </Badge>
