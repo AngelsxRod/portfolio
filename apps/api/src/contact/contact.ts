@@ -16,10 +16,11 @@ import { invalid } from "../projects/drafts.js";
 export type ContactMessage = {
   name: string;
   email: string;
+  phone: string;
   message: string;
 };
 
-const allowed = ["name", "email", "message", "turnstileToken"];
+const allowed = ["name", "email", "phone", "message", "turnstileToken"];
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function contactInput(body: unknown) {
@@ -42,6 +43,13 @@ function contactInput(body: unknown) {
   const email = read("email", 1, 254);
   if (!errors.email && !emailPattern.test(email))
     errors.email = "Introduce un correo válido.";
+  const phone = read("phone", 1, 40);
+  if (
+    !errors.phone &&
+    (!/^\+?[0-9 ()-]+$/.test(phone) ||
+      !/^[0-9]{8,15}$/.test(phone.replace(/[^0-9]/g, "")))
+  )
+    errors.phone = "Introduce un teléfono válido de entre 8 y 15 dígitos.";
   const message = read("message", 10, 4000);
   const token =
     typeof data.turnstileToken === "string" ? data.turnstileToken : "";
@@ -49,7 +57,7 @@ function contactInput(body: unknown) {
     errors.turnstileToken = "Completa la verificación.";
 
   if (Object.keys(errors).length > 0) invalid(errors);
-  return { message: { name, email, message }, token };
+  return { message: { name, email, phone, message }, token };
 }
 
 /** Valida el token de Cloudflare Turnstile en el servidor. */
@@ -92,7 +100,7 @@ export class TurnstileService {
 /** Entrega los mensajes del formulario por correo con Resend. */
 @Injectable()
 export class ContactMailer {
-  async send({ name, email, message }: ContactMessage) {
+  async send({ name, email, phone, message }: ContactMessage) {
     const apiKey = process.env.RESEND_API_KEY;
     const to = process.env.CONTACT_TO_EMAIL;
     const from = process.env.CONTACT_FROM_EMAIL;
@@ -106,7 +114,7 @@ export class ContactMailer {
       to,
       replyTo: email,
       subject: `Mensaje de contacto de ${name}`.slice(0, 200),
-      text: `Nombre: ${name}\nCorreo: ${email}\n\n${message}`,
+      text: `Nombre: ${name}\nCorreo: ${email}\nTeléfono: ${phone}\n\n${message}`,
     });
     if (error) {
       new Logger("ContactMailer").error(error);

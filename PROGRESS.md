@@ -227,6 +227,17 @@ Implementar cada tipo en una entrega separada, con su esquema, edición, publica
 
 | 2026-10-23 | Ficha y carrusel del detalle | Campos opcionales `projectType`, `projectYear` y `projectRole` en el proyecto (migración 0014, API, formulario «Ficha del proyecto» en el panel). El detalle muestra la ficha junto a la descripción y el carrusel de imágenes pasa al hero en lugar de la imagen destacada; se quita la galería duplicada. | `tsc`, ESLint y Prettier correctos; 265 pruebas de API con PostgreSQL temporal (nuevas: campos de la ficha y sus límites); migración aplicada a la base local (`portfolio-db-1`); el servidor local sirve el detalle con carrusel en el hero y la ficha. | Migración 0014 **no aplicada** a producción: `pnpm --filter api db:migrate` antes de subir a `main`. No verificado visualmente (escritorio, 375 px, modo oscuro) ni con la ficha llena desde el panel. |
 
+### Ajuste del formulario de contacto (2026-10-24)
+
+- [x] Añadir teléfono obligatorio, validado en web y API, e incluirlo en el correo.
+- [x] Marcar nombre, correo, teléfono y mensaje con «(obligatorio)» y el atributo `required`.
+- [x] Verificar 22 pruebas de contacto, `pnpm lint` y `pnpm build`.
+- [ ] Verificar visualmente escritorio y móvil y los errores en navegador; no hay navegador conectado y `agent-browser` no está instalado.
+
+| Fecha      | Entrega              | Resultado                                                                                                                                                                                                                                                             | Verificación                                                                                                                                                      | Pendientes                                                                                                                                          |
+| ---------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-10-24 | Teléfono en contacto | `phone` obligatorio en `POST /contact`, con 8–15 dígitos y hasta 40 caracteres; acepta código de país opcional, espacios, guiones y paréntesis, recorta espacios exteriores y se incluye en el correo. Los cuatro campos del formulario indican que son obligatorios. | 22 pruebas de contacto correctas (validación, formatos, recorte, bloqueo antes de verificar/enviar y contenido del correo); `pnpm lint` y `pnpm build` correctos. | Verificación visual y de errores en navegador pendiente por falta de navegador conectado. No se envió correo real; Resend se simula en las pruebas. |
+
 ## Reglas para futuras sesiones
 
 1. Leer este archivo, `AGENTS.md` y `docs/architecture.md` antes de editar.

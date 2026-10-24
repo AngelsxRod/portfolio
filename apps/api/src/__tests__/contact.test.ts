@@ -20,6 +20,7 @@ const origin = "http://localhost:3000";
 const valid = {
   name: "Ada",
   email: "ada@example.com",
+  phone: "+502 5555-1234",
   message: "Hola, me gustaría hablar de un proyecto.",
   turnstileToken: "token",
 };
@@ -75,6 +76,7 @@ describe("POST /contact", () => {
     expect(send).toHaveBeenCalledWith({
       name: "Ada",
       email: "ada@example.com",
+      phone: "+502 5555-1234",
       message: valid.message,
     });
     expect(verify).toHaveBeenCalledWith("token", undefined);
@@ -89,6 +91,42 @@ describe("POST /contact", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
+  it.each([
+    undefined,
+    null,
+    55551234,
+    "",
+    "   ",
+    "5551234",
+    "+1234567890123456",
+    "5555abcd",
+    "5555+1234",
+    "++50255551234",
+    "5555\n1234",
+    `5555${" ".repeat(33)}1234`,
+  ])(
+    "rechaza el teléfono inválido %j antes de verificar o enviar",
+    async (phone) => {
+      await create();
+      const response = await post({ ...valid, phone });
+      expect(response.statusCode).toBe(400);
+      expect(response.json().fields.phone).toEqual(expect.any(String));
+      expect(verify).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["55551234", "  +502 (5555) 1234  ", "+123456789012345"])(
+    "acepta el teléfono nacional o internacional %j y recorta espacios exteriores",
+    async (phone) => {
+      await create();
+      expect((await post({ ...valid, phone })).statusCode).toBe(202);
+      expect(send).toHaveBeenCalledWith(
+        expect.objectContaining({ phone: phone.trim() }),
+      );
+    },
+  );
+
   it("devuelve errores por campo y no verifica ni envía", async () => {
     await create();
     const response = await post({
@@ -102,6 +140,7 @@ describe("POST /contact", () => {
       form: expect.any(String),
       name: expect.any(String),
       email: "Introduce un correo válido.",
+      phone: expect.any(String),
       message: expect.any(String),
       turnstileToken: "Completa la verificación.",
     });
@@ -138,6 +177,7 @@ describe("POST /contact", () => {
         from: "Portafolio <contacto@example.com>",
         to: "yo@example.com",
         replyTo: "ada@example.com",
+        text: "Nombre: Ada\nCorreo: ada@example.com\nTeléfono: +502 5555-1234\n\nHola, me gustaría hablar de un proyecto.",
       }),
     );
   });

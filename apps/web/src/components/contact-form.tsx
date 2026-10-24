@@ -21,6 +21,12 @@ const schema = z.object({
     .trim()
     .max(254, lengthMessage(1, 254))
     .pipe(z.email("Introduce un correo válido.")),
+  phone: requiredText(40).refine(
+    (value) =>
+      /^\+?[0-9 ()-]+$/.test(value) &&
+      /^[0-9]{8,15}$/.test(value.replace(/[^0-9]/g, "")),
+    "Introduce un teléfono válido de entre 8 y 15 dígitos.",
+  ),
   message: z
     .string()
     .trim()
@@ -36,7 +42,13 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
   const [sent, setSent] = useState(false);
   const form = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", email: "", message: "", turnstileToken: "" },
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      turnstileToken: "",
+    },
   });
 
   if (!siteKey)
@@ -98,17 +110,26 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
       onSubmit={form.handleSubmit(onSubmit)}
     >
       <FieldGroup>
-        <FormField control={form.control} name="name" label="Nombre">
+        <FormField
+          control={form.control}
+          name="name"
+          label="Nombre (obligatorio)"
+        >
           {({ field, control }) => (
             <Input
               {...field}
               {...control}
               autoComplete="name"
               maxLength={120}
+              required
             />
           )}
         </FormField>
-        <FormField control={form.control} name="email" label="Correo">
+        <FormField
+          control={form.control}
+          name="email"
+          label="Correo (obligatorio)"
+        >
           {({ field, control }) => (
             <Input
               {...field}
@@ -116,12 +137,39 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
               type="email"
               autoComplete="email"
               maxLength={254}
+              required
             />
           )}
         </FormField>
-        <FormField control={form.control} name="message" label="Mensaje">
+        <FormField
+          control={form.control}
+          name="phone"
+          label="Teléfono (obligatorio)"
+        >
           {({ field, control }) => (
-            <Textarea {...field} {...control} rows={7} maxLength={4000} />
+            <Input
+              {...field}
+              {...control}
+              type="tel"
+              autoComplete="tel"
+              maxLength={40}
+              required
+            />
+          )}
+        </FormField>
+        <FormField
+          control={form.control}
+          name="message"
+          label="Mensaje (obligatorio)"
+        >
+          {({ field, control }) => (
+            <Textarea
+              {...field}
+              {...control}
+              rows={7}
+              maxLength={4000}
+              required
+            />
           )}
         </FormField>
         <div>
