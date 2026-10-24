@@ -225,6 +225,8 @@ Implementar cada tipo en una entrega separada, con su esquema, edición, publica
 
 | 2026-10-23 | Rediseño del detalle de proyecto | Hero dividido (título, resumen y botones a la izquierda, captura destacada a la derecha), franja de tecnologías, descripción, galería «Así se ve» y CTA con fondo de acento. Propuestas A/B en un lienzo de diseño; se implementó una mezcla. Sin cambios de API ni esquema. | `tsc`, ESLint y Prettier de web correctos; el servidor local responde 200 en `/projects/ryr-asociados` con las clases nuevas. | No verificado visualmente (escritorio, 375 px, modo oscuro); ese proyecto no tiene tecnologías, así que la franja no se comprobó con datos. |
 
+| 2026-10-23 | Ficha y carrusel del detalle | Campos opcionales `projectType`, `projectYear` y `projectRole` en el proyecto (migración 0014, API, formulario «Ficha del proyecto» en el panel). El detalle muestra la ficha junto a la descripción y el carrusel de imágenes pasa al hero en lugar de la imagen destacada; se quita la galería duplicada. | `tsc`, ESLint y Prettier correctos; 265 pruebas de API con PostgreSQL temporal (nuevas: campos de la ficha y sus límites); migración aplicada a la base local (`portfolio-db-1`); el servidor local sirve el detalle con carrusel en el hero y la ficha. | Migración 0014 **no aplicada** a producción: `pnpm --filter api db:migrate` antes de subir a `main`. No verificado visualmente (escritorio, 375 px, modo oscuro) ni con la ficha llena desde el panel. |
+
 ## Reglas para futuras sesiones
 
 1. Leer este archivo, `AGENTS.md` y `docs/architecture.md` antes de editar.
