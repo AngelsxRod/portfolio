@@ -6,6 +6,9 @@ export type DraftProject = {
   description: string | null;
   demoUrl: string | null;
   codeUrl: string | null;
+  projectType: string | null;
+  projectYear: string | null;
+  projectRole: string | null;
   technologies: string[];
   position: number;
   status: "draft";
@@ -37,6 +40,9 @@ export type PublishedProject = Omit<
     | "description"
     | "demoUrl"
     | "codeUrl"
+    | "projectType"
+    | "projectYear"
+    | "projectRole"
     | "technologies"
     | "position"
   > | null;

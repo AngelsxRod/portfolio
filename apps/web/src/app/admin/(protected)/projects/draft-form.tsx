@@ -72,6 +72,9 @@ const schema = z.object({
   description: z.string().trim().max(50000, "Usa hasta 50.000 caracteres."),
   demoUrl: optionalUrl,
   codeUrl: optionalUrl,
+  projectType: z.string().trim().max(80, "Usa hasta 80 caracteres."),
+  projectYear: z.string().trim().max(20, "Usa hasta 20 caracteres."),
+  projectRole: z.string().trim().max(120, "Usa hasta 120 caracteres."),
   technologies: z.string().superRefine((value, ctx) => {
     const items = technologyList(value);
     if (items.length > 30)
@@ -109,6 +112,9 @@ function textValues(
     description: source?.description ?? "",
     demoUrl: source?.demoUrl ?? "",
     codeUrl: source?.codeUrl ?? "",
+    projectType: source?.projectType ?? "",
+    projectYear: source?.projectYear ?? "",
+    projectRole: source?.projectRole ?? "",
     technologies: source?.technologies.join(", ") ?? "",
     position: String(source?.position ?? 0),
   };
@@ -164,6 +170,9 @@ function DraftFormBody({
       description: values.description,
       demoUrl: values.demoUrl,
       codeUrl: values.codeUrl,
+      projectType: values.projectType,
+      projectYear: values.projectYear,
+      projectRole: values.projectRole,
       technologies: technologyList(values.technologies),
       position: Number(values.position),
     };
@@ -400,6 +409,38 @@ function DraftFormBody({
                     maxLength={2048}
                     placeholder="https://"
                   />
+                )}
+              </FormField>
+            </FieldGroup>
+          </FormSection>
+          <FormSection
+            title="Ficha del proyecto"
+            description="Datos breves que se muestran en la ficha del detalle. Los vacíos no se muestran."
+          >
+            <FieldGroup>
+              <FormField
+                control={form.control}
+                name="projectType"
+                label="Tipo"
+                description="Por ejemplo: sitio web corporativo, tienda en línea."
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={80} />
+                )}
+              </FormField>
+              <FormField control={form.control} name="projectYear" label="Año">
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={20} />
+                )}
+              </FormField>
+              <FormField
+                control={form.control}
+                name="projectRole"
+                label="Rol"
+                description="Por ejemplo: diseño y desarrollo."
+              >
+                {({ field, control }) => (
+                  <Input {...field} {...control} maxLength={120} />
                 )}
               </FormField>
             </FieldGroup>
