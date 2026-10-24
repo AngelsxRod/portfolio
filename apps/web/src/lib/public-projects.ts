@@ -17,6 +17,17 @@ export async function getPublicProjects() {
   });
 }
 
+/** La recomendación es accesoria: si falla, el detalle se muestra sin ella. */
+export async function getRelatedProjects(slug: string) {
+  try {
+    const response = await publicApi(`/${encodeURIComponent(slug)}/related`);
+    if (!response.ok) return [];
+    return (await response.json()) as PublishedProject[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicProject(slug: string) {
   const response = await publicApi(`/${encodeURIComponent(slug)}`);
   if (response.status === 404) notFound();

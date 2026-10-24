@@ -1009,6 +1009,12 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .detail-related {
+    margin-top: 5rem;
+  }
+  .detail-related .project-grid {
+    margin-top: 1.5rem;
+  }
   .detail-cta {
     margin-top: 5rem;
     padding: clamp(1.5rem, 4vw, 3rem);

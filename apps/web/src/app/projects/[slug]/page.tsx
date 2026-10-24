@@ -3,9 +3,13 @@ import { ProjectCarousel } from "@/components/project-carousel";
 import Markdown from "react-markdown";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
-import { getPublicProject } from "@/lib/public-projects";
+import { getPublicProject, getRelatedProjects } from "@/lib/public-projects";
 import { safeExternalUrl } from "@/lib/safe-url";
-import { PublicFooter, PublicHeader } from "@/components/public-site";
+import {
+  ProjectCard,
+  PublicFooter,
+  PublicHeader,
+} from "@/components/public-site";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +19,10 @@ export default async function ProjectDetail({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await getPublicProject(slug);
+  const [project, related] = await Promise.all([
+    getPublicProject(slug),
+    getRelatedProjects(slug),
+  ]);
   const heroImages = [
     ...project.media.filter((image) => image.id === project.featuredMediaId),
     ...project.media.filter((image) => image.id !== project.featuredMediaId),
@@ -182,6 +189,21 @@ export default async function ProjectDetail({
             </aside>
           )}
         </div>
+        {related.length > 0 && (
+          <section
+            className="detail-related"
+            aria-labelledby="detail-related-title"
+          >
+            <h2 id="detail-related-title" className="section-title">
+              Otros proyectos
+            </h2>
+            <div className="project-grid">
+              {related.map((item) => (
+                <ProjectCard key={item.id} project={item} headingLevel="h3" />
+              ))}
+            </div>
+          </section>
+        )}
         <section className="detail-cta" aria-labelledby="detail-cta-title">
           <h2 id="detail-cta-title" className="section-title">
             ¿Te interesa algo así para tu negocio?
