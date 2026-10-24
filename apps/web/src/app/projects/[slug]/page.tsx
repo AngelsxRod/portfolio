@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ProjectCarousel } from "@/components/project-carousel";
 import Markdown from "react-markdown";
@@ -21,7 +20,13 @@ export default async function ProjectDetail({
     ...project.media.filter((image) => image.id === project.featuredMediaId),
     ...project.media.filter((image) => image.id !== project.featuredMediaId),
   ];
-  const featured = heroImages[0];
+  const facts = (
+    [
+      ["Tipo", project.projectType],
+      ["Año", project.projectYear],
+      ["Rol", project.projectRole],
+    ] satisfies [string, string | null][]
+  ).filter((fact): fact is [string, string] => Boolean(fact[1]));
   const demoUrl = safeExternalUrl(project.demoUrl);
   const codeUrl = safeExternalUrl(project.codeUrl);
   return (
@@ -32,7 +37,7 @@ export default async function ProjectDetail({
           ← Volver a proyectos
         </Link>
         <header
-          className={`detail-hero${featured ? "" : " detail-hero-single"}`}
+          className={`detail-hero${heroImages.length > 0 ? "" : " detail-hero-single"}`}
         >
           <div className="detail-hero-copy">
             <p className="folio-caption">Caso de estudio</p>
@@ -76,17 +81,9 @@ export default async function ProjectDetail({
               </div>
             )}
           </div>
-          {featured && (
+          {heroImages.length > 0 && (
             <div className="detail-hero-visual">
-              <Image
-                src={`/api/projects/media/${featured.id}`}
-                alt={featured.altText}
-                fill
-                priority
-                unoptimized
-                sizes="(max-width:800px) 100vw, 720px"
-                className="object-contain"
-              />
+              <ProjectCarousel images={heroImages} />
             </div>
           )}
         </header>
@@ -106,7 +103,9 @@ export default async function ProjectDetail({
             </ul>
           </section>
         )}
-        <div className="detail-content detail-content-single">
+        <div
+          className={`detail-content${facts.length > 0 || demoUrl ? "" : " detail-content-single"}`}
+        >
           <div className="detail-body">
             <h2 className="detail-section-title">Sobre el proyecto</h2>
             <article
@@ -151,18 +150,37 @@ export default async function ProjectDetail({
                 {project.description}
               </Markdown>
             </article>
-            {heroImages.length > 0 && (
-              <section
-                className="detail-gallery"
-                aria-labelledby="gallery-title"
-              >
-                <h2 id="gallery-title" className="detail-section-title">
-                  Así se ve
-                </h2>
-                <ProjectCarousel images={heroImages} />
-              </section>
-            )}
           </div>
+          {(facts.length > 0 || demoUrl) && (
+            <aside className="detail-aside" aria-labelledby="facts-title">
+              <h2 id="facts-title">Ficha del proyecto</h2>
+              {facts.length > 0 && (
+                <dl>
+                  {facts.map(([label, value]) => (
+                    <div key={label}>
+                      <dt>{label}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {demoUrl && (
+                <Button
+                  nativeButton={false}
+                  render={
+                    <a
+                      href={demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  }
+                >
+                  Ver sitio en vivo ↗
+                  <span className="sr-only"> (se abre en otra pestaña)</span>
+                </Button>
+              )}
+            </aside>
+          )}
         </div>
         <section className="detail-cta" aria-labelledby="detail-cta-title">
           <h2 id="detail-cta-title" className="section-title">
