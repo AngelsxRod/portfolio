@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
 import type { PublishedProject } from "@/lib/drafts";
+import { safeExternalUrl } from "@/lib/safe-url";
 import { MobileNav } from "@/components/mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -78,24 +79,13 @@ export function ProjectRow({
       <h3>
         <Link href={`/projects/${project.slug}`}>{project.title}</Link>
       </h3>
-      <ul
-        aria-label={`Tecnologías de ${project.title}`}
-        className="technology-list"
-      >
-        {project.technologies.slice(0, 4).map((technology) => (
-          <li key={technology}>
-            <Badge variant="outline" className="font-mono text-xs">
-              {technology}
-            </Badge>
-          </li>
-        ))}
-      </ul>
+      <p className="project-row-summary line-clamp-2">{project.summary}</p>
       <Link
         className="text-link"
         href={`/projects/${project.slug}`}
-        aria-label={`Ver proyecto ${project.title}`}
+        aria-label={`Ver detalle de ${project.title}`}
       >
-        Ver proyecto <span aria-hidden="true">↗</span>
+        Ver detalle <span aria-hidden="true">↗</span>
       </Link>
     </article>
   );
@@ -111,6 +101,7 @@ export function ProjectCard({
   const preview =
     project.media.find((image) => image.id === project.featuredMediaId) ??
     project.media[0];
+  const demoUrl = safeExternalUrl(project.demoUrl);
   const title = <Link href={`/projects/${project.slug}`}>{project.title}</Link>;
   return (
     <article className="project-card">
@@ -141,34 +132,38 @@ export function ProjectCard({
         )}
       </Link>
       <div className="project-card-copy">
-        {project.technologies.length > 0 && (
-          <ul
-            aria-label={`Tecnologías de ${project.title}`}
-            className="technology-list project-card-tags"
-          >
-            {project.technologies.map((technology) => (
-              <li key={technology}>
-                <Badge
-                  variant="default"
-                  className="px-2 py-0.5 font-mono text-xs"
-                >
-                  {technology}
-                </Badge>
-              </li>
-            ))}
-          </ul>
-        )}
         {headingLevel === "h2" ? <h2>{title}</h2> : <h3>{title}</h3>}
         <p>{project.summary}</p>
       </div>
       <div className="project-card-meta">
-        <Link
-          className="text-link"
-          href={`/projects/${project.slug}`}
-          aria-label={`Ver proyecto ${project.title}`}
+        {demoUrl && (
+          <Button
+            nativeButton={false}
+            render={
+              <a
+                href={demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Ver sitio de ${project.title}`}
+              />
+            }
+          >
+            Ver sitio en vivo <span aria-hidden="true">↗</span>
+            <span className="sr-only"> (se abre en otra pestaña)</span>
+          </Button>
+        )}
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={
+            <Link
+              href={`/projects/${project.slug}`}
+              aria-label={`Ver detalle de ${project.title}`}
+            />
+          }
         >
-          Ver proyecto <span aria-hidden="true">↗</span>
-        </Link>
+          Ver detalle del proyecto
+        </Button>
       </div>
     </article>
   );
