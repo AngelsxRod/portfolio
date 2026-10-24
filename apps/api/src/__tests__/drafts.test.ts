@@ -924,5 +924,78 @@ describe.runIf(Boolean(process.env.TEST_DATABASE_URL))(
       });
       expect((await publicDetail()).statusCode).toBe(404);
     });
+
+    describe("related projects", () => {
+      // Tecnologías únicas por ejecución para no depender de otros proyectos de la base.
+      const tag = randomUUID();
+      const shared = `compartida-a-${tag}`;
+      const extra = `compartida-b-${tag}`;
+
+      async function publishWith(technologies: string[], projectType = "") {
+        const saved = (
+          await create({
+            ...payload(),
+            summary: "Resumen público",
+            description: "## Detalle público",
+            projectType,
+            technologies,
+          })
+        ).json();
+        const published = await app.inject({
+          method: "POST",
+          url: `/admin/projects/${saved.id}/publish`,
+          headers: { cookie, origin },
+        });
+        expect(published.statusCode).toBe(200);
+        return saved as { id: string; slug: string };
+      }
+
+      const related = (slug: string) =>
+        app.inject({ method: "GET", url: `/projects/${slug}/related` });
+
+      it("ranks published projects by shared technologies and hides the rest", async () => {
+        const current = await publishWith([shared, extra]);
+        const closer = await publishWith([shared.toUpperCase(), extra]);
+        const closest = await publishWith([shared]);
+        const unrelated = await publishWith([`otra-${tag}`]);
+        const draft = (
+          await create({ ...payload(), technologies: [shared, extra] })
+        ).json();
+
+        const response = await related(current.slug);
+        expect(response.statusCode).toBe(200);
+        expect(response.headers["cache-control"]).toBe("no-store");
+        const items = response.json() as Array<{
+          id: string;
+          pending?: unknown;
+          media: unknown[];
+        }>;
+        const order = items.map((item) => item.id);
+        expect(order.slice(0, 2)).toEqual([closer.id, closest.id]);
+        expect(order).not.toContain(current.id);
+        expect(order).not.toContain(draft.id);
+        expect(order).not.toContain(unrelated.id);
+        for (const item of items) {
+          expect(item).not.toHaveProperty("pending");
+          expect(item.media).toBeInstanceOf(Array);
+        }
+      });
+
+      it("falls back to the other published projects when none shares technologies", async () => {
+        const lonely = await publishWith([`unica-${tag}`]);
+        await publishWith([`distinta-${tag}`]);
+        const response = await related(lonely.slug);
+        expect(response.statusCode).toBe(200);
+        const order = response.json().map((item: { id: string }) => item.id);
+        expect(order.length).toBeGreaterThan(0);
+        expect(order).not.toContain(lonely.id);
+      });
+
+      it("returns 404 for unknown or unpublished projects", async () => {
+        const draft = (await create()).json();
+        expect((await related(draft.slug)).statusCode).toBe(404);
+        expect((await related(`no-existe-${tag}`)).statusCode).toBe(404);
+      });
+    });
   },
 );

@@ -12,7 +12,7 @@ import {
   Query,
   Req,
 } from "@nestjs/common";
-import { and, asc, count, eq, isNotNull } from "drizzle-orm";
+import { and, asc, count, eq, isNotNull, ne } from "drizzle-orm";
 import { requireWebOrigin, Public } from "../auth/auth.js";
 import { DatabaseService } from "../database.js";
 import { projects } from "../db/schema.js";
@@ -65,10 +65,18 @@ export class PublicationService {
         .offset(params.offset),
       db.select({ total: count() }).from(projects).where(published),
     ]);
+    const items = await this.withMedia(rows, includePending);
+    return paginate(items, totals?.total ?? 0, params);
+  }
+
+  private async withMedia<T extends { id: string; pending?: unknown }>(
+    rows: T[],
+    includePending = false,
+  ) {
     const media = await this.media.metadataForProjects(
       rows.map((row) => row.id),
     );
-    const items = rows.map((row) => ({
+    return rows.map((row) => ({
       ...(includePending ? row : withoutPending(row)),
       featuredMediaId:
         media.find((image) => image.projectId === row.id && image.isFeatured)
@@ -77,7 +85,49 @@ export class PublicationService {
         null,
       media: media.filter((image) => image.projectId === row.id),
     }));
-    return paginate(items, totals?.total ?? 0, params);
+  }
+
+  /** Recomienda por tecnologías compartidas; sin coincidencias, completa por orden. */
+  async relatedProjects(slug: string, limit = 3) {
+    const db = this.database.getDatabase();
+    const [current] = await db
+      .select({
+        id: projects.id,
+        technologies: projects.technologies,
+        projectType: projects.projectType,
+      })
+      .from(projects)
+      .where(and(eq(projects.slug, slug), eq(projects.status, "published")))
+      .limit(1);
+    if (!current) throw new NotFoundException("Proyecto no encontrado.");
+    const others = await db
+      .select()
+      .from(projects)
+      .where(and(eq(projects.status, "published"), ne(projects.id, current.id)))
+      .orderBy(...order);
+    const wanted = new Set(
+      current.technologies.map((name) => name.toLowerCase()),
+    );
+    const ranked = others
+      .map((project) => ({
+        project,
+        shared: new Set(
+          project.technologies
+            .map((name) => name.toLowerCase())
+            .filter((name) => wanted.has(name)),
+        ).size,
+        sameType:
+          Boolean(current.projectType) &&
+          project.projectType === current.projectType,
+      }))
+      // sort es estable: el empate final conserva el orden de `order`.
+      .sort(
+        (a, b) =>
+          b.shared - a.shared || Number(b.sameType) - Number(a.sameType),
+      );
+    const withShared = ranked.filter((entry) => entry.shared > 0);
+    const picked = (withShared.length ? withShared : ranked).slice(0, limit);
+    return this.withMedia(picked.map((entry) => entry.project));
   }
 
   async publicProject(slug: string) {
@@ -296,5 +346,12 @@ export class PublicProjectsController {
   @Header("Cache-Control", "no-store")
   get(@Param("slug") slug: string) {
     return this.publication.publicProject(slug);
+  }
+
+  @Public()
+  @Get(":slug/related")
+  @Header("Cache-Control", "no-store")
+  related(@Param("slug") slug: string) {
+    return this.publication.relatedProjects(slug);
   }
 }
