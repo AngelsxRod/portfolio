@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProjects } from "@/lib/public-projects";
 import { getPublicProfile } from "@/lib/public-profile";
-import { getPublicSkills } from "@/lib/public-skills";
 import {
   PublicFooter,
   PublicHeader,
@@ -12,19 +11,13 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [projects, profile, skills] = await Promise.all([
+  const [projects, profile] = await Promise.all([
     getPublicProjects(),
     getPublicProfile(),
-    getPublicSkills().catch(() => []),
   ]);
-  const stack = skills
-    .slice(0, 5)
-    .map((skill) => skill.name)
-    .join(", ");
   const facts = [
-    ["rol", profile?.headline],
+    ["servicio", profile?.headline],
     ["ubicación", profile?.location],
-    ["stack", stack],
     ["contacto", profile?.email],
   ].filter((fact): fact is [string, string] => Boolean(fact[1]));
 
@@ -80,17 +73,17 @@ export default async function Home() {
             ) : (
               <>
                 <p className="folio-caption">
-                  Portafolio / proyectos publicados
+                  Portafolio / Soluciones para tu negocio
                 </p>
                 <h1 id="hero-title" className="display-title">
-                  Ideas claras.
+                  Tu idea,
                   <br />
-                  Trabajo visible.
+                  convertida en un sitio que vende.
                 </h1>
                 <p className="hero-intro">
-                  Una selección de proyectos y decisiones de diseño y
-                  desarrollo. Cada caso reúne su contexto y los detalles
-                  disponibles.
+                  Diseño y desarrollo sitios web claros, rápidos y listos para
+                  atraer clientes. Mira lo que he construido y cuéntame qué
+                  necesitas.
                 </p>
               </>
             )}
@@ -100,7 +93,7 @@ export default async function Home() {
                 render={<Link href="/projects" />}
                 size="lg"
               >
-                Explorar proyectos
+                Ver mis proyectos
               </Button>
               <Button
                 variant="outline"
@@ -134,13 +127,13 @@ export default async function Home() {
         <section className="page-frame home-work" aria-labelledby="work-title">
           <div className="section-heading">
             <div>
-              <p className="folio-caption">Archivo público</p>
+              <p className="folio-caption">Proyectos</p>
               <h2 id="work-title" className="section-title">
-                Trabajo seleccionado
+                Soluciones que he entregado
               </h2>
             </div>
             <p className="section-aside">
-              Proyectos publicados, presentados con el contenido disponible.
+              Resultados reales, listos para ver y probar.
             </p>
           </div>
           {projects.length > 0 ? (
@@ -152,9 +145,7 @@ export default async function Home() {
           ) : (
             <div className="empty-panel">
               <h3>Aún no hay proyectos publicados</h3>
-              <p>
-                El archivo aparecerá aquí cuando haya proyectos disponibles.
-              </p>
+              <p>Pronto compartiré aquí los proyectos terminados.</p>
             </div>
           )}
           {projects.length > 6 && (
@@ -172,24 +163,20 @@ export default async function Home() {
           aria-labelledby="explore-title"
         >
           <h2 id="explore-title" className="section-title">
-            Explora el sitio
+            Conoce más
           </h2>
           <ul className="home-section-list">
             {[
-              [
-                "/sobre-mi",
-                "Sobre mí",
-                "Presentación y habilidades por categoría.",
-              ],
+              ["/sobre-mi", "Sobre mí", "Quién soy y en qué te puedo ayudar."],
               [
                 "/experiencia",
                 "Trayectoria",
-                "Experiencia, educación y certificados.",
+                "Experiencia y formación que respaldan mi trabajo.",
               ],
               [
                 "/contacto",
                 "Contacto",
-                "Escríbeme para hablar de un proyecto.",
+                "Cuéntame qué necesitas y te propongo una solución.",
               ],
             ].map(([href, title, text]) => (
               <li key={href}>
@@ -210,12 +197,13 @@ export default async function Home() {
             <h2 id="cta-title" className="section-title">
               Hablemos de tu próximo proyecto
             </h2>
+            <p>Recibe una propuesta a la medida de tu negocio.</p>
             <Button
               size="lg"
               nativeButton={false}
               render={<Link href="/contacto" />}
             >
-              Escríbeme
+              Cotiza tu proyecto
             </Button>
           </div>
         </section>

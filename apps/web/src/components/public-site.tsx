@@ -57,7 +57,7 @@ export function PublicFooter() {
     <footer className="public-footer">
       <div className="page-frame footer-inner">
         <span>Portafolio</span>
-        <span>Proyectos y procesos documentados.</span>
+        <span>Soluciones web a la medida de tu negocio.</span>
         <Link href="/contacto">Contacto</Link>
       </div>
     </footer>

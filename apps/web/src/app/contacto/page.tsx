@@ -16,7 +16,7 @@ export default async function ContactPage() {
         <PageHeader
           caption="Contacto"
           title="Hablemos"
-          intro="Cuéntame sobre tu proyecto o consulta y te responderé por correo."
+          intro="Cuéntame qué necesitas y te respondo con una propuesta."
         />
         <div className="contact-layout">
           <section aria-labelledby="form-title" className="contact-card">

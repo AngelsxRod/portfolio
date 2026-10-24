@@ -63,7 +63,7 @@ export default async function AboutPage() {
             <h2 id="skills-title" className="section-title">
               Habilidades
             </h2>
-            <p className="section-aside">Agrupadas por categoría.</p>
+            <p className="section-aside">En qué te puedo ayudar.</p>
           </div>
           {skills.length > 0 ? (
             <SkillsList skills={skills} />
