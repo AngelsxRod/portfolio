@@ -4,23 +4,10 @@ import Markdown from "react-markdown";
 import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { getPublicProject } from "@/lib/public-projects";
+import { safeExternalUrl } from "@/lib/safe-url";
 import { PublicFooter, PublicHeader } from "@/components/public-site";
 
 export const dynamic = "force-dynamic";
-
-function safeExternalUrl(value: string | null) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return ["http:", "https:"].includes(url.protocol) &&
-      !url.username &&
-      !url.password
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-}
 
 export default async function ProjectDetail({
   params,
