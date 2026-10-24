@@ -27,6 +27,9 @@ type DraftInput = {
   description: string | null;
   demoUrl: string | null;
   codeUrl: string | null;
+  projectType: string | null;
+  projectYear: string | null;
+  projectRole: string | null;
   technologies: string[];
   position: number;
 };
@@ -50,6 +53,9 @@ function draftInput(body: unknown): DraftInput {
     "description",
     "demoUrl",
     "codeUrl",
+    "projectType",
+    "projectYear",
+    "projectRole",
     "technologies",
     "position",
   ];
@@ -93,6 +99,9 @@ function draftInput(body: unknown): DraftInput {
   }
   const demoUrl = url("demoUrl");
   const codeUrl = url("codeUrl");
+  const projectType = text("projectType", 80);
+  const projectYear = text("projectYear", 20);
+  const projectRole = text("projectRole", 120);
   const rawTechnologies = data.technologies ?? [];
   let technologies: string[] = [];
   if (
@@ -124,6 +133,9 @@ function draftInput(body: unknown): DraftInput {
     description,
     demoUrl,
     codeUrl,
+    projectType,
+    projectYear,
+    projectRole,
     technologies,
     position: position as number,
   };

@@ -48,6 +48,9 @@ export const projects = pgTable(
     description: text("description"),
     demoUrl: text("demo_url"),
     codeUrl: text("code_url"),
+    projectType: text("project_type"),
+    projectYear: text("project_year"),
+    projectRole: text("project_role"),
     technologies: text("technologies")
       .array()
       .notNull()
