@@ -825,7 +825,7 @@
   }
   .detail-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
     align-items: center;
     gap: clamp(2rem, 5vw, 5rem);
     padding-block: clamp(1.5rem, 3vw, 3rem) 0;
@@ -849,7 +849,7 @@
   }
   .detail-hero-visual {
     position: relative;
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 1.5rem;
@@ -862,7 +862,7 @@
     }
     .detail-hero-visual {
       order: -1;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 16 / 10;
     }
     .detail-hero .detail-actions > * {
       flex: 1 1 100%;

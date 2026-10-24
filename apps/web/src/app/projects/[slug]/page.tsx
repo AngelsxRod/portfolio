@@ -84,8 +84,8 @@ export default async function ProjectDetail({
                 fill
                 priority
                 unoptimized
-                sizes="(max-width:800px) 100vw, 600px"
-                className="object-cover object-top"
+                sizes="(max-width:800px) 100vw, 720px"
+                className="object-contain"
               />
             </div>
           )}
