@@ -223,6 +223,8 @@ Implementar cada tipo en una entrega separada, con su esquema, edición, publica
 
 | 2026-10-23 | Sitio público comercial | Tarjetas y filas de proyectos sin badges de tecnologías; cada tarjeta tiene «Ver sitio en vivo» (solo con `demoUrl` válida) y «Ver detalle del proyecto». El detalle añade «De qué trata», «Sobre el proyecto», «Tecnologías utilizadas» y un bloque final de contacto. Textos públicos reescritos con tono orientado a clientes; `safeExternalUrl` extraída a `lib/safe-url.ts`. Sin cambios de API ni esquema. | `tsc`, ESLint y Prettier de web correctos. | No verificado en navegador (escritorio, 375 px ni modo oscuro); revisar los textos del hero y el CTA, que son propuestas de redacción. |
 
+| 2026-10-23 | Rediseño del detalle de proyecto | Hero dividido (título, resumen y botones a la izquierda, captura destacada a la derecha), franja de tecnologías, descripción, galería «Así se ve» y CTA con fondo de acento. Propuestas A/B en un lienzo de diseño; se implementó una mezcla. Sin cambios de API ni esquema. | `tsc`, ESLint y Prettier de web correctos; el servidor local responde 200 en `/projects/ryr-asociados` con las clases nuevas. | No verificado visualmente (escritorio, 375 px, modo oscuro); ese proyecto no tiene tecnologías, así que la franja no se comprobó con datos. |
+
 ## Reglas para futuras sesiones
 
 1. Leer este archivo, `AGENTS.md` y `docs/architecture.md` antes de editar.
