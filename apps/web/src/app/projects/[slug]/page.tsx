@@ -32,6 +32,7 @@ export default async function ProjectDetail({
         <header className="detail-header detail-header-gallery">
           <h1 className="display-title">{project.title}</h1>
           <div className="detail-intro-copy">
+            <p className="folio-caption">De qué trata</p>
             <p className="detail-summary">{project.summary}</p>
             {(demoUrl || codeUrl) && (
               <div className="detail-actions">
@@ -46,7 +47,7 @@ export default async function ProjectDetail({
                       />
                     }
                   >
-                    Ver sitio
+                    Ver sitio en vivo
                   </Button>
                 )}
                 {codeUrl && (
@@ -61,7 +62,7 @@ export default async function ProjectDetail({
                       />
                     }
                   >
-                    Ver código
+                    Ver código fuente
                   </Button>
                 )}
               </div>
@@ -69,18 +70,56 @@ export default async function ProjectDetail({
           </div>
         </header>
         {heroImages.length > 0 && <ProjectCarousel images={heroImages} />}
-        <div
-          className={
-            project.technologies.length > 0
-              ? "detail-content"
-              : "detail-content detail-content-single"
-          }
-        >
-          {project.technologies.length > 0 && (
-            <aside className="detail-aside" aria-label="Datos del proyecto">
-              <h2>Ficha del proyecto</h2>
-              <div>
-                <h3>Tecnologías</h3>
+        <div className="detail-content detail-content-single">
+          <div className="detail-body">
+            <h2 className="detail-section-title">Sobre el proyecto</h2>
+            <article
+              className="project-prose"
+              aria-label="Descripción del proyecto"
+            >
+              <Markdown
+                components={{ h1: ({ children }) => <h2>{children}</h2> }}
+                skipHtml
+                allowedElements={[
+                  "p",
+                  "br",
+                  "strong",
+                  "em",
+                  "del",
+                  "blockquote",
+                  "ul",
+                  "ol",
+                  "li",
+                  "h1",
+                  "h2",
+                  "h3",
+                  "h4",
+                  "h5",
+                  "h6",
+                  "code",
+                  "pre",
+                  "a",
+                  "hr",
+                ]}
+                urlTransform={(url) => {
+                  if (url.startsWith("#")) return url;
+                  if (
+                    url.startsWith("/") &&
+                    !url.startsWith("//") &&
+                    !url.includes("\\")
+                  )
+                    return url;
+                  return safeExternalUrl(url) ?? "";
+                }}
+              >
+                {project.description}
+              </Markdown>
+            </article>
+            {project.technologies.length > 0 && (
+              <section className="detail-tech" aria-labelledby="tech-title">
+                <h2 id="tech-title" className="detail-section-title">
+                  Tecnologías utilizadas
+                </h2>
                 <ul className="technology-list" aria-label="Tecnologías">
                   {project.technologies.map((technology) => (
                     <li key={technology}>
@@ -88,52 +127,37 @@ export default async function ProjectDetail({
                     </li>
                   ))}
                 </ul>
-              </div>
-            </aside>
-          )}
-          <article
-            className="project-prose"
-            aria-label="Descripción del proyecto"
-          >
-            <Markdown
-              components={{ h1: ({ children }) => <h2>{children}</h2> }}
-              skipHtml
-              allowedElements={[
-                "p",
-                "br",
-                "strong",
-                "em",
-                "del",
-                "blockquote",
-                "ul",
-                "ol",
-                "li",
-                "h1",
-                "h2",
-                "h3",
-                "h4",
-                "h5",
-                "h6",
-                "code",
-                "pre",
-                "a",
-                "hr",
-              ]}
-              urlTransform={(url) => {
-                if (url.startsWith("#")) return url;
-                if (
-                  url.startsWith("/") &&
-                  !url.startsWith("//") &&
-                  !url.includes("\\")
-                )
-                  return url;
-                return safeExternalUrl(url) ?? "";
-              }}
-            >
-              {project.description}
-            </Markdown>
-          </article>
+              </section>
+            )}
+          </div>
         </div>
+        <section className="detail-cta" aria-labelledby="detail-cta-title">
+          <h2 id="detail-cta-title" className="section-title">
+            ¿Te interesa algo así para tu negocio?
+          </h2>
+          <p>Cuéntame qué necesitas y te respondo con una propuesta.</p>
+          <div className="detail-actions">
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={<Link href="/contacto" />}
+            >
+              Cotiza tu proyecto
+            </Button>
+            {demoUrl && (
+              <Button
+                size="lg"
+                variant="outline"
+                nativeButton={false}
+                render={
+                  <a href={demoUrl} target="_blank" rel="noopener noreferrer" />
+                }
+              >
+                Ver sitio en vivo
+              </Button>
+            )}
+          </div>
+        </section>
       </main>
       <PublicFooter />
     </div>
