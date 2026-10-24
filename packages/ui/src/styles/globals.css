@@ -823,47 +823,49 @@
     padding-block: 3rem 8rem;
     min-height: 68vh;
   }
-  .detail-header {
-    padding-block: 4rem 4.5rem;
-    border-bottom: 1px solid var(--folio-rule);
-  }
-  .detail-header .display-title {
-    margin-block: 1.5rem 2rem;
-    max-width: 62rem;
-    overflow-wrap: anywhere;
-  }
-  .detail-header-gallery {
+  .detail-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-    align-items: end;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    align-items: center;
     gap: clamp(2rem, 5vw, 5rem);
-    padding-block: clamp(2rem, 4vw, 4rem) 0;
-    border-bottom: 0;
+    padding-block: clamp(1.5rem, 3vw, 3rem) 0;
   }
-  .detail-header.detail-header-gallery {
-    padding-bottom: 0;
+  .detail-hero-single {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .detail-header-gallery .display-title {
-    margin: 0;
-    font-size: clamp(3.25rem, 7vw, 7rem);
-    line-height: 0.98;
-    letter-spacing: -0.065em;
-    text-wrap: balance;
-  }
-  .detail-intro-copy {
-    max-width: 35rem;
+  .detail-hero-copy {
     min-width: 0;
   }
-  .detail-intro-copy .detail-summary {
-    font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  .detail-hero .display-title {
+    margin-block: 1rem 1.5rem;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.05em;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
   }
-  .detail-intro-copy .detail-actions {
-    margin-top: 1.25rem;
+  .detail-hero .detail-actions {
+    margin-top: 1.75rem;
+  }
+  .detail-hero-visual {
+    position: relative;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    background: var(--secondary);
   }
   @media (max-width: 800px) {
-    .detail-header-gallery {
+    .detail-hero {
       grid-template-columns: minmax(0, 1fr);
-      gap: 1.25rem;
+      gap: 1.5rem;
+    }
+    .detail-hero-visual {
+      order: -1;
+      aspect-ratio: 4 / 3;
+    }
+    .detail-hero .detail-actions > * {
+      flex: 1 1 100%;
     }
   }
   .project-gallery {
@@ -950,14 +952,30 @@
     letter-spacing: -0.02em;
   }
   .detail-tech {
-    max-width: 44rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 2rem;
+    margin-top: 3rem;
+    padding: 1.25rem 1.75rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: var(--card);
+  }
+  .detail-tech-label {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono), monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   .detail-cta {
     margin-top: 5rem;
     padding: clamp(1.5rem, 4vw, 3rem);
     border: 1px solid var(--border);
-    border-radius: 1.25rem;
-    background: var(--card);
+    border-radius: 1.5rem;
+    background: var(--accent);
   }
   .detail-cta p {
     margin-top: 0.5rem;
@@ -1146,9 +1164,6 @@
     }
     .archive-header {
       padding-bottom: 3rem;
-    }
-    .detail-header {
-      padding-block: 3rem;
     }
     .detail-content {
       padding-top: 3rem;
