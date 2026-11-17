@@ -3,6 +3,8 @@ import {
   desktopHeight,
   desktopReducer,
   initialDesktop,
+  STACK_GAP,
+  trayWindows,
   type DesktopAction,
   type DesktopState,
 } from "./desktop";
@@ -161,6 +163,85 @@ describe("desktopHeight", () => {
   });
 
   it("no baja del mínimo", () => {
-    expect(desktopHeight(run(hola))).toBe(860);
+    expect(desktopHeight(run(hola))).toBe(640);
+  });
+});
+
+describe("columnas", () => {
+  const col = (id: string, y: number) =>
+    ({
+      type: "register",
+      id,
+      title: id,
+      defaultPosition: { x: 900, y },
+      width: 420,
+      stack: "derecha",
+    }) as const;
+
+  it("apila las ventanas de una columna según su alto real", () => {
+    const state = run(col("a", 36), col("b", 500), {
+      type: "resize",
+      id: "a",
+      height: 700,
+    });
+    expect(state.windows[1]!.position).toEqual({
+      x: 900,
+      y: 36 + 700 + STACK_GAP,
+    });
+  });
+
+  it("sube la siguiente cuando se oculta la de arriba y la baja al restaurarla", () => {
+    let state = run(
+      col("a", 36),
+      col("b", 500),
+      { type: "resize", id: "a", height: 300 },
+      { type: "minimize", id: "a" },
+    );
+    expect(state.windows[1]!.position.y).toBe(36);
+    state = desktopReducer(state, { type: "restoreAll" });
+    expect(state.windows[1]!.position.y).toBe(36 + 300 + STACK_GAP);
+  });
+
+  it("deja fuera de la columna a la que se arrastró", () => {
+    const state = run(
+      col("a", 36),
+      col("b", 500),
+      { type: "resize", id: "a", height: 300 },
+      { type: "move", id: "a", position: { x: 10, y: 10 } },
+      { type: "resize", id: "b", height: 100 },
+    );
+    expect(state.windows[0]!.position).toEqual({ x: 10, y: 10 });
+    expect(state.windows[1]!.position.y).toBe(36);
+  });
+
+  it("restablecer devuelve la ventana a su lugar en la columna", () => {
+    const state = run(
+      col("a", 36),
+      col("b", 500),
+      { type: "resize", id: "a", height: 300 },
+      { type: "move", id: "b", position: { x: 10, y: 10 } },
+      { type: "reset", id: "b" },
+    );
+    expect(state.windows[1]!.position).toEqual({
+      x: 900,
+      y: 36 + 300 + STACK_GAP,
+    });
+  });
+});
+
+describe("elementos que no son ventanas", () => {
+  const note = {
+    type: "register",
+    id: "nota",
+    title: "Nota",
+    defaultPosition: { x: 64, y: 600 },
+    width: 250,
+    tray: false,
+  } as const;
+
+  it("no aparecen en la bandeja ni se pueden ocultar", () => {
+    const state = run(hola, note, { type: "close", id: "nota" });
+    expect(trayWindows(state).map((w) => w.id)).toEqual(["hola"]);
+    expect(state.windows[1]!.hidden).toBeNull();
   });
 });

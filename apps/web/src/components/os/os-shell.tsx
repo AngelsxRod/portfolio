@@ -3,6 +3,7 @@ import "@/styles/os/shell.css";
 import "@/styles/os/window.css";
 import { osFontClasses } from "@/lib/os/fonts";
 import { DesktopProvider } from "@/components/os/desktop-provider";
+import { DeskHint } from "@/components/os/desk-hint";
 import { Dock } from "@/components/os/dock";
 import { TopBar } from "@/components/os/top-bar";
 import { Tray } from "@/components/os/tray";
@@ -20,6 +21,7 @@ export function OsShell({ children }: { children: ReactNode }) {
         <Dock>
           <Tray />
         </Dock>
+        <DeskHint />
       </DesktopProvider>
     </div>
   );

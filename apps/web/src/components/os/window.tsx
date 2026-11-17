@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useRef,
   type CSSProperties,
   type PointerEvent,
@@ -11,8 +10,9 @@ import { Button } from "@repo/ui/components/button";
 import type { Point } from "@/lib/os/desktop";
 import {
   focusLater,
-  trayButtonId,
+  TRAY_TOGGLE_ID,
   useDesktopWindow,
+  useMeasuredHeight,
   windowElementId,
 } from "@/components/os/desktop-provider";
 
@@ -21,9 +21,14 @@ const DRAG_QUERY = "(min-width: 821px)";
 
 export type WindowProps = {
   id: string;
+  /** Nombre claro de la ventana («Proyectos recientes»). */
   title: string;
+  /** Guiño técnico que acompaña al título en gris («proyectos_recientes/»). */
+  file?: string;
   defaultPosition: Point;
   width: number;
+  /** Columna en la que se apila para no tapar a la siguiente. */
+  stack?: string;
   variant?: "lime" | "orange";
   /**
    * `id` del encabezado que nombra la ventana (p. ej. el `h1` de la página).
@@ -32,8 +37,6 @@ export type WindowProps = {
   labelledBy?: string;
   /** Retraso de la animación de aparición, en segundos. */
   delay?: number;
-  /** `false` deja solo el botón de cerrar. */
-  minimizable?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -41,12 +44,13 @@ export type WindowProps = {
 export function Window({
   id,
   title,
+  file,
   defaultPosition,
   width,
+  stack,
   variant = "lime",
   labelledBy,
   delay = 0,
-  minimizable = true,
   className,
   children,
 }: WindowProps) {
@@ -55,26 +59,18 @@ export function Window({
     title,
     defaultPosition,
     width,
+    stack,
   });
   const ref = useRef<HTMLElement>(null);
   const drag = useRef<{ start: Point; origin: Point } | null>(null);
   const titleId = `${id}-titulo`;
-
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new ResizeObserver(() =>
-      dispatch({ type: "resize", id, height: element.offsetHeight }),
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [dispatch, id, window.hidden]);
+  useMeasuredHeight(ref, id, dispatch, !window.hidden);
 
   if (window.hidden) return null;
 
-  function hide(type: "minimize" | "close") {
-    dispatch({ type, id });
-    focusLater(trayButtonId(id));
+  function hide() {
+    dispatch({ type: "minimize", id });
+    focusLater(TRAY_TOGGLE_ID);
   }
 
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
@@ -126,44 +122,51 @@ export function Window({
     >
       <div
         className="os-bar"
+        title="Arrastra desde aquí para mover la ventana"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
       >
-        {labelledBy ? (
-          <span className="os-bar-title">{title}</span>
-        ) : (
-          <h2 id={titleId} className="os-bar-title">
-            {title}
-          </h2>
-        )}
-        <span className="os-bar-controls">
-          {minimizable && (
-            <>
-              <Button
-                variant="ghost"
-                className="os-wbtn"
-                aria-label={`Minimizar ${title}`}
-                onClick={() => hide("minimize")}
-              >
-                _
-              </Button>
-              <Button
-                variant="ghost"
-                className="os-wbtn"
-                aria-label={`Restablecer la posición de ${title}`}
-                onClick={() => dispatch({ type: "reset", id })}
-              >
-                □
-              </Button>
-            </>
+        <span className="os-bar-heading">
+          {labelledBy ? (
+            <span className="os-bar-title">{title}</span>
+          ) : (
+            <h2 id={titleId} className="os-bar-title">
+              {title}
+            </h2>
           )}
+          {file && (
+            <span className="os-bar-file" aria-hidden="true">
+              {file}
+            </span>
+          )}
+        </span>
+        <span className="os-bar-controls">
+          <Button
+            variant="ghost"
+            className="os-wbtn"
+            aria-label={`Minimizar ${title}`}
+            title="Minimizar (recupérala en «Ventanas»)"
+            onClick={hide}
+          >
+            _
+          </Button>
+          <Button
+            variant="ghost"
+            className="os-wbtn"
+            aria-label={`Volver a colocar ${title} en su lugar`}
+            title="Volver a su lugar"
+            onClick={() => dispatch({ type: "reset", id })}
+          >
+            □
+          </Button>
           <Button
             variant="ghost"
             className="os-wbtn"
             aria-label={`Cerrar ${title}`}
-            onClick={() => hide("close")}
+            title="Cerrar (recupérala en «Ventanas»)"
+            onClick={hide}
           >
             ×
           </Button>

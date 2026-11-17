@@ -8,6 +8,7 @@ import {
   useRef,
   type Dispatch,
   type ReactNode,
+  type RefObject,
 } from "react";
 import {
   desktopReducer,
@@ -42,6 +43,8 @@ export function useDesktop() {
 }
 
 export const trayButtonId = (id: string) => `os-tray-${id}`;
+/** Botón «Ventanas» del dock; recibe el foco al ocultar una ventana. */
+export const TRAY_TOGGLE_ID = "os-tray-toggle";
 export const windowElementId = (id: string) => `os-win-${id}`;
 
 /** Lleva el foco a un elemento cuando React ya aplicó el cambio en el DOM. */
@@ -58,11 +61,17 @@ export function useDesktopWindow({
   title,
   defaultPosition,
   width,
+  stack,
+  tray = true,
 }: {
   id: string;
   title: string;
   defaultPosition: Point;
   width: number;
+  /** Columna en la que se apila (ver `DesktopWindow.stack`). */
+  stack?: string;
+  /** `false` para notas y accesos: no van a la bandeja. */
+  tray?: boolean;
 }): { window: DesktopWindow; dispatch: Dispatch<DesktopAction> } {
   const { state, dispatch } = useDesktop();
   const { x, y } = defaultPosition;
@@ -74,9 +83,11 @@ export function useDesktopWindow({
       title: initialTitle.current,
       defaultPosition: { x, y },
       width,
+      stack,
+      tray,
     });
     return () => dispatch({ type: "unregister", id });
-  }, [dispatch, id, x, y, width]);
+  }, [dispatch, id, x, y, width, stack, tray]);
   // Cambiar el título (p. ej. «vista — archivo») no reinicia la ventana.
   useEffect(() => {
     dispatch({ type: "rename", id, title });
@@ -91,6 +102,26 @@ export function useDesktopWindow({
     z: 1,
     hidden: null,
     moved: false,
+    stack: stack ?? null,
+    tray,
   };
   return { window, dispatch };
+}
+
+/** Informa al escritorio del alto real de un elemento para apilar la columna. */
+export function useMeasuredHeight(
+  ref: RefObject<HTMLElement | null>,
+  id: string,
+  dispatch: Dispatch<DesktopAction>,
+  visible: boolean,
+) {
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || !visible) return;
+    const observer = new ResizeObserver(() =>
+      dispatch({ type: "resize", id, height: element.offsetHeight }),
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, id, dispatch, visible]);
 }

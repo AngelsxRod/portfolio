@@ -1,4 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
+import type { Point } from "@/lib/os/desktop";
+import { DesktopItem } from "@/components/os/desktop-item";
 
 /** Forma plana flotante, solo decorativa. */
 export function Blob({
@@ -19,26 +21,40 @@ export function Blob({
 
 /** Nota adhesiva del escritorio; su texto y enlace sí son contenido. */
 export function StickyNote({
+  id,
   title,
   children,
-  style,
+  defaultPosition,
+  stack,
   tilt = -3,
-  label,
+  delay = 0,
 }: {
+  id: string;
   title: string;
   children: ReactNode;
-  style: CSSProperties;
+  defaultPosition: Point;
+  stack?: string;
   tilt?: number;
-  label?: string;
+  delay?: number;
 }) {
   return (
-    <aside
-      className="os-float os-note"
-      aria-label={label ?? title}
-      style={{ ...style, "--os-note-tilt": `${tilt}deg` } as CSSProperties}
+    <DesktopItem
+      id={id}
+      label={title}
+      as="aside"
+      className="os-note"
+      defaultPosition={defaultPosition}
+      width={260}
+      stack={stack}
+      style={
+        {
+          "--os-note-tilt": `${tilt}deg`,
+          "--os-delay": `${delay}s`,
+        } as CSSProperties
+      }
     >
       <p className="os-display os-note-title">{title}</p>
       {children}
-    </aside>
+    </DesktopItem>
   );
 }

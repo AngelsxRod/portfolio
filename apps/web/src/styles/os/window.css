@@ -40,14 +40,26 @@
 .os-bar:active {
   cursor: grabbing;
 }
-.os-bar-title {
+.os-bar-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.os-bar-title {
   margin: 0;
   overflow: hidden;
   font-size: 13px;
   font-weight: 700;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+.os-bar-file {
+  overflow: hidden;
+  color: #6f6d66;
+  font-size: 11px;
+  text-overflow: ellipsis;
 }
 .os-bar-controls {
   display: flex;
@@ -77,19 +89,59 @@
 
 /* Bandeja */
 .os-tray {
+  position: relative;
+}
+.os-tray-toggle {
+  gap: 8px;
+  height: auto;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 999px;
+  background: var(--os-bg);
+  color: var(--os-bone);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+.os-tray-toggle:hover,
+.os-tray-toggle[aria-expanded="true"] {
+  background: var(--os-bone);
+  color: var(--os-bg);
+}
+.os-tray-count {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--os-orange);
+  color: var(--os-bg);
+}
+.os-tray-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(360px, calc(100vw - 24px));
+  padding: 14px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 8px;
+  background: var(--os-surface);
+  box-shadow: 6px 6px 0 var(--os-orange);
+}
+.os-tray-help {
+  margin: 0;
+  color: var(--os-muted);
+  font-size: 12px;
+}
+.os-tray-chips {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 6px;
-}
-.os-tray-label {
-  margin-right: 4px;
-  color: var(--os-muted);
-  font-size: 11px;
 }
 .os-chip {
   height: auto;
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 14px;
   border: 1.5px solid var(--os-bone);
   border-radius: 999px;
@@ -107,8 +159,21 @@
   border-style: dashed;
   color: var(--os-muted);
 }
+.os-tray-all {
+  min-height: 40px;
+}
 
 @media (max-width: 820px) {
+  .os-bar-file {
+    display: none;
+  }
+  .os-tray {
+    order: -1;
+  }
+  .os-tray-panel {
+    right: 50%;
+    transform: translateX(50%);
+  }
   .os-window {
     position: relative !important;
     left: auto !important;
