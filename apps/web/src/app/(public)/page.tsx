@@ -1,214 +1,298 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@repo/ui/components/button";
-import { getPublicProjects } from "@/lib/public-projects";
+import "@/styles/os/home.css";
 import { getPublicProfile } from "@/lib/public-profile";
-import {
-  PublicFooter,
-  PublicHeader,
-  ProjectRow,
-} from "@/components/public-site";
+import { getPublicProjects } from "@/lib/public-projects";
+import { getPublicSkills } from "@/lib/public-skills";
+import { bootGateScript } from "@/lib/os/boot";
+import { mediaUrl, projectPreview } from "@/lib/os/projects";
+import { safeExternalUrl } from "@/lib/safe-url";
+import { BootScreen } from "@/components/os/boot-screen";
+import { Blob, StickyNote } from "@/components/os/decor";
+import { Desktop } from "@/components/os/desktop";
+import { OsLinkButton } from "@/components/os/os-button";
+import { Ticker } from "@/components/os/ticker";
+import { Window } from "@/components/os/window";
 
 export const dynamic = "force-dynamic";
 
+const shortcutIcons = {
+  folder: (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="var(--os-lime)"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M5 12h14l4 5h20v22H5z" />
+    </svg>
+  ),
+  text: (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="var(--os-bone)"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M12 5h17l9 9v29H12z" />
+      <path d="M29 5v9h9M18 24h14M18 30h14M18 36h9" />
+    </svg>
+  ),
+  mail: (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="var(--os-orange)"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <rect x="6" y="11" width="36" height="26" rx="3" />
+      <path d="M6 14l18 12 18-12" />
+    </svg>
+  ),
+  link: (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      stroke="var(--os-bone)"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M17 15l-9 9 9 9M31 15l9 9-9 9M27 11l-6 26" />
+    </svg>
+  ),
+};
+
 export default async function Home() {
-  const [projects, profile] = await Promise.all([
-    getPublicProjects(),
+  const [profile, projects, skills] = await Promise.all([
     getPublicProfile(),
+    getPublicProjects(),
+    getPublicSkills(),
   ]);
-  const facts = [
-    ["servicio", profile?.headline],
-    ["ubicación", profile?.location],
-    ["contacto", profile?.email],
-  ].filter((fact): fact is [string, string] => Boolean(fact[1]));
+  const recent = projects
+    .map((project) => ({ project, preview: projectPreview(project) }))
+    .filter((item) => item.preview)
+    .slice(0, 3);
+  const links = (profile?.links ?? []).flatMap((link) => {
+    const url = safeExternalUrl(link.url);
+    return url ? [{ label: link.label, url }] : [];
+  });
+  const [firstName, ...restName] = (profile?.displayName ?? "angel.os").split(
+    " ",
+  );
+  // El nombre llena la ventana sin partir palabras: Syne 800 mide ~0.9em por letra.
+  const longestWord = Math.max(
+    ...[firstName, ...restName].map((word) => word?.length ?? 0),
+  );
+  const heroSize = Math.min(104, Math.floor(580 / (0.9 * longestWord)));
+  const facts: [string, React.ReactNode][] = [];
+  if (profile) {
+    facts.push(["usuario", profile.displayName]);
+    if (profile.headline) facts.push(["rol", profile.headline]);
+    if (profile.location) facts.push(["ubicación", profile.location]);
+  }
+  facts.push([
+    "proyectos",
+    <span key="count" className="os-fact-strong">
+      {projects.length} en línea
+    </span>,
+  ]);
+  if (profile?.email)
+    facts.push([
+      "correo",
+      <a key="mail" className="os-link" href={`mailto:${profile.email}`}>
+        {profile.email}
+      </a>,
+    ]);
+  for (const link of links)
+    facts.push([
+      link.label.toLowerCase(),
+      <a
+        key={link.url}
+        className="os-link"
+        href={link.url}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {new URL(link.url).host.replace(/^www\./, "")} ↗
+        <span className="sr-only"> (se abre en otra pestaña)</span>
+      </a>,
+    ]);
+  const shortcuts = [
+    { href: "/projects", label: "proyectos/", icon: shortcutIcons.folder },
+    { href: "/sobre-mi", label: "sobre-mi.txt", icon: shortcutIcons.text },
+    { href: "/contacto", label: "contacto.eml", icon: shortcutIcons.mail },
+  ];
+  const external = links[0];
 
   return (
-    <div className="public-site min-h-svh">
-      <PublicHeader current="home" />
-      <main id="contenido">
-        <section
-          id="perfil"
-          className={`hero-shell page-frame${facts.length === 0 ? " hero-shell-single" : ""}`}
-          aria-labelledby="hero-title"
-        >
-          <div className="hero-copy">
-            {profile ? (
-              <>
-                <p className="folio-caption">
-                  {profile.location ?? "Portafolio"}
-                </p>
-                <h1 id="hero-title" className="display-title hero-name">
-                  {profile.displayName}
-                </h1>
-                {profile.headline && (
-                  <p className="hero-role">{profile.headline}</p>
-                )}
-                <p className="hero-intro whitespace-pre-line">
-                  {profile.presentation}
-                </p>
-                {(profile.email || profile.links.length > 0) && (
-                  <ul className="profile-links">
-                    {profile.email && (
-                      <li>
-                        <a href={`mailto:${profile.email}`}>{profile.email}</a>
-                      </li>
-                    )}
-                    {profile.links.map((link) => (
-                      <li key={link.url}>
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {link.label}
-                          <span className="sr-only">
-                            {" "}
-                            (se abre en otra pestaña)
-                          </span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            ) : (
-              <>
-                <p className="folio-caption">
-                  Portafolio / Soluciones para tu negocio
-                </p>
-                <h1 id="hero-title" className="display-title">
-                  Tu idea,
-                  <br />
-                  convertida en un sitio que vende.
-                </h1>
-                <p className="hero-intro">
-                  Diseño y desarrollo sitios web claros, rápidos y listos para
-                  atraer clientes. Mira lo que he construido y cuéntame qué
-                  necesitas.
-                </p>
-              </>
-            )}
-            <div className="hero-actions">
-              <Button
-                nativeButton={false}
-                render={<Link href="/projects" />}
-                size="lg"
-              >
-                Ver mis proyectos
-              </Button>
-              <Button
-                variant="outline"
-                nativeButton={false}
-                render={<Link href="/contacto" />}
-                size="lg"
-              >
-                Contacto
-              </Button>
-            </div>
-          </div>
-          {facts.length > 0 && (
-            <div className="hero-card" aria-label="Datos del perfil">
-              <div className="hero-card-dots" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </div>
-              <dl>
-                {facts.map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          )}
-        </section>
+    <>
+      <script dangerouslySetInnerHTML={{ __html: bootGateScript }} />
+      <BootScreen projectCount={projects.length} />
+      <Desktop className="os-home">
+        <Blob shape="ring" style={{ left: 24, top: 24 }} />
+        <Blob shape="circle" style={{ left: 600, top: 380 }} />
+        <Blob shape="pill" style={{ right: -80, top: 720 }} />
 
-        <section className="page-frame home-work" aria-labelledby="work-title">
-          <div className="section-heading">
-            <div>
-              <p className="folio-caption">Proyectos</p>
-              <h2 id="work-title" className="section-title">
-                Soluciones que he entregado
-              </h2>
-            </div>
-            <p className="section-aside">
-              Resultados reales, listos para ver y probar.
-            </p>
-          </div>
-          {projects.length > 0 ? (
-            <div className="project-list">
-              {projects.slice(0, 6).map((project, index) => (
-                <ProjectRow key={project.id} project={project} index={index} />
-              ))}
-            </div>
-          ) : (
-            <div className="empty-panel">
-              <h3>Aún no hay proyectos publicados</h3>
-              <p>Pronto compartiré aquí los proyectos terminados.</p>
-            </div>
-          )}
-          {projects.length > 6 && (
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link href="/projects" />}
-            >
-              Ver todos los proyectos
-            </Button>
-          )}
-        </section>
-        <section
-          className="page-frame home-sections"
-          aria-labelledby="explore-title"
+        <Window
+          id="hola"
+          title="hola.txt"
+          labelledBy="hero-title"
+          defaultPosition={{ x: 64, y: 48 }}
+          width={660}
         >
-          <h2 id="explore-title" className="section-title">
-            Conoce más
-          </h2>
-          <ul className="home-section-list">
-            {[
-              ["/sobre-mi", "Sobre mí", "Quién soy y en qué te puedo ayudar."],
-              [
-                "/experiencia",
-                "Trayectoria",
-                "Experiencia y formación que respaldan mi trabajo.",
-              ],
-              [
-                "/contacto",
-                "Contacto",
-                "Cuéntame qué necesitas y te propongo una solución.",
-              ],
-            ].map(([href, title, text]) => (
-              <li key={href}>
-                <Link href={href}>
-                  <span className="home-section-title">{title}</span>
-                  <span className="home-section-text">{text}</span>
-                  <span aria-hidden="true">↗</span>
+          <div className="os-hello">
+            <span className="os-hello-kicker">// hola, soy</span>
+            <h1
+              id="hero-title"
+              className="os-display"
+              style={
+                {
+                  "--os-hero-size": `${heroSize}px`,
+                  "--os-hero-chars": longestWord,
+                } as React.CSSProperties
+              }
+            >
+              {firstName}
+              {restName.length > 0 && (
+                <>
+                  <br />
+                  <span>{restName.join(" ")}</span>
+                </>
+              )}
+            </h1>
+            {profile ? (
+              <p>{profile.presentation}</p>
+            ) : (
+              <p>Proyectos publicados y una forma directa de escribirme.</p>
+            )}
+            <div className="os-actions">
+              <OsLinkButton href="/projects">Abrir proyectos →</OsLinkButton>
+              <OsLinkButton href="/contacto" variant="outline">
+                Escribirme
+              </OsLinkButton>
+            </div>
+          </div>
+        </Window>
+
+        {recent.length > 0 && (
+          <Window
+            id="recientes"
+            title="proyectos_recientes/"
+            defaultPosition={{ x: 790, y: 36 }}
+            width={560}
+            delay={0.15}
+          >
+            <ul className="os-recent">
+              {recent.map(({ project, preview }) => (
+                <li key={project.id}>
+                  <Link
+                    className="os-recent-row"
+                    href={`/projects/${project.slug}`}
+                  >
+                    <span className="os-recent-thumb">
+                      <Image
+                        src={mediaUrl(preview!.id)}
+                        alt=""
+                        fill
+                        unoptimized
+                        sizes="150px"
+                        className="object-cover object-top"
+                      />
+                    </span>
+                    <span>
+                      <span className="os-display os-recent-name">
+                        {project.title}
+                      </span>
+                      {project.projectType && (
+                        <span className="os-recent-meta">
+                          {project.projectType}
+                        </span>
+                      )}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link className="os-link os-recent-more" href="/projects">
+                  ver los {projects.length} proyectos →
+                </Link>
+              </li>
+            </ul>
+          </Window>
+        )}
+
+        <Window
+          id="sistema"
+          title="sistema.info"
+          variant="orange"
+          defaultPosition={{ x: 820, y: 560 }}
+          width={420}
+          delay={0.3}
+        >
+          <dl className="os-facts">
+            {facts.map(([label, value]) => (
+              <div key={label} className="contents">
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Window>
+
+        <StickyNote
+          title="¿Tienes un proyecto?"
+          tilt={-4}
+          style={
+            { left: 96, top: 600, "--os-delay": "0.45s" } as React.CSSProperties
+          }
+        >
+          <p>Cuéntame qué necesita tu negocio.</p>
+          <Link href="/contacto">Escribirme →</Link>
+        </StickyNote>
+
+        <nav
+          className="os-float"
+          aria-label="Accesos directos"
+          style={{ left: 420, top: 700 }}
+        >
+          <ul
+            className="os-shortcuts"
+            style={{ "--os-delay": "0.5s" } as React.CSSProperties}
+          >
+            {shortcuts.map((shortcut) => (
+              <li key={shortcut.href}>
+                <Link className="os-shortcut" href={shortcut.href}>
+                  {shortcut.icon}
+                  {shortcut.label}
                 </Link>
               </li>
             ))}
+            {external && (
+              <li>
+                <a
+                  className="os-shortcut"
+                  href={external.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {shortcutIcons.link}
+                  {external.label.toLowerCase()} ↗
+                  <span className="sr-only"> (se abre en otra pestaña)</span>
+                </a>
+              </li>
+            )}
           </ul>
-        </section>
-        <section
-          className="page-frame home-sections"
-          aria-labelledby="cta-title"
-        >
-          <div className="contact-cta">
-            <h2 id="cta-title" className="section-title">
-              Hablemos de tu próximo proyecto
-            </h2>
-            <p>Recibe una propuesta a la medida de tu negocio.</p>
-            <Button
-              size="lg"
-              nativeButton={false}
-              render={<Link href="/contacto" />}
-            >
-              Cotiza tu proyecto
-            </Button>
-          </div>
-        </section>
-      </main>
-      <PublicFooter />
-    </div>
+        </nav>
+      </Desktop>
+      <Ticker
+        items={[
+          ...projects.flatMap((project) => project.technologies),
+          ...skills.map((skill) => skill.name),
+        ]}
+      />
+    </>
   );
 }
