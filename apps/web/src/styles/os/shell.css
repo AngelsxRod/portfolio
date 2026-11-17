@@ -1,0 +1,406 @@
+/* angel.os — shell público: página, barra superior, escritorio, dock, cinta y botones.
+   Sin capa a propósito: así estas reglas prevalecen sobre las utilidades de los
+   componentes shadcn que reciben estas clases. */
+
+html:has(.os-page) {
+  background: var(--os-bg);
+}
+
+.os-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  overflow-x: clip;
+  background-color: var(--os-bg);
+  background-image: radial-gradient(var(--os-dot) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+  color: var(--os-bone);
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.os-page :focus-visible {
+  outline: 3px solid var(--os-orange);
+  outline-offset: 2px;
+}
+
+.os-display {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.os-skip {
+  position: absolute;
+  left: 1rem;
+  top: -10rem;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--os-lime);
+  color: var(--os-bg);
+  font-weight: 700;
+}
+.os-skip:focus {
+  top: 1rem;
+}
+
+/* Barra superior */
+.os-topbar {
+  order: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 20px;
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--os-bone);
+  color: var(--os-bg);
+  font-size: 13px;
+}
+.os-topbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+}
+.os-topbar-page,
+.os-topbar-clock {
+  font-weight: 700;
+}
+.os-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  color: var(--os-bg);
+  font-weight: 700;
+  text-decoration: none;
+}
+.os-logo:hover {
+  text-decoration: underline;
+}
+.os-logo i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--os-bg);
+  border-radius: 50%;
+  background: var(--os-lime);
+  animation: os-pulse 2s ease-in-out infinite;
+}
+.os-page .os-topbar :focus-visible {
+  outline-color: var(--os-bg);
+}
+
+/* Escritorio */
+.os-desk {
+  order: 1;
+  position: relative;
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1440px;
+  min-height: 860px;
+  margin: 0 auto;
+  overflow: clip;
+}
+.os-desk:focus {
+  outline: none;
+}
+
+.os-blob {
+  position: absolute;
+  pointer-events: none;
+}
+.os-blob-circle {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: var(--os-orange);
+  animation: os-float 16s ease-in-out infinite alternate;
+}
+.os-blob-pill {
+  width: 420px;
+  height: 120px;
+  border-radius: 60px;
+  background: var(--os-lime);
+  animation: os-float-pill 20s ease-in-out infinite alternate;
+}
+.os-blob-ring {
+  width: 180px;
+  height: 180px;
+  border: 2px solid var(--os-bone);
+  border-radius: 50%;
+  animation: os-float 22s ease-in-out infinite alternate-reverse;
+}
+
+/* Elementos sueltos del escritorio (notas, accesos directos). */
+.os-float {
+  position: absolute;
+}
+
+.os-note {
+  width: 250px;
+  padding: 20px;
+  border: 1.5px solid var(--os-bg);
+  background: var(--os-orange);
+  color: var(--os-bg);
+  box-shadow: 6px 6px 0 var(--os-bg);
+  transform: rotate(var(--os-note-tilt, -3deg));
+  transition: transform 0.2s;
+  animation: os-pop 0.55s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.os-note:hover {
+  transform: rotate(0deg) scale(1.03);
+}
+.os-note-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  line-height: 1;
+}
+.os-note p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.os-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--os-bg);
+  font-size: 13px;
+  font-weight: 700;
+}
+.os-page .os-note :focus-visible {
+  outline-color: var(--os-bg);
+}
+
+/* Dock y bandeja */
+.os-dockwrap {
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 16px 28px;
+}
+.os-dock {
+  display: flex;
+  gap: 4px;
+  max-width: 100%;
+  padding: 8px;
+  overflow-x: auto;
+  border-radius: 16px;
+  background: var(--os-bone);
+  box-shadow: 6px 6px 0 var(--os-orange);
+}
+.os-dock a {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 76px;
+  height: 60px;
+  border-radius: 10px;
+  color: var(--os-bg);
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.18s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.os-dock a:hover {
+  background: var(--os-bone-2);
+  transform: translateY(-10px) scale(1.15);
+}
+.os-dock a[aria-current="page"] {
+  background: var(--os-lime);
+}
+.os-dock a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--os-bg);
+}
+.os-dock svg {
+  width: 24px;
+  height: 24px;
+}
+.os-page .os-dock :focus-visible {
+  outline-offset: -3px;
+}
+
+/* Cinta */
+.os-ticker {
+  order: 3;
+  overflow: hidden;
+  padding: 11px 0;
+  background: var(--os-lime);
+  color: var(--os-bg);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.os-ticker > div {
+  display: inline-block;
+  animation: os-tick 60s linear infinite;
+}
+
+/* Botones y enlaces */
+.os-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: auto;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 8px;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    background 0.12s;
+}
+.os-btn-primary {
+  border-color: var(--os-lime);
+  background: var(--os-lime);
+  color: var(--os-bg);
+}
+.os-btn-primary:hover {
+  background: var(--os-lime);
+  color: var(--os-bg);
+  box-shadow: 3px 3px 0 var(--os-bone);
+  transform: translate(-3px, -3px);
+}
+.os-btn-outline {
+  background: transparent;
+  color: var(--os-bone);
+}
+.os-btn-outline:hover {
+  background: var(--os-bone);
+  color: var(--os-bg);
+}
+.os-btn:disabled {
+  opacity: 0.6;
+}
+
+.os-link {
+  color: var(--os-lime);
+  font-weight: 700;
+}
+.os-link:hover {
+  color: var(--os-orange);
+}
+
+.os-muted {
+  color: var(--os-muted);
+}
+
+.os-empty {
+  padding: 20px 24px 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--os-text);
+}
+.os-empty strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--os-bone);
+}
+
+.os-caret {
+  display: inline-block;
+  width: 10px;
+  height: 18px;
+  background: var(--os-lime);
+  vertical-align: middle;
+  animation: os-blink 1s steps(1) infinite;
+}
+
+@keyframes os-line {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes os-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(24px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes os-float {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(48px, -36px);
+  }
+}
+@keyframes os-float-pill {
+  from {
+    transform: rotate(-18deg) translate(0, 0);
+  }
+  to {
+    transform: rotate(-8deg) translate(-60px, 30px);
+  }
+}
+@keyframes os-pulse {
+  50% {
+    transform: scale(0.6);
+  }
+}
+@keyframes os-tick {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes os-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .os-desk {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    min-height: 0 !important;
+    padding: 20px 16px 8px;
+  }
+  .os-blob {
+    display: none !important;
+  }
+  .os-float {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+  }
+  .os-note {
+    width: auto;
+    max-width: 22rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .os-page *,
+  .os-page *::before,
+  .os-page *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
