@@ -64,12 +64,38 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
 
   if (sent)
     return (
-      <Alert role="status">
-        <AlertTitle>Mensaje enviado</AlertTitle>
-        <AlertDescription>
+      <div className="os-sent" role="status">
+        <svg
+          className="os-plane"
+          viewBox="0 0 64 64"
+          fill="none"
+          stroke="var(--os-lime)"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 30L58 8 46 56 30 38z" />
+          <path d="M58 8L30 38v16l8-10" />
+        </svg>
+        <p className="os-display os-sent-title">
+          Mensaje
+          <br />
+          en camino.
+        </p>
+        <p className="os-sent-text">
           Gracias por escribir. Responderé al correo que indicaste.
-        </AlertDescription>
-      </Alert>
+        </p>
+        <Button
+          variant="outline"
+          className="os-btn os-btn-outline"
+          onClick={() => {
+            form.reset();
+            setSent(false);
+          }}
+        >
+          Escribir otro
+        </Button>
+      </div>
     );
 
   async function onSubmit(values: Values) {
@@ -104,11 +130,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
   const tokenError = form.formState.errors.turnstileToken;
 
   return (
-    <form
-      noValidate
-      className="contact-form"
-      onSubmit={form.handleSubmit(onSubmit)}
-    >
+    <form noValidate className="os-form" onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <FormField
           control={form.control}
@@ -119,6 +141,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             <Input
               {...field}
               {...control}
+              className="os-input"
               autoComplete="name"
               maxLength={120}
               required
@@ -134,6 +157,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             <Input
               {...field}
               {...control}
+              className="os-input"
               type="email"
               autoComplete="email"
               maxLength={254}
@@ -150,6 +174,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             <Input
               {...field}
               {...control}
+              className="os-input"
               type="tel"
               autoComplete="tel"
               maxLength={40}
@@ -166,7 +191,8 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             <Textarea
               {...field}
               {...control}
-              rows={7}
+              className="os-input"
+              rows={6}
               maxLength={4000}
               required
             />
@@ -176,7 +202,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
           <Turnstile
             ref={turnstile}
             siteKey={siteKey}
-            options={{ language: "es", theme: "auto" }}
+            options={{ language: "es", theme: "dark" }}
             onSuccess={(token) =>
               form.setValue("turnstileToken", token, { shouldValidate: true })
             }
@@ -186,8 +212,12 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
           {tokenError && <FieldError errors={[tokenError]} />}
         </div>
       </FieldGroup>
-      <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
-        {form.formState.isSubmitting ? "Enviando…" : "Enviar mensaje"}
+      <Button
+        type="submit"
+        className="os-btn os-btn-primary os-submit"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting ? "Enviando…" : "Enviar mensaje ↗"}
       </Button>
     </form>
   );
