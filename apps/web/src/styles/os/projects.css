@@ -159,6 +159,22 @@
 }
 
 @media (max-width: 820px) {
+  /* La vista previa sigue al cursor: en el teléfono cada tarjeta ya abre su ficha. */
+  #os-win-vista-previa,
+  .os-explorer-tip {
+    display: none;
+  }
+  .os-explorer-side {
+    padding: 16px 12px;
+  }
+  .os-cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    padding: 10px;
+  }
+  .os-card-title {
+    font-size: 20px;
+    overflow-wrap: break-word;
+  }
   .os-explorer-side {
     max-width: none;
     border-right: 0;
@@ -176,4 +192,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .os-cards {
+    grid-template-columns: 1fr;
+  }
 }

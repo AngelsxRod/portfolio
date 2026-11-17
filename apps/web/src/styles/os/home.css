@@ -208,3 +208,13 @@ html:not([data-booted]) .os-home .os-shortcuts {
     display: none;
   }
 }
+
+@media (max-width: 820px) {
+  .os-shortcuts {
+    justify-content: space-between;
+  }
+  .os-shortcut {
+    width: 72px;
+    font-size: 11px;
+  }
+}

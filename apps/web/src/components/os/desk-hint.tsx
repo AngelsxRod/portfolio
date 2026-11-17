@@ -28,8 +28,8 @@ export function DeskHint() {
   return (
     <aside className="os-hint" aria-label="Cómo usar este sitio">
       <p>
-        <strong>¿Primera vez aquí?</strong> Usa el menú de abajo para moverte.
-        Las ventanas se pueden mover desde su barra; si cierras una, la
+        <strong>¿Primera vez aquí?</strong> Usa el menú de la izquierda para
+        moverte. Las ventanas se pueden mover desde su barra; si cierras una, la
         recuperas en «Ventanas».
       </p>
       <Button className="os-btn os-btn-primary" onClick={dismiss}>

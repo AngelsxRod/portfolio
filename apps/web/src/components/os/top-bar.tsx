@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { activeRoute } from "@/lib/os/routes";
 import { Clock } from "@/components/os/clock";
+import { MobileMenu } from "@/components/os/mobile-menu";
 
 export function TopBar() {
   const route = activeRoute(usePathname());
@@ -17,8 +18,9 @@ export function TopBar() {
         {route && <span className="os-topbar-page">{route.label}</span>}
       </div>
       <div className="os-topbar-group">
-        <span>Guatemala, GT</span>
+        <span className="os-topbar-place">Guatemala, GT</span>
         <Clock className="os-topbar-clock" />
+        <MobileMenu />
       </div>
     </header>
   );

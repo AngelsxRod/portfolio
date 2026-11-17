@@ -10,8 +10,9 @@ html:has(.os-page) {
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  /* Espacio para el dock fijo: el contenido y la cinta nunca quedan debajo. */
-  padding-bottom: 104px;
+  /* Espacio para el dock lateral fijo: el contenido nunca queda debajo. La
+     barra superior y la cinta recuperan el ancho completo. */
+  padding-left: 100px;
   overflow-x: clip;
   background-color: var(--os-bg);
   background-image: radial-gradient(var(--os-dot) 1.2px, transparent 1.2px);
@@ -47,6 +48,10 @@ html:has(.os-page) {
 }
 
 /* Barra superior */
+.os-topbar,
+.os-ticker {
+  margin-left: -100px;
+}
 .os-topbar {
   order: 0;
   display: flex;
@@ -176,29 +181,23 @@ html:has(.os-page) {
   outline-color: var(--os-bg);
 }
 
-/* Dock fijo y bandeja: la navegación siempre está a la vista. */
+/* Dock lateral fijo: la navegación siempre está a la vista sin tapar el pie. */
 .os-dockwrap {
   position: fixed;
-  right: 0;
-  bottom: 12px;
-  left: 0;
+  top: 50%;
+  left: 14px;
   z-index: 900;
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  padding: 0 12px;
-  pointer-events: none;
-}
-.os-dockwrap > * {
-  pointer-events: auto;
+  transform: translateY(-50%);
 }
 .os-dock {
   display: flex;
+  flex-direction: column;
   gap: 4px;
-  max-width: 100%;
   padding: 8px;
-  overflow-x: auto;
   border-radius: 16px;
   background: var(--os-bone);
   box-shadow: 6px 6px 0 var(--os-orange);
@@ -211,18 +210,30 @@ html:has(.os-page) {
   align-items: center;
   justify-content: center;
   gap: 3px;
-  width: 76px;
+  width: 72px;
   height: 60px;
   border-radius: 10px;
   color: var(--os-bg);
   font-size: 10px;
   font-weight: 700;
+  text-align: center;
   text-decoration: none;
   transition: transform 0.18s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
 .os-dock a:hover {
   background: var(--os-bone-2);
-  transform: translateY(-10px) scale(1.15);
+  transform: translateX(4px) scale(1.08);
+}
+/* Pantallas bajas: iconos más compactos en lugar de barra de desplazamiento. */
+@media (min-width: 821px) and (max-height: 640px) {
+  .os-dock a {
+    height: 46px;
+    font-size: 9px;
+  }
+  .os-dock svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 .os-dock a[aria-current="page"] {
   background: var(--os-lime);
@@ -230,11 +241,13 @@ html:has(.os-page) {
 .os-dock a[aria-current="page"]::after {
   content: "";
   position: absolute;
-  bottom: 3px;
+  top: 50%;
+  right: 3px;
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: var(--os-bg);
+  transform: translateY(-50%);
 }
 .os-dock svg {
   width: 24px;
@@ -242,6 +255,67 @@ html:has(.os-page) {
 }
 .os-page .os-dock :focus-visible {
   outline-offset: -3px;
+}
+
+/* Menú del teléfono (oculto en escritorio) */
+.os-menu-button {
+  display: none;
+}
+.os-sheet {
+  gap: 20px;
+  padding: 20px 16px;
+  border-right: 1.5px solid var(--os-bone);
+  background: var(--os-surface);
+  color: var(--os-bone);
+  font-family: var(--font-mono), monospace;
+}
+.os-sheet-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.os-sheet-title i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--os-lime);
+}
+.os-sheet-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.os-sheet-nav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: 10px;
+  color: var(--os-bone);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.os-sheet-nav a:hover {
+  background: var(--os-surface-2);
+}
+.os-sheet-nav a[aria-current="page"] {
+  background: var(--os-lime);
+  color: var(--os-bg);
+}
+.os-sheet-nav svg {
+  width: 22px;
+  height: 22px;
+}
+.os-sheet .os-sheet-restore {
+  justify-content: center;
+}
+.os-sheet :focus-visible {
+  outline: 3px solid var(--os-orange);
+  outline-offset: 2px;
 }
 
 /* Cinta */
@@ -402,21 +476,61 @@ html:has(.os-page) {
     width: auto !important;
     max-width: 22rem;
   }
+  /* En el teléfono el dock pasa al menú lateral de la barra superior. */
   .os-page {
-    padding-bottom: 150px;
+    padding-left: 0;
+  }
+  .os-topbar,
+  .os-ticker {
+    margin-left: 0;
   }
   .os-dockwrap {
-    flex-direction: column;
-    align-items: center;
+    display: none;
+  }
+  .os-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    flex-wrap: nowrap;
+    min-height: 56px;
+    padding: 0 12px;
+  }
+  .os-topbar-group {
+    flex-wrap: nowrap;
+    gap: 12px;
+    min-width: 0;
+  }
+  .os-topbar-page {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .os-topbar-place {
+    display: none;
+  }
+  .os-topbar-clock {
+    white-space: nowrap;
+  }
+  .os-menu-button {
+    display: inline-flex;
     gap: 8px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid var(--os-bg);
+    border-radius: 8px;
+    background: var(--os-bg);
+    color: var(--os-bone);
+    font-family: var(--font-mono), monospace;
+    font-size: 13px;
+    font-weight: 700;
   }
-  .os-dock a {
-    width: 54px;
-    height: 54px;
-    font-size: 9px;
+  .os-menu-button:hover {
+    background: var(--os-surface-2);
+    color: var(--os-bone);
   }
-  .os-dock a:hover {
-    transform: none;
+  .os-menu-button svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -433,7 +547,7 @@ html:has(.os-page) {
 .os-hint {
   position: fixed;
   right: 16px;
-  bottom: 108px;
+  bottom: 24px;
   z-index: 950;
   display: flex;
   flex-direction: column;
@@ -458,10 +572,8 @@ html:has(.os-page) {
   color: var(--os-bone);
 }
 @media (max-width: 820px) {
+  /* Las ventanas no se mueven en el teléfono: la pista no aplica. */
   .os-hint {
-    right: 12px;
-    bottom: 160px;
-    left: 12px;
-    max-width: none;
+    display: none;
   }
 }
