@@ -9,8 +9,7 @@ import type { TimelineBar } from "@/lib/os/timeline";
 
 export type Commit = {
   id: string;
-  hash: string;
-  head: boolean;
+  current: boolean;
   organization: string;
   title: string;
   period: string;
@@ -38,7 +37,9 @@ export function GitLog({
     <>
       <Window
         id="git-log"
-        title="git log — trayectoria"
+        title="Trayectoria"
+        file="git log"
+        stack="izquierda"
         labelledBy="page-title"
         defaultPosition={{ x: 40, y: 36 }}
         width={800}
@@ -50,7 +51,7 @@ export function GitLog({
           {commits.length > 0 ? (
             <>
               <p className="os-log-hint">
-                Toca un commit para ver los cambios.
+                Toca un trabajo para ver qué hice ahí.
               </p>
               <ol className="os-commits">
                 {commits.map((commit) => {
@@ -67,12 +68,9 @@ export function GitLog({
                       >
                         <span className="os-commit-dot" aria-hidden="true" />
                         <span className="os-commit-main">
-                          <span className="os-commit-hash">
-                            <span>{commit.hash}</span>
-                            {commit.head && (
-                              <span className="os-muted"> (HEAD → main)</span>
-                            )}
-                          </span>
+                          {commit.current && (
+                            <span className="os-commit-current">Actual</span>
+                          )}
                           <span className="os-display os-commit-org">
                             {commit.organization}
                           </span>
@@ -113,7 +111,9 @@ export function GitLog({
       {years.length > 0 && (
         <Window
           id="linea-de-tiempo"
-          title={`linea_de_tiempo — ${years[0]} → hoy`}
+          title="Línea de tiempo"
+          file={`${years[0]} → hoy`}
+          stack="derecha"
           variant="orange"
           defaultPosition={{ x: 880, y: 36 }}
           width={520}
@@ -167,11 +167,23 @@ export function GitLog({
                 ))}
               </div>
             )}
-            <p className="os-timeline-note">
-              Cada barra es un periodo real.{" "}
-              {commits.length > 0 && "Las lima abren su commit. "}
-              {studies.length > 0 && "Las naranjas llevan a Estudios."}
-            </p>
+            <ul className="os-legend">
+              {commits.length > 0 && (
+                <li>
+                  <span className="os-swatch os-tbar-work" aria-hidden="true" />
+                  Trabajo (toca una barra para ver el detalle)
+                </li>
+              )}
+              {studies.length > 0 && (
+                <li>
+                  <span
+                    className="os-swatch os-tbar-study"
+                    aria-hidden="true"
+                  />
+                  Estudios (te lleva a Estudios)
+                </li>
+              )}
+            </ul>
           </div>
         </Window>
       )}

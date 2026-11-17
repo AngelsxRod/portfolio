@@ -28,7 +28,9 @@ export default async function AboutPage() {
 
         <Window
           id="terminal"
-          title="terminal — angel@os: ~"
+          title="Sobre mí"
+          file="terminal"
+          stack="izquierda"
           labelledBy="page-title"
           defaultPosition={{ x: 40, y: 36 }}
           width={820}
@@ -42,7 +44,9 @@ export default async function AboutPage() {
 
         <Window
           id="paquetes"
-          title="paquetes_instalados"
+          title="Habilidades"
+          file="paquetes_instalados"
+          stack="derecha"
           variant="orange"
           defaultPosition={{ x: 900, y: 36 }}
           width={500}

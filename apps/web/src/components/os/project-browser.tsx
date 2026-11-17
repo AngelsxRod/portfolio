@@ -46,7 +46,8 @@ export function ProjectBrowser({
   return (
     <Window
       id="navegador"
-      title={`navegador — ${title}`}
+      title={`Así se ve ${title}`}
+      file="navegador"
       defaultPosition={{ x: 40, y: 36 }}
       width={900}
     >
@@ -81,7 +82,7 @@ export function ProjectBrowser({
               <span>{host}</span>
             </>
           ) : (
-            <span className="os-muted">sin sitio publicado</span>
+            <span className="os-muted">sitio sin dirección pública</span>
           )}
         </div>
         {demoUrl && (
@@ -114,7 +115,7 @@ export function ProjectBrowser({
             <TabsList variant="line" className="os-btabs" aria-label="Capturas">
               {images.map((image, i) => (
                 <TabsTrigger key={image.id} value={i} className="os-btab">
-                  captura {i + 1}
+                  Vista {i + 1}
                 </TabsTrigger>
               ))}
             </TabsList>

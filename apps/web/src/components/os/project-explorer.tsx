@@ -68,7 +68,8 @@ export function ProjectExplorer({
     <>
       <Window
         id="explorador"
-        title="Explorador — ~/proyectos"
+        title="Explorador de proyectos"
+        file="~/proyectos"
         labelledBy="page-title"
         defaultPosition={{ x: 40, y: 36 }}
         width={900}
@@ -78,28 +79,36 @@ export function ProjectExplorer({
             <h1 id="page-title" className="os-display">
               Proyectos
             </h1>
-            <span className="os-explorer-label" id="filtros">
-              FILTRAR
-            </span>
-            <ToggleGroup
-              aria-labelledby="filtros"
-              orientation="vertical"
-              spacing={1}
-              value={[filter]}
-              onValueChange={(value) => setFilter(value[0] ?? ALL_FILTER)}
-              className="os-filters"
-            >
-              {filters.map((item) => (
-                <ToggleGroupItem
-                  key={item.value}
-                  value={item.value}
-                  className="os-filter"
+            {filters.length > 1 && (
+              <>
+                <span className="os-explorer-label" id="filtros">
+                  Filtrar por tipo
+                </span>
+                <ToggleGroup
+                  aria-labelledby="filtros"
+                  orientation="vertical"
+                  spacing={1}
+                  value={[filter]}
+                  onValueChange={(value) => setFilter(value[0] ?? ALL_FILTER)}
+                  className="os-filters"
                 >
-                  <span>{item.label}</span>
-                  <span>{item.count}</span>
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
+                  {filters.map((item) => (
+                    <ToggleGroupItem
+                      key={item.value}
+                      value={item.value}
+                      className="os-filter"
+                    >
+                      <span>{item.label}</span>
+                      <span>{item.count}</span>
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </>
+            )}
+            <p className="os-explorer-tip">
+              Pasa el cursor por un proyecto para verlo en la vista previa, o
+              ábrelo para ver todos sus detalles.
+            </p>
           </div>
           <div className="os-explorer-main">
             {visible.length > 0 ? (
@@ -139,10 +148,13 @@ export function ProjectExplorer({
               </p>
             )}
             <div className="os-statusbar">
-              <span>{visible.length} elementos</span>
+              <span>
+                {visible.length}{" "}
+                {visible.length === 1 ? "proyecto" : "proyectos"}
+              </span>
               {selected?.host && (
                 <span>
-                  seleccionado:{" "}
+                  sitio:{" "}
                   <span className="os-statusbar-strong">{selected.host}</span>
                 </span>
               )}
@@ -154,7 +166,9 @@ export function ProjectExplorer({
       {selected && (
         <Window
           id="vista-previa"
-          title="vista_previa"
+          title="Vista previa"
+          file="vista_previa"
+          stack="derecha"
           variant="orange"
           defaultPosition={{ x: 980, y: 56 }}
           width={420}

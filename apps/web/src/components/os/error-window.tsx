@@ -29,7 +29,8 @@ export function ErrorWindow({
       <Blob shape="circle" style={{ left: 980, top: 420 }} />
       <Window
         id="error"
-        title={file}
+        title={title}
+        file={file}
         labelledBy="page-title"
         variant="orange"
         defaultPosition={{ x: 120, y: 80 }}

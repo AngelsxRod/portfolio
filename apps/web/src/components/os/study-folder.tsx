@@ -69,8 +69,13 @@ export function StudyFolder({
   const [selected, setSelected] = useState(studies[0]?.id ?? FOLDER);
   const study = studies.find((item) => item.id === selected);
   const entries = [
-    ...studies.map((item) => ({ id: item.id, file: item.file, folder: false })),
-    { id: FOLDER, file: `${FOLDER}/`, folder: true },
+    ...studies.map((item) => ({
+      id: item.id,
+      file: item.file,
+      label: item.program,
+      folder: false,
+    })),
+    { id: FOLDER, file: `${FOLDER}/`, label: "Certificados", folder: true },
   ];
 
   function open(id: string) {
@@ -83,7 +88,9 @@ export function StudyFolder({
     <>
       <Window
         id="estudios"
-        title="~/estudios"
+        title="Estudios"
+        file="~/estudios"
+        stack="izquierda"
         labelledBy="page-title"
         defaultPosition={{ x: 40, y: 36 }}
         width={720}
@@ -93,7 +100,7 @@ export function StudyFolder({
             Estudios
           </h1>
           <p className="os-dir-hint">
-            Formación y certificados. Abre un archivo para verlo.
+            Toca un estudio o la carpeta de certificados para ver el detalle.
           </p>
           <ul className="os-files">
             {entries.map((entry, index) => (
@@ -106,7 +113,7 @@ export function StudyFolder({
                   style={{ animationDelay: `${0.1 + index * 0.07}s` }}
                 >
                   {entry.folder ? <FolderIcon /> : <FileIcon />}
-                  <span className="os-fname">{entry.file}</span>
+                  <span className="os-fname">{entry.label}</span>
                 </Button>
               </li>
             ))}
@@ -125,7 +132,9 @@ export function StudyFolder({
 
       <Window
         id={VIEW_ID}
-        title={`vista — ${entries.find((entry) => entry.id === selected)?.file ?? ""}`}
+        title="Detalle"
+        file={entries.find((entry) => entry.id === selected)?.file}
+        stack="derecha"
         variant="orange"
         defaultPosition={{ x: 820, y: 36 }}
         width={560}

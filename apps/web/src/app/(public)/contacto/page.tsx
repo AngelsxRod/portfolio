@@ -30,7 +30,9 @@ export default async function ContactPage() {
 
         <Window
           id="mensaje"
-          title="nuevo_mensaje.eml"
+          title="Escríbeme"
+          file="nuevo_mensaje.eml"
+          stack="izquierda"
           labelledBy="page-title"
           defaultPosition={{ x: 40, y: 36 }}
           width={760}
@@ -54,7 +56,9 @@ export default async function ContactPage() {
         {hasChannels && (
           <Window
             id="canales"
-            title="otros_canales"
+            title="Otros canales"
+            file="otros_canales"
+            stack="derecha"
             variant="orange"
             defaultPosition={{ x: 880, y: 60 }}
             width={440}
@@ -110,7 +114,14 @@ export default async function ContactPage() {
           </Window>
         )}
 
-        <StickyNote title="Tip" tilt={3} style={{ left: 900, top: 420 }}>
+        <StickyNote
+          id="nota-contacto"
+          title="Tip"
+          tilt={3}
+          stack="derecha"
+          delay={0.3}
+          defaultPosition={{ x: 900, y: 420 }}
+        >
           <p>
             Cuéntame qué negocio tienes, qué necesitas y para cuándo. Con eso te
             mando una propuesta.

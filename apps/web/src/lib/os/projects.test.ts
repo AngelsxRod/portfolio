@@ -24,18 +24,20 @@ describe("projectFilters", () => {
     ).toEqual([{ value: ALL_FILTER, label: "Todos", count: 2 }]);
   });
 
-  it("agrega los tipos existentes con su recuento en orden de aparición", () => {
+  it("agrega los tipos con al menos dos proyectos, en orden de aparición", () => {
     expect(
       projectFilters([
+        { projectType: "Landing" },
         { projectType: "Sitio web" },
         { projectType: "Landing" },
+        { projectType: "Sistema" },
         { projectType: "Sitio web " },
         { projectType: null },
       ]),
     ).toEqual([
-      { value: ALL_FILTER, label: "Todos", count: 4 },
+      { value: ALL_FILTER, label: "Todos", count: 6 },
+      { value: "Landing", label: "Landing", count: 2 },
       { value: "Sitio web", label: "Sitio web", count: 2 },
-      { value: "Landing", label: "Landing", count: 1 },
     ]);
   });
 

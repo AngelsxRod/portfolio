@@ -10,6 +10,7 @@ import { safeExternalUrl } from "@/lib/safe-url";
 import { BootScreen } from "@/components/os/boot-screen";
 import { Blob, StickyNote } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
+import { DesktopItem } from "@/components/os/desktop-item";
 import { OsLinkButton } from "@/components/os/os-button";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
@@ -90,8 +91,8 @@ export default async function Home() {
   const heroSize = Math.min(104, Math.floor(580 / (0.9 * longestWord)));
   const facts: [string, React.ReactNode][] = [];
   if (profile) {
-    facts.push(["usuario", profile.displayName]);
-    if (profile.headline) facts.push(["rol", profile.headline]);
+    facts.push(["nombre", profile.displayName]);
+    if (profile.headline) facts.push(["perfil", profile.headline]);
     if (profile.location) facts.push(["ubicación", profile.location]);
   }
   facts.push([
@@ -122,9 +123,9 @@ export default async function Home() {
       </a>,
     ]);
   const shortcuts = [
-    { href: "/projects", label: "proyectos/", icon: shortcutIcons.folder },
-    { href: "/sobre-mi", label: "sobre-mi.txt", icon: shortcutIcons.text },
-    { href: "/contacto", label: "contacto.eml", icon: shortcutIcons.mail },
+    { href: "/projects", label: "Proyectos", icon: shortcutIcons.folder },
+    { href: "/sobre-mi", label: "Sobre mí", icon: shortcutIcons.text },
+    { href: "/contacto", label: "Contacto", icon: shortcutIcons.mail },
   ];
   const external = links[0];
 
@@ -138,7 +139,9 @@ export default async function Home() {
 
         <Window
           id="hola"
-          title="hola.txt"
+          title="Presentación"
+          file="hola.txt"
+          stack="izquierda"
           labelledBy="hero-title"
           defaultPosition={{ x: 64, y: 48 }}
           width={660}
@@ -180,7 +183,9 @@ export default async function Home() {
         {recent.length > 0 && (
           <Window
             id="recientes"
-            title="proyectos_recientes/"
+            title="Proyectos recientes"
+            file="proyectos_recientes/"
+            stack="derecha"
             defaultPosition={{ x: 790, y: 36 }}
             width={560}
             delay={0.15}
@@ -217,7 +222,7 @@ export default async function Home() {
               ))}
               <li>
                 <Link className="os-link os-recent-more" href="/projects">
-                  ver los {projects.length} proyectos →
+                  Ver los {projects.length} proyectos →
                 </Link>
               </li>
             </ul>
@@ -226,7 +231,9 @@ export default async function Home() {
 
         <Window
           id="sistema"
-          title="sistema.info"
+          title="Datos de contacto"
+          file="sistema.info"
+          stack="derecha"
           variant="orange"
           defaultPosition={{ x: 820, y: 560 }}
           width={420}
@@ -243,25 +250,26 @@ export default async function Home() {
         </Window>
 
         <StickyNote
+          id="nota-contacto"
           title="¿Tienes un proyecto?"
           tilt={-4}
-          style={
-            { left: 96, top: 600, "--os-delay": "0.45s" } as React.CSSProperties
-          }
+          stack="izquierda"
+          delay={0.45}
+          defaultPosition={{ x: 96, y: 860 }}
         >
           <p>Cuéntame qué necesita tu negocio.</p>
           <Link href="/contacto">Escribirme →</Link>
         </StickyNote>
 
-        <nav
-          className="os-float"
-          aria-label="Accesos directos"
-          style={{ left: 420, top: 700 }}
+        <DesktopItem
+          id="accesos"
+          label="Accesos directos"
+          as="nav"
+          stack="izquierda"
+          defaultPosition={{ x: 64, y: 760 }}
+          width={660}
         >
-          <ul
-            className="os-shortcuts"
-            style={{ "--os-delay": "0.5s" } as React.CSSProperties}
-          >
+          <ul className="os-shortcuts">
             {shortcuts.map((shortcut) => (
               <li key={shortcut.href}>
                 <Link className="os-shortcut" href={shortcut.href}>
@@ -279,13 +287,13 @@ export default async function Home() {
                   rel="noopener noreferrer"
                 >
                   {shortcutIcons.link}
-                  {external.label.toLowerCase()} ↗
+                  {external.label} ↗
                   <span className="sr-only"> (se abre en otra pestaña)</span>
                 </a>
               </li>
             )}
           </ul>
-        </nav>
+        </DesktopItem>
       </Desktop>
       <Ticker
         items={[

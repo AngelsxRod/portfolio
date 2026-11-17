@@ -49,22 +49,22 @@ export function Terminal({
       <ul className="os-out os-term-ls" style={{ animationDelay: "3.4s" }}>
         <li>
           <Link className="os-link" href="/projects">
-            proyectos/
+            Proyectos →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/experiencia">
-            trayectoria/
+            Trayectoria →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/educacion">
-            estudios/
+            Estudios →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/contacto">
-            contacto.eml
+            Contacto →
           </Link>
         </li>
       </ul>
@@ -78,7 +78,7 @@ export function Terminal({
           className="os-rerun"
           onClick={() => setRun((value) => value + 1)}
         >
-          ↻ volver a ejecutar
+          ↻ Repetir animación
         </Button>
       </div>
     </div>

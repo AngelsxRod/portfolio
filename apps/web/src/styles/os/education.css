@@ -60,7 +60,7 @@
   padding: 2px 6px;
   border-radius: 4px;
   line-height: 1.4;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .os-file[aria-pressed="true"] .os-fname {
   background: var(--os-lime);
@@ -116,8 +116,9 @@
 .os-paper-title {
   max-width: calc(100% - 100px);
   margin: 0 0 16px;
-  font-size: 34px;
-  line-height: 1;
+  font-size: 28px;
+  line-height: 1.05;
+  /* El tamaño deja caber palabras largas («Computación») sin partirlas. */
   overflow-wrap: break-word;
 }
 .os-paper-org {

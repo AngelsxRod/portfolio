@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "@/styles/os/projects.css";
 import { getPublicProjects } from "@/lib/public-projects";
 import { projectFilters, projectHost, projectPreview } from "@/lib/os/projects";
@@ -37,11 +38,16 @@ export default async function ProjectsPage() {
         <Blob shape="circle" style={{ right: -90, top: -110 }} />
         <ProjectExplorer projects={items} filters={projectFilters(projects)} />
         {items.length > 0 && (
-          <StickyNote title="Psst" tilt={3} style={{ left: 1040, top: 680 }}>
-            <p>
-              Las ventanas se arrastran desde su barra. Pasa el cursor por un
-              proyecto para verlo aquí al lado.
-            </p>
+          <StickyNote
+            id="nota-proyectos"
+            title="¿Te gustó alguno?"
+            tilt={3}
+            stack="derecha"
+            delay={0.3}
+            defaultPosition={{ x: 1020, y: 700 }}
+          >
+            <p>Puedo hacer algo así para tu negocio.</p>
+            <Link href="/contacto">Escríbeme →</Link>
           </StickyNote>
         )}
       </Desktop>

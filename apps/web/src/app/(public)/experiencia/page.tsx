@@ -31,11 +31,9 @@ export default async function ExperiencePage() {
     ],
     new Date(),
   );
-  const head = experience.find((item) => !item.endDate);
   const commits: Commit[] = experience.map((item, index) => ({
     id: item.id,
-    hash: item.id.replaceAll("-", "").slice(0, 7),
-    head: item === head,
+    current: !item.endDate,
     organization: item.organization,
     title: item.title,
     period: formatPeriod(item.startDate, item.endDate),
@@ -56,10 +54,13 @@ export default async function ExperiencePage() {
         <Blob shape="ring" style={{ left: 760, top: 680 }} />
         <GitLog commits={commits} studies={studies} years={years} />
         <StickyNote
-          title="git checkout -b futuro"
-          style={{ left: 980, top: 430 }}
+          id="nota-trayectoria"
+          title="¿Trabajamos juntos?"
+          stack="derecha"
+          delay={0.3}
+          defaultPosition={{ x: 980, y: 430 }}
         >
-          <p>El siguiente commit puede ser tu proyecto.</p>
+          <p>Tu proyecto puede ser lo siguiente en esta lista.</p>
           <Link href="/contacto">Hablemos →</Link>
         </StickyNote>
       </Desktop>

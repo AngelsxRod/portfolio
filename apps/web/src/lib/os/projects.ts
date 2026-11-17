@@ -2,12 +2,14 @@ import type { PublishedProject } from "@/lib/drafts";
 import { safeExternalUrl } from "@/lib/safe-url";
 
 export const ALL_FILTER = "todos";
+const MIN_FILTER_SIZE = 2;
 
 export type ProjectFilter = { value: string; label: string; count: number };
 
 /**
- * Filtros del explorador: «Todos» más cada tipo de proyecto que exista en los
- * datos publicados, en orden de aparición. Sin tipos, solo «Todos».
+ * Filtros del explorador: «Todos» más cada tipo de proyecto que agrupe al
+ * menos dos proyectos publicados, en orden de aparición. Un filtro de un solo
+ * elemento no ayuda a nadie; sin tipos repetidos, solo queda «Todos».
  */
 export function projectFilters(
   projects: Pick<PublishedProject, "projectType">[],
@@ -19,11 +21,9 @@ export function projectFilters(
   }
   return [
     { value: ALL_FILTER, label: "Todos", count: projects.length },
-    ...[...counts].map(([type, count]) => ({
-      value: type,
-      label: type,
-      count,
-    })),
+    ...[...counts]
+      .filter(([, count]) => count >= MIN_FILTER_SIZE)
+      .map(([type, count]) => ({ value: type, label: type, count })),
   ];
 }
 

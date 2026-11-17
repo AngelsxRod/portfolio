@@ -65,7 +65,9 @@ export default async function ProjectDetail({ params }: Props) {
 
         <Window
           id="ficha"
-          title={`${project.title}.info`}
+          title="Ficha del proyecto"
+          file={`${project.title.toLowerCase().replace(/\s+/g, "_")}.info`}
+          stack="derecha"
           labelledBy="project-title"
           variant="orange"
           defaultPosition={{ x: 980, y: 36 }}
@@ -119,7 +121,7 @@ export default async function ProjectDetail({ params }: Props) {
                 </OsLinkButton>
               )}
               <OsLinkButton href="/projects" variant="outline">
-                ← Todos
+                ← Todos los proyectos
               </OsLinkButton>
             </div>
           </div>
@@ -127,7 +129,9 @@ export default async function ProjectDetail({ params }: Props) {
 
         <Window
           id="notas"
-          title="notas.md"
+          title="De qué trata"
+          file="notas.md"
+          stack="derecha"
           defaultPosition={{ x: 990, y: 500 }}
           width={420}
           delay={0.24}

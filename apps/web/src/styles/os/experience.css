@@ -62,9 +62,14 @@
   gap: 4px;
   min-width: 0;
 }
-.os-commit-hash {
-  color: var(--os-orange);
-  font-size: 12px;
+.os-commit-current {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--os-lime);
+  color: var(--os-bg);
+  font-size: 11px;
+  font-weight: 700;
 }
 .os-commit-org {
   font-size: 26px;
@@ -147,11 +152,27 @@
 .os-tbar-study {
   background: var(--os-orange);
 }
-.os-timeline-note {
+.os-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin: 4px 0 0;
+  padding: 0;
   color: var(--os-muted);
   font-size: 12px;
-  line-height: 1.6;
+  line-height: 1.5;
+  list-style: none;
+}
+.os-legend li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.os-swatch {
+  flex: none;
+  width: 18px;
+  height: 10px;
+  border-radius: 3px;
 }
 
 @keyframes os-grow {
