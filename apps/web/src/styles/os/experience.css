@@ -1,0 +1,187 @@
+/* angel.os — Trayectoria: git log y línea de tiempo. */
+
+.os-log {
+  padding: 24px 20px 20px;
+}
+.os-log h1 {
+  margin: 0 0 6px 12px;
+  font-size: clamp(40px, 7vw, 64px);
+  line-height: 0.9;
+}
+.os-log-hint {
+  margin: 0 0 16px 12px;
+  color: var(--os-muted);
+  font-size: 13px;
+}
+.os-commits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.os-commits > li {
+  border-top: 1.5px solid var(--os-surface-2);
+}
+.os-commit {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: auto;
+  white-space: normal;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--os-bone);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.os-commit:hover,
+.os-commit[aria-expanded="true"] {
+  background: var(--os-surface-2);
+}
+.os-commit-dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  border: 2px solid var(--os-lime);
+  border-radius: 50%;
+  background: var(--os-bg);
+}
+.os-commit[aria-expanded="true"] .os-commit-dot {
+  background: var(--os-lime);
+}
+.os-commit-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.os-commit-hash {
+  color: var(--os-orange);
+  font-size: 12px;
+}
+.os-commit-org {
+  font-size: 26px;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.os-commit-title {
+  color: var(--os-text);
+  font-size: 13px;
+}
+.os-commit-date {
+  flex: none;
+  padding-top: 4px;
+  color: var(--os-muted);
+  font-size: 12px;
+  text-align: right;
+}
+.os-diff {
+  padding: 4px 12px 14px 42px;
+  font-size: 13px;
+  line-height: 1.55;
+  animation: os-drop 0.35s ease both;
+}
+.os-diff p {
+  margin: 0 0 8px;
+  color: var(--os-text);
+}
+.os-diff ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.os-diff li {
+  color: var(--os-lime);
+}
+
+.os-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px 22px;
+}
+.os-years {
+  display: grid;
+  color: var(--os-muted);
+  font-size: 11px;
+}
+.os-track {
+  position: relative;
+  height: 30px;
+  border: 1.5px solid var(--os-rule);
+  border-radius: 6px;
+  background: var(--os-bg);
+}
+.os-tbar {
+  position: absolute;
+  height: auto;
+  top: 4px;
+  bottom: 4px;
+  min-width: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  transform-origin: left;
+  animation: os-grow 0.8s cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+.os-tbar-work:hover {
+  background: var(--os-lime);
+}
+.os-tbar:hover {
+  filter: brightness(1.15);
+}
+.os-tbar-work {
+  background: var(--os-lime);
+}
+.os-tbar-study {
+  background: var(--os-orange);
+}
+.os-timeline-note {
+  margin: 4px 0 0;
+  color: var(--os-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@keyframes os-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes os-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 820px) {
+  .os-commit {
+    flex-wrap: wrap;
+  }
+  .os-commit-date {
+    width: 100%;
+    padding-left: 30px;
+    text-align: left;
+  }
+  .os-diff {
+    padding-left: 12px;
+  }
+}

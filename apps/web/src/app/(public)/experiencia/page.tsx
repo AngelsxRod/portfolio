@@ -1,97 +1,69 @@
 import type { Metadata } from "next";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@repo/ui/components/tabs";
-import { getPublicCertificates } from "@/lib/public-certificates";
+import "@/styles/os/experience.css";
 import { getPublicEducation } from "@/lib/public-education";
 import { getPublicExperience } from "@/lib/public-experience";
-import { PublicFooter, PublicHeader } from "@/components/public-site";
-import {
-  CertificatesList,
-  EducationList,
-  EmptyPanel,
-  ExperienceList,
-  PageHeader,
-} from "@/components/public-lists";
+import { formatPeriod } from "@/lib/os/periods";
+import { timeline } from "@/lib/os/timeline";
+import { Blob, StickyNote } from "@/components/os/decor";
+import { Desktop } from "@/components/os/desktop";
+import { GitLog, type Commit, type StudyBar } from "@/components/os/git-log";
+import { Ticker } from "@/components/os/ticker";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Trayectoria | Portafolio" };
+export const metadata: Metadata = { title: "Trayectoria | angel.os" };
 
-const sections = ["experiencia", "educacion", "certificados"] as const;
-
-export default async function ExperiencePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ seccion?: string }>;
-}) {
-  const [{ seccion }, experience, education, certificates] = await Promise.all([
-    searchParams,
+export default async function ExperiencePage() {
+  const [experience, education] = await Promise.all([
     getPublicExperience(),
     getPublicEducation(),
-    getPublicCertificates(),
   ]);
-  const initial =
-    sections.find((section) => section === seccion) ?? "experiencia";
-  const tabs = [
-    { value: "experiencia", label: "Experiencia", count: experience.length },
-    { value: "educacion", label: "Educación", count: education.length },
-    {
-      value: "certificados",
-      label: "Certificados",
-      count: certificates.length,
-    },
-  ];
+  const { years, bars } = timeline(
+    [
+      ...experience.map((item) => ({
+        start: item.startDate,
+        end: item.endDate,
+      })),
+      ...education.map((item) => ({
+        start: item.startDate,
+        end: item.endDate,
+      })),
+    ],
+    new Date(),
+  );
+  const head = experience.find((item) => !item.endDate);
+  const commits: Commit[] = experience.map((item, index) => ({
+    id: item.id,
+    hash: item.id.replaceAll("-", "").slice(0, 7),
+    head: item === head,
+    organization: item.organization,
+    title: item.title,
+    period: formatPeriod(item.startDate, item.endDate),
+    description: item.description,
+    achievements: item.achievements,
+    bar: bars[index]!,
+  }));
+  const studies: StudyBar[] = education.map((item, index) => ({
+    id: item.id,
+    label: `${item.institution}, ${formatPeriod(item.startDate, item.endDate)}`,
+    bar: bars[experience.length + index]!,
+  }));
+
   return (
-    <div className="public-site min-h-svh">
-      <PublicHeader current="experience" />
-      <main id="contenido" className="page-frame archive-main">
-        <PageHeader
-          caption="Trayectoria"
-          title="Trayectoria"
-          intro="Experiencia profesional, estudios realizados y certificados publicados."
-        />
-        <Tabs defaultValue={initial} className="trajectory-tabs">
-          <TabsList variant="line" className="trajectory-tabs-list">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-                <span className="trajectory-count">{tab.count}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          <TabsContent value="experiencia">
-            {experience.length > 0 ? (
-              <ExperienceList items={experience} />
-            ) : (
-              <EmptyPanel title="Aún no hay experiencia publicada">
-                Aparecerá aquí cuando se publique desde el panel.
-              </EmptyPanel>
-            )}
-          </TabsContent>
-          <TabsContent value="educacion">
-            {education.length > 0 ? (
-              <EducationList items={education} />
-            ) : (
-              <EmptyPanel title="Aún no hay educación publicada">
-                Aparecerá aquí cuando se publique desde el panel.
-              </EmptyPanel>
-            )}
-          </TabsContent>
-          <TabsContent value="certificados">
-            {certificates.length > 0 ? (
-              <CertificatesList items={certificates} />
-            ) : (
-              <EmptyPanel title="Aún no hay certificados publicados">
-                Aparecerán aquí cuando se publiquen desde el panel.
-              </EmptyPanel>
-            )}
-          </TabsContent>
-        </Tabs>
-      </main>
-      <PublicFooter />
-    </div>
+    <>
+      <Desktop>
+        <Blob shape="circle" style={{ left: 1180, top: 620 }} />
+        <Blob shape="ring" style={{ left: 760, top: 680 }} />
+        <GitLog commits={commits} studies={studies} years={years} />
+        <StickyNote
+          title="git checkout -b futuro"
+          style={{ left: 980, top: 430 }}
+        >
+          <p>El siguiente commit puede ser tu proyecto.</p>
+          <Link href="/contacto">Hablemos →</Link>
+        </StickyNote>
+      </Desktop>
+      <Ticker items={experience.map((item) => item.organization)} />
+    </>
   );
 }
