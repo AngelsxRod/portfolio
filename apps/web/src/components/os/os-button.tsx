@@ -1,0 +1,46 @@
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { buttonVariants } from "@repo/ui/components/button";
+
+/**
+ * Enlace con forma de botón angel.os. Usa los estilos del `Button` de shadcn
+ * (`buttonVariants`) pero conserva la semántica de enlace.
+ */
+export function OsLinkButton({
+  href,
+  variant = "primary",
+  external = false,
+  label,
+  children,
+}: {
+  href: string;
+  variant?: "primary" | "outline";
+  /** Abre en otra pestaña con `noopener noreferrer`. */
+  external?: boolean;
+  /** Nombre accesible cuando el texto visible no basta. */
+  label?: string;
+  children: ReactNode;
+}) {
+  const className = buttonVariants({
+    variant: variant === "primary" ? "default" : "outline",
+    className: `os-btn os-btn-${variant}`,
+  });
+  if (external)
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label ? `${label} (se abre en otra pestaña)` : undefined}
+        className={className}
+      >
+        {children}
+        {!label && <span className="sr-only"> (se abre en otra pestaña)</span>}
+      </a>
+    );
+  return (
+    <Link href={href} aria-label={label} className={className}>
+      {children}
+    </Link>
+  );
+}
