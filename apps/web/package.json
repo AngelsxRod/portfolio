@@ -6,7 +6,8 @@
     "build": "next build --webpack",
     "dev": "next dev",
     "lint": "eslint . --max-warnings 0",
-    "start": "next start"
+    "start": "next start",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.0",
@@ -32,6 +33,7 @@
     "eslint": "10.10.0",
     "postcss": "^8.5.31",
     "tailwindcss": "^4.3.3",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "vitest": "^4.1.12"
   }
 }
