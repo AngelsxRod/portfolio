@@ -1,10 +1,10 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import "@/styles/os/home.css";
 import { getPublicProfile } from "@/lib/public-profile";
 import { getPublicProjects } from "@/lib/public-projects";
 import { getPublicSkills } from "@/lib/public-skills";
-import { bootGateScript } from "@/lib/os/boot";
 import { mediaUrl, projectPreview } from "@/lib/os/projects";
 import { safeExternalUrl } from "@/lib/safe-url";
 import { BootScreen } from "@/components/os/boot-screen";
@@ -15,6 +15,7 @@ import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Inicio | angel.os" };
 
 const shortcutIcons = {
   folder: (
@@ -129,7 +130,6 @@ export default async function Home() {
 
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: bootGateScript }} />
       <BootScreen projectCount={projects.length} />
       <Desktop className="os-home">
         <Blob shape="ring" style={{ left: 24, top: 24 }} />

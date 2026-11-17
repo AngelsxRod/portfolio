@@ -3,6 +3,8 @@ import { TooltipProvider } from "@repo/ui/components/tooltip";
 import { Toaster } from "@repo/ui/components/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
+import Script from "next/script";
+import { bootGateScript } from "@/lib/os/boot";
 import { JetBrains_Mono, Sora } from "next/font/google";
 
 const fontDisplay = Sora({
@@ -32,6 +34,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        {/* Oculta el arranque de angel.os antes del primer pintado si ya se vio. */}
+        <Script id="angel-os-boot" strategy="beforeInteractive">
+          {bootGateScript}
+        </Script>
         <ThemeProvider>
           <TooltipProvider>
             {children}
