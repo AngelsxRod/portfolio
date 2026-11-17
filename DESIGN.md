@@ -1,74 +1,81 @@
-# Dirección visual: nocturno violeta
+# Dirección visual: angel.os
 
-Este portafolio presenta trabajo publicado sin atribuir biografía, especialidades ni resultados que todavía no estén documentados. Su carácter es sobrio y nocturno: fondo negro violáceo, superficies con borde fino de 1 px, esquinas redondeadas y el violeta lavanda como único acento. Es oscuro por defecto, con tema claro opcional. La portada combina un titular grande, una ficha de datos del perfil (solo con datos reales) y anillos finos de fondo; los proyectos se listan como un índice numerado.
+El sitio público es un escritorio de sistema operativo propio: una barra superior con reloj, ventanas que se arrastran, un dock con las secciones, una bandeja para recuperar ventanas y una cinta que corre al pie. Cada página es una metáfora de una herramienta conocida (bloc de notas, explorador, navegador, terminal, `git log`, carpeta, correo). Es oscuro siempre y no tiene selector de tema. El panel `/admin` conserva su propia identidad (ver al final).
+
+La maqueta aprobada está en el lienzo de diseño «angel.os» (7 artboards `project/*.dc.html`). Sus textos y datos son de ejemplo: en la implementación todo sale del CMS.
 
 ## Principios
 
-1. **El trabajo es el contenido principal.** La portada lleva al archivo y muestra proyectos reales en el orden publicado. No crear casos, métricas ni testimonios de relleno.
-2. **Jerarquía por escala y espacio.** Un título grande abre cada página; las divisiones señalan secciones reales. Evitar números decorativos, rótulos repetidos y tarjetas idénticas para todo.
-3. **Una voz útil y neutral.** Nombrar acciones y estados con precisión: «Ver proyecto», «Proyecto no disponible», «Intentar de nuevo». Evitar frases biográficas o promesas no verificadas.
-4. **Carácter con medida.** Bordes gruesos y sombras duras (`--folio-edge`, `--folio-shadow-color`) son la firma; no añadir degradados, desenfoques ni más de un acento cálido (`--folio-warm`).
+1. **Datos honestos.** Cada texto con información sale de un loader público (`getPublicProfile`, `getPublicProjects`, `getRelatedProjects`, `getPublicSkills`, `getPublicExperience`, `getPublicEducation`, `getPublicCertificates`). Si un campo no existe en el modelo (foto, «dato curioso», lugar de un puesto, empresa de un proyecto) no se muestra; si una lista está vacía, la ventana explica cuándo aparecerá contenido o se oculta.
+2. **El juego no estorba.** Las ventanas, la cinta, las formas flotantes y el arranque son ornamento: el contenido es legible sin arrastrar nada, en el orden del DOM, con teclado y con lector de pantalla.
+3. **Planos y duros.** Bordes de 1,5 px, sombras sólidas desplazadas, colores planos. Sin degradados, desenfoques ni violeta.
+4. **Voz útil.** Rótulos de sistema en minúsculas (`hola.txt`, `notas.md`, `otros_canales`) y acciones precisas: «Abrir ficha →», «Visitar ↗», «Intentar de nuevo».
+
+## Tokens
+
+Viven en `:root` de `packages/ui/src/styles/globals.css` como `--os-*` (independientes del tema del panel) y se exponen a Tailwind v4 como `--color-os-*` (`bg-os-surface`, `text-os-lime`…).
+
+| Token            | Valor     | Uso                                                |
+| ---------------- | --------- | -------------------------------------------------- |
+| `--os-bg`        | `#0d0e12` | Fondo del escritorio, campos, terminal             |
+| `--os-dot`       | `#2b2d36` | Retícula de puntos (`radial-gradient` cada 24 px)  |
+| `--os-surface`   | `#17181f` | Cuerpo de las ventanas                             |
+| `--os-surface-2` | `#22232c` | Hover y selección dentro de ventanas               |
+| `--os-bone`      | `#f2efe8` | Texto principal, bordes, barra de título y dock    |
+| `--os-bone-2`    | `#e2dfd6` | Hover sobre superficies hueso                      |
+| `--os-text`      | `#d9d6ce` | Texto de lectura                                   |
+| `--os-muted`     | `#a9a7a0` | Texto secundario y etiquetas                       |
+| `--os-lime`      | `#c8f031` | Acento principal: acción primaria, activo, cinta   |
+| `--os-orange`    | `#ff6a2b` | Acento secundario, notas, sombra alternativa, foco |
+| `--os-stamp`     | `#d24a12` | Sello «EN CURSO» sobre papel hueso                 |
+| `--os-rule`      | `#34353f` | Reglas y bordes internos, campos                   |
+
+La clase `.os-theme` (en el contenedor público junto con `dark`) redefine los tokens de shadcn/ui (`--primary` lima, `--ring` naranja, `--border` y `--input` regla, `--radius` 0,5 rem) para que `Button`, `Badge`, `Tabs`, `ToggleGroup`, `Field`, `Input`, `Textarea` y `Dialog` tomen la identidad sin copias.
 
 ## Tipografía
 
-- Familias con `next/font/google` (autoalojadas, sin petición externa en ejecución): Space Grotesk (`--font-display`) para texto y títulos, y JetBrains Mono (`--font-mono`) para navegación, etiquetas, periodos y botones.
-- Títulos principales: peso 700–750, interletrado aproximado `-0.075em`, interlínea `0.94`, escala fluida de `3.2rem` en móvil a `8.4rem` en escritorio. Títulos de sección: `2.5–4.5rem` con `-0.055em`.
-- Texto de lectura: `1.05–1.35rem`, interlínea `1.55–1.75`, ancho máximo de `44rem` para descripciones. Mantener menos de unas 80 letras por línea.
-- Usar mayúsculas y minúsculas normales. No convertir cada subtítulo en una etiqueta de caja alta ni colorear una sola palabra del titular.
+- Con `next/font/google` en `apps/web/src/lib/os/fonts.ts`: **Syne 800** como `--font-display` para títulos y **JetBrains Mono** como `--font-mono` para toda la interfaz. Las variables se aplican solo al shell público; el layout raíz sigue cargando Sora para el panel.
+- Títulos con interletrado `-0.035em` e interlínea `0.88–0.95`. El nombre de la portada calcula su tamaño por la palabra más larga para no partirla. Syne es ancha: los títulos grandes usan `clamp()` o un tamaño limitado por el ancho de la ventana.
+- Interfaz en 12–14 px; texto de lectura en 14–17 px con interlínea 1,6.
 
-## Paleta y tokens
+## Ventanas y shell
 
-Los tokens compartidos viven en `packages/ui/src/styles/globals.css` y alimentan shadcn/ui, incluidas las vistas del panel.
+- **Shell** (`components/os/os-shell.tsx`, montado por `app/(public)/layout.tsx` y por `app/not-found.tsx`): «Saltar al contenido», barra superior hueso de 44 px (logo `angel.os` con punto pulsante, página activa, «Guatemala, GT» y reloj `America/Guatemala`), escritorio `main#contenido`, dock y cinta. El contenedor es flex en columna: el dock y la cinta llevan `order` para quedar al pie aunque la cinta la renderice cada página.
+- **Ventana** (`components/os/window.tsx`): borde 1,5 px hueso, radio 8 px, sombra `8px 8px 0` lima (variante naranja), barra hueso de 48 px con título y botones `_` (minimizar), `□` (restablecer posición) y `×` (cerrar) de 40 px. Se arrastra desde la barra con pointer events; un clic la trae al frente. Aparece con animación `pop`; `--os-delay` escalona las ventanas.
+- **Estado** (`lib/os/desktop.ts`, reductor puro probado; `DesktopProvider` lo comparte con la bandeja): registro al montar, foco por z-index, posición limitada al escritorio, ajuste de las posiciones por defecto al ancho disponible (las ventanas que no se arrastraron vuelven a su sitio al ensanchar), minimizar/cerrar/restaurar/restablecer y alto mínimo del escritorio según la ventana más baja.
+- **Dock**: seis destinos con iconos de trazo, rebote al pasar el cursor, activo en lima con punto y `aria-current="page"`. **Bandeja**: un chip por ventana (`aria-pressed`), discontinuo cuando está oculta.
+- **Cinta**: lima, decorativa (`aria-hidden`), con datos de la página (tecnologías, títulos, organizaciones…); sin datos no se muestra.
+- **Decoración**: círculo naranja, píldora lima y anillo hueso flotando lentamente; notas adhesivas naranjas giradas. Todo `aria-hidden` salvo el texto útil de la nota.
 
-| Papel          | Valor     | Uso                                                      |
-| -------------- | --------- | -------------------------------------------------------- |
-| Negro violáceo | `#120d1f` | Fondo en oscuro; superficies `#1b1430`, bordes `#2e2450` |
-| Deep Purple    | `#433075` | Acción primaria, enlaces y símbolo en claro              |
-| Lavender       | `#a78bfa` | Acción primaria y enlaces en oscuro; detalles            |
-| Soft White     | `#fafafa` | Fondo en claro; texto en oscuro                          |
-| Blanco         | `#ffffff` | Superficies y estados en claro                           |
+## Páginas
 
-Paleta propuesta por el usuario (Deep Purple, Lavender, Soft White y Jet Black), con grises neutros intermedios para superficies, reglas y texto secundario.
+| Ruta               | Metáfora                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                | Arranque (solo la primera visita de la sesión), `hola.txt`, `proyectos_recientes/`, `sistema.info`, nota y accesos directos.          |
+| `/projects`        | Explorador con filtros por `projectType` real (sin tipos, solo «Todos») y `vista_previa` que sigue al hover/foco.                     |
+| `/projects/[slug]` | Navegador con la URL de `demoUrl`, una pestaña por captura y visor a pantalla completa; ficha `.info`; `notas.md` con el Markdown.    |
+| `/sobre-mi`        | Terminal (`whoami`, `cat bio.txt`, `ls ~/trabajo`, «volver a ejecutar») y `paquetes_instalados` por categoría.                        |
+| `/experiencia`     | `git log` con un commit por puesto que se despliega con `+ logros`, y línea de tiempo calculada con las fechas de trabajo y estudios. |
+| `/educacion`       | Carpeta `~/estudios` con un archivo por estudio y `certificados/`; vista en papel hueso con sello «EN CURSO» si no hay fin.           |
+| `/contacto`        | `nuevo_mensaje.eml` con el formulario (RHF + Zod), avión de papel al enviar, y `otros_canales`.                                       |
+| Errores y 404      | Ventana naranja `error.log` / `404.log` con «Intentar de nuevo» o volver.                                                             |
 
-`--foreground`, `--primary`, `--secondary`, `--muted`, `--border` y `--ring` siguen esas funciones semánticas. Para texto secundario se usan `#5a5862` (claro) y `#a3a1ad` (oscuro). El foco usa `#7a5ce0` en claro y Lavender en oscuro con un contorno visible de 3 px. No usar el violeta para texto pequeño sobre un fondo de color similar. Las sombras son sólidas y desplazadas (nunca difuminadas).
+Los estilos de cada página viven en `apps/web/src/styles/os/*.css` (sin capa, para prevalecer sobre las utilidades de los componentes shadcn que reciben esas clases) y se importan desde el shell o la página.
 
-## Composición y espacio
+## Movimiento
 
-- Marco máximo de `78rem`; márgenes laterales de `1.5rem` en escritorio y `1rem` en móvil.
-- Portada en dos columnas: mensaje y navegación a la izquierda, símbolo a la derecha. El símbolo pasa debajo del texto en pantallas estrechas.
-- Archivo y selección de portada como grid: dos columnas en escritorio y una hasta 640 px. Las tarjetas siguen la referencia editorial aportada: imagen rectangular sin marco ni radios, título compacto, resumen y enlace debajo. Cada proyecto tiene una vista previa de proporción 2:1, título, resumen, tecnologías presentes y enlace. Los proyectos sin imagen usan una composición tipográfica con su nombre e inicial; nunca capturas ficticias.
-- Detalle con título destacado arriba a la izquierda, resumen y enlaces a su derecha y la imagen protagonista al ancho del marco justo debajo. En móvil la cabecera pasa a una columna antes de la galería. La galería no lleva panel contenedor ni miniaturas; las flechas y el indicador van en una barra discreta inferior. Clic en la imagen abre un visor de toda la pantalla con navegación circular, teclado y cierre con Escape; al cerrar, el foco vuelve a la imagen seleccionada. Las capturas se muestran completas, sin recortar contenido. Sin imágenes se conserva la cabecera tipográfica. La descripción continúa debajo, con ficha lateral únicamente cuando hay metadatos.
-- Escala de espacio base: `0.5`, `0.75`, `1`, `1.5`, `2`, `3`, `4`, `5` y `7rem`. Entre secciones principales usar `4–7rem`; entre título y resumen, `0.8–2rem`. No comprimir varias funciones dentro de una tarjeta pequeña.
-
-## Imágenes
-
-La etapa de medios permite mostrar imágenes publicadas con texto alternativo. Cuando no hay imágenes, usar tipografía y color. No usar capturas ficticias de R&R Asociados ni imágenes de stock como si fueran el proyecto. Cuando lleguen medios, usar una imagen principal por caso con proporción estable, sin recortar información esencial; el texto alternativo debe describir lo visible, no repetir el título.
-
-## Interacción y movimiento
-
-- Las acciones usan el componente `Button` de shadcn/ui; las tecnologías usan `Badge`. Variantes primarias para la acción principal, contorno para la secundaria. Las filas tienen enlaces con nombre explícito y subrayado visible al pasar el cursor.
-- Enlaces, botones y campos muestran un foco de alto contraste. El enlace «Saltar al contenido» aparece al recibir foco. `aria-current="page"` señala la navegación activa.
-- Movimiento sutil y solo con CSS: hover que desplaza tarjetas y botones (`120–150ms`), formas flotantes lentas en la portada, marquee del stack (se pausa al pasar el cursor) y aparición al hacer scroll con `animation-timeline: view()`. Sin paralaje ni cascadas con retraso. `prefers-reduced-motion` desactiva todas las animaciones.
-- Estado vacío: explicar cuándo aparecerá contenido. Error: nombrar el fallo y ofrecer reintentar. 404: ofrecer volver al archivo. Evitar mensajes vagos como «Algo salió mal».
+- Animaciones solo CSS: aparición `pop`, flotación lenta de formas, rebote del dock, escritura de la terminal, crecimiento de barras, papel y sello, avión de papel, cinta continua.
+- El arranque se decide antes del primer pintado con un script inline mínimo (`lib/os/boot.ts`) que marca `html[data-booted]` si `sessionStorage` ya lo registró; todo acceso al almacenamiento usa `try/catch`.
+- `prefers-reduced-motion: reduce` desactiva todas las animaciones y transiciones del shell, oculta el arranque y muestra la terminal completa.
 
 ## Móvil y accesibilidad
 
-- La portada pasa a una columna desde `800px`; la galería del detalle adapta su proporción desde `600px`. El grid de proyectos usa dos columnas y pasa a una a `640px`. No esconder enlaces esenciales detrás de un menú que hoy no hace falta.
-- Mantener áreas de toque cómodas, lectura sin desplazamiento horizontal y títulos que envuelvan palabras largas. El Markdown y los bloques de código deben poder desbordarse dentro de su región sin romper el marco.
-- Usar `header`, `nav`, `main`, `section`, `article`, `aside` y `footer` según su función, un `h1` por página y encabezados en orden. El símbolo de portada es decorativo y se oculta a lectores de pantalla.
-- Comprobar teclado, zoom, contraste y anchos de 375 px y escritorio antes de publicar cambios visuales.
-
-## Para páginas futuras
-
-Una página de perfil, cuando tenga datos reales, debería abrir con su información confirmada y continuar con secciones separadas por reglas. Un certificado se mostraría con emisor y fecha reales. Evitar la secuencia automática de hero con eslogan, cuatro tarjetas de métricas y carrusel de testimonios cuando esos datos no existan.
+- Por debajo de 820 px las ventanas pasan a flujo normal apiladas en el orden del DOM, sin arrastre ni formas flotantes; notas y accesos directos también se apilan. El escritorio recorta lo que sobresale para que no haya desplazamiento horizontal.
+- Un `h1` por página (dentro de la ventana principal, que se nombra con él); las ventanas secundarias se titulan con `h2` en la barra. Las ventanas son `section` con nombre accesible.
+- Foco visible de 3 px naranja (oscuro sobre superficies hueso). Al minimizar o cerrar, el foco pasa al chip de la bandeja; al restaurar, a la ventana.
+- Los enlaces con forma de botón usan `buttonVariants` de shadcn sobre `<a>`/`Link` para conservar la semántica de enlace; las acciones usan `Button`.
+- Áreas de toque de al menos 40–44 px. Comprobar 375 px y 1440 px, teclado y movimiento reducido antes de publicar cambios visuales.
 
 ## Panel administrativo
 
-El panel usa la misma paleta que el sitio con la sobriedad de una herramienta de trabajo: el violeta acentúa la acción primaria, el foco y la sección activa sobre superficies en grises neutros y reglas finas en lugar de sombras. Los títulos de página miden `1.875rem` (peso 700, interletrado `-0.025em`), no la escala de la portada.
-
-- **Navegación:** barra lateral fija agrupada en «Contenido» y «Sitio»; en móvil, `Sheet`. Cabecera con migas y «Ver sitio».
-- **Estados:** `Publicado` con el color primario y `Borrador` en gris secundario, siempre con texto.
-- **Listados:** título, descripción y acción principal arriba; búsqueda y filtro de estado; tabla en escritorio y tarjetas bajo 768 px. Retirar siempre pide confirmación.
-- **Formularios:** secciones con título y descripción a la izquierda y campos a la derecha (apiladas en móvil), y una barra de acciones fija abajo.
-- **Accesibilidad:** «Saltar al contenido», `aria-current`, foco visible y `prefers-reduced-motion` respetado en el panel.
-- **Tema:** claro por defecto y oscuro opcional en todo el sitio (selector Claro/Oscuro/Sistema en la cabecera pública y en la del panel), con los tokens `.dark` de `globals.css`.
+El panel no usa angel.os. Conserva la paleta anterior (Deep Purple `#433075`, Lavender `#a78bfa`, Soft White y Jet Black) con los tokens de `:root` y `.dark` de `globals.css`, Sora como `--font-display`, tema claro por defecto y selector Claro/Oscuro/Sistema en su cabecera (`ThemeToggle`, `next-themes`). Sobriedad de herramienta de trabajo: barra lateral fija agrupada (en móvil, `Sheet`), títulos de `1.875rem`, estados `Publicado`/`Borrador` siempre con texto, listados con búsqueda y filtro, formularios por secciones con barra de acciones fija y confirmación al retirar.
