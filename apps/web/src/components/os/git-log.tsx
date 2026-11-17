@@ -86,6 +86,12 @@ export function GitLog({
                         className="os-diff"
                       >
                         {commit.description && <p>{commit.description}</p>}
+                        {!commit.description &&
+                          commit.achievements.length === 0 && (
+                            <p className="os-muted">
+                              Aún no hay detalles publicados de este trabajo.
+                            </p>
+                          )}
                         {commit.achievements.length > 0 && (
                           <ul>
                             {commit.achievements.map((achievement) => (
