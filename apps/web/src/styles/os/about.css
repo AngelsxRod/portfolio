@@ -1,0 +1,136 @@
+/* angel.os — Sobre mí: terminal y paquetes instalados. */
+
+.os-term {
+  padding: 20px 24px 24px;
+  background: var(--os-bg);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.os-prompt {
+  color: var(--os-lime);
+}
+.os-type {
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  vertical-align: bottom;
+  white-space: nowrap;
+  animation: os-type 0.6s steps(20, end) forwards;
+}
+.os-out {
+  opacity: 0;
+  animation: os-line 0.2s ease forwards;
+}
+.os-term h1 {
+  margin: 6px 0 0;
+  color: var(--os-bone);
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 0.95;
+  overflow-wrap: break-word;
+}
+.os-term h1 + span {
+  display: block;
+  padding-bottom: 14px;
+}
+.os-term-bio {
+  max-width: 640px;
+  margin: 6px 0 14px;
+  color: var(--os-text);
+  white-space: pre-line;
+}
+.os-term-ls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 0;
+  padding: 6px 0 14px;
+  list-style: none;
+}
+.os-term-ls a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-weight: 400;
+}
+.os-term-rerun {
+  padding-top: 14px;
+}
+.os-rerun {
+  height: auto;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1.5px solid var(--os-rule);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--os-bone);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+}
+.os-rerun:hover {
+  border-color: var(--os-lime);
+  background: transparent;
+  color: var(--os-lime);
+}
+
+.os-pkgs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px 20px;
+}
+.os-pkgs h3 {
+  margin: 0 0 8px;
+  color: var(--os-lime);
+  font-size: 12px;
+  font-weight: 700;
+}
+.os-pkgs h3 span {
+  color: var(--os-muted);
+  font-weight: 400;
+}
+.os-pkgs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.os-pkg {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1.5px solid var(--os-rule);
+  border-radius: 6px;
+  font-size: 12px;
+  transition:
+    transform 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.os-pkg:hover {
+  border-color: var(--os-lime);
+  color: var(--os-lime);
+  transform: translateY(-2px) rotate(-2deg);
+}
+
+@keyframes os-type {
+  to {
+    max-width: 60ch;
+  }
+}
+
+@media (max-width: 820px) {
+  .os-type {
+    white-space: normal;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .os-type {
+    max-width: none;
+  }
+  .os-out {
+    opacity: 1;
+  }
+}

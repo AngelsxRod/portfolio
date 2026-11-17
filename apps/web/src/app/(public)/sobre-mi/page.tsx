@@ -1,80 +1,79 @@
 import type { Metadata } from "next";
+import "@/styles/os/about.css";
 import { getPublicProfile } from "@/lib/public-profile";
 import { getPublicSkills } from "@/lib/public-skills";
-import { PublicFooter, PublicHeader } from "@/components/public-site";
-import { EmptyPanel, PageHeader, SkillsList } from "@/components/public-lists";
+import { Blob } from "@/components/os/decor";
+import { Desktop } from "@/components/os/desktop";
+import { Terminal } from "@/components/os/terminal";
+import { Ticker } from "@/components/os/ticker";
+import { Window } from "@/components/os/window";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Sobre mí | Portafolio" };
+export const metadata: Metadata = { title: "Sobre mí | angel.os" };
 
 export default async function AboutPage() {
   const [profile, skills] = await Promise.all([
     getPublicProfile(),
     getPublicSkills(),
   ]);
+  const categories = [...Map.groupBy(skills, (skill) => skill.category)];
+  const subtitle =
+    [profile?.headline, profile?.location].filter(Boolean).join(" · ") || null;
+
   return (
-    <div className="public-site min-h-svh">
-      <PublicHeader current="about" />
-      <main id="contenido" className="page-frame archive-main">
-        <PageHeader
-          caption={profile?.location ?? "Perfil"}
-          title={profile?.displayName ?? "Sobre mí"}
-          intro={
-            profile?.headline ?? "Quién soy y con qué tecnologías trabajo."
-          }
-        />
-        <section aria-labelledby="presentation-title" className="about-intro">
-          <h2 id="presentation-title" className="section-title">
-            Presentación
-          </h2>
-          {profile ? (
-            <div>
-              <p className="hero-intro whitespace-pre-line">
-                {profile.presentation}
-              </p>
-              {profile.links.length > 0 && (
-                <ul className="profile-links">
-                  {profile.links.map((link) => (
-                    <li key={link.url}>
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {link.label}
-                        <span className="sr-only">
-                          {" "}
-                          (se abre en otra pestaña)
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+    <>
+      <Desktop>
+        <Blob shape="pill" style={{ left: 380, top: 760 }} />
+        <Blob shape="ring" style={{ left: 1260, top: 640 }} />
+
+        <Window
+          id="terminal"
+          title="terminal — angel@os: ~"
+          labelledBy="page-title"
+          defaultPosition={{ x: 40, y: 36 }}
+          width={820}
+        >
+          <Terminal
+            name={profile?.displayName ?? "Sobre mí"}
+            subtitle={subtitle}
+            bio={profile?.presentation ?? null}
+          />
+        </Window>
+
+        <Window
+          id="paquetes"
+          title="paquetes_instalados"
+          variant="orange"
+          defaultPosition={{ x: 900, y: 36 }}
+          width={500}
+          delay={0.15}
+        >
+          {categories.length > 0 ? (
+            <div className="os-pkgs">
+              {categories.map(([category, items]) => (
+                <section key={category} aria-label={category}>
+                  <h3>
+                    {category} <span>({items.length})</span>
+                  </h3>
+                  <ul>
+                    {items.map((skill) => (
+                      <li key={skill.id} className="os-pkg">
+                        {skill.name}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
             </div>
           ) : (
-            <EmptyPanel title="Aún no hay un perfil publicado">
-              Aparecerá aquí cuando se publique desde el panel.
-            </EmptyPanel>
-          )}
-        </section>
-        <section aria-labelledby="skills-title" className="about-skills">
-          <div className="section-heading">
-            <h2 id="skills-title" className="section-title">
-              Habilidades
-            </h2>
-            <p className="section-aside">En qué te puedo ayudar.</p>
-          </div>
-          {skills.length > 0 ? (
-            <SkillsList skills={skills} />
-          ) : (
-            <EmptyPanel title="Aún no hay habilidades publicadas">
+            <p className="os-empty">
+              <strong>Aún no hay habilidades publicadas.</strong>
               Aparecerán aquí cuando se publiquen desde el panel.
-            </EmptyPanel>
+            </p>
           )}
-        </section>
-      </main>
-      <PublicFooter />
-    </div>
+        </Window>
+      </Desktop>
+      <Ticker items={categories.map(([category]) => category)} />
+    </>
   );
 }
