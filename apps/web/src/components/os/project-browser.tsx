@@ -46,6 +46,7 @@ export function ProjectBrowser({
   return (
     <Window
       id="navegador"
+      stack="izquierda"
       title={`Así se ve ${title}`}
       file="navegador"
       defaultPosition={{ x: 40, y: 36 }}

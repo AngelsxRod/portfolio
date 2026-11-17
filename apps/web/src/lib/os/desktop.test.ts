@@ -229,6 +229,46 @@ describe("columnas", () => {
   });
 });
 
+describe("escritorio estrecho", () => {
+  const left = {
+    type: "register",
+    id: "izq",
+    title: "izq",
+    defaultPosition: { x: 64, y: 48 },
+    width: 660,
+    stack: "izquierda",
+  } as const;
+  const right = {
+    type: "register",
+    id: "der",
+    title: "der",
+    defaultPosition: { x: 790, y: 36 },
+    width: 560,
+    stack: "derecha",
+  } as const;
+
+  it("mantiene dos columnas cuando caben lado a lado", () => {
+    const state = run(left, right, { type: "fit", width: 1400 });
+    expect(state.windows.map((w) => w.position)).toEqual([
+      { x: 64, y: 48 },
+      { x: 790, y: 36 },
+    ]);
+  });
+
+  it("apila todo en una columna cuando las columnas se pisarían", () => {
+    const state = run(
+      left,
+      right,
+      { type: "fit", width: 924 },
+      { type: "resize", id: "izq", height: 400 },
+    );
+    expect(state.windows.map((w) => w.position)).toEqual([
+      { x: 24, y: 48 },
+      { x: 24, y: 48 + 400 + STACK_GAP },
+    ]);
+  });
+});
+
 describe("elementos que no son ventanas", () => {
   const note = {
     type: "register",

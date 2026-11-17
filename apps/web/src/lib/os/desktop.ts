@@ -91,22 +91,58 @@ function fitted(window: DesktopWindow, deskWidth: number): Point {
  * su alto real; las sueltas vuelven a su posición por defecto ajustada.
  */
 function layout(state: DesktopState): DesktopState {
+  const single = columnsOverlap(state);
+  const column = (window: DesktopWindow) =>
+    window.stack ? (single ? SINGLE_STACK : window.stack) : null;
   // Cada columna empieza en el `y` por defecto de su primer elemento, aunque
   // ese elemento esté oculto o se haya arrastrado.
   const next = new Map<string, number>();
-  for (const window of state.windows)
-    if (window.stack && !next.has(window.stack))
-      next.set(window.stack, window.defaultPosition.y);
+  for (const window of state.windows) {
+    const key = column(window);
+    if (key && !next.has(key)) next.set(key, window.defaultPosition.y);
+  }
   const windows = state.windows.map((window) => {
     if (window.moved) return window;
     const base = fitted(window, state.width);
-    if (!window.stack) return { ...window, position: base };
-    const visible = !window.hidden;
-    const y = next.get(window.stack)!;
-    if (visible) next.set(window.stack, y + window.height + STACK_GAP);
-    return { ...window, position: { x: base.x, y } };
+    const key = column(window);
+    if (!key) return { ...window, position: base };
+    const x = single
+      ? Math.max(0, Math.min(SINGLE_X, state.width - window.width))
+      : base.x;
+    const y = next.get(key)!;
+    if (!window.hidden) next.set(key, y + window.height + STACK_GAP);
+    return { ...window, position: { x, y } };
   });
   return { ...state, windows };
+}
+
+const SINGLE_STACK = "unica";
+/** Margen izquierdo de la columna única. */
+const SINGLE_X = 24;
+
+/**
+ * `true` cuando, con el ancho actual, las columnas se pisarían. Entonces todo
+ * se apila en una sola columna en orden de registro.
+ */
+function columnsOverlap(state: DesktopState) {
+  if (state.width <= 0) return false;
+  const ranges = new Map<string, [number, number]>();
+  for (const window of state.windows) {
+    if (!window.stack || window.moved || window.hidden) continue;
+    const { x } = fitted(window, state.width);
+    const [start, end] = ranges.get(window.stack) ?? [Infinity, -Infinity];
+    ranges.set(window.stack, [
+      Math.min(start, x),
+      Math.max(end, x + window.width),
+    ]);
+  }
+  const list = [...ranges.values()];
+  return list.some(([start, end], i) =>
+    list.some(
+      ([otherStart, otherEnd], j) =>
+        i !== j && start < otherEnd && otherStart < end,
+    ),
+  );
 }
 
 function update(

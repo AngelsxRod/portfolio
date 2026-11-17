@@ -68,6 +68,7 @@ export function ProjectExplorer({
     <>
       <Window
         id="explorador"
+        stack="izquierda"
         title="Explorador de proyectos"
         file="~/proyectos"
         labelledBy="page-title"
