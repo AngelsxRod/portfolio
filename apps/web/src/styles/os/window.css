@@ -122,3 +122,27 @@
     touch-action: auto;
   }
 }
+
+/* Ventana de error */
+.os-error {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 32px 32px;
+}
+.os-error-code {
+  color: var(--os-orange);
+  font-size: 13px;
+}
+.os-error h1 {
+  margin: 0;
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 0.95;
+}
+.os-error p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--os-text);
+  font-size: 15px;
+  line-height: 1.6;
+}

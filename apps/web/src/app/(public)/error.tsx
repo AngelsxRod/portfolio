@@ -1,25 +1,17 @@
 "use client";
 
-import { Button } from "@repo/ui/components/button";
-import { PublicFooter, PublicHeader } from "@/components/public-site";
+import { ErrorWindow } from "@/components/os/error-window";
 
-export default function HomeError({ reset }: { reset: () => void }) {
+export default function PublicError({ reset }: { reset: () => void }) {
   return (
-    <div className="public-site min-h-svh">
-      <PublicHeader current="home" />
-      <main id="contenido" className="page-frame archive-main">
-        <div className="empty-panel">
-          <h1>Portafolio no disponible</h1>
-          <p>
-            No se pudo cargar el contenido. Comprueba la conexión e inténtalo de
-            nuevo.
-          </p>
-          <Button className="mt-6" onClick={reset}>
-            Intentar de nuevo
-          </Button>
-        </div>
-      </main>
-      <PublicFooter />
-    </div>
+    <ErrorWindow
+      file="error.log"
+      code="error: no se pudo cargar el contenido"
+      title="Contenido no disponible"
+      retry={reset}
+    >
+      El contenido no llegó desde el servidor. Comprueba la conexión e inténtalo
+      de nuevo.
+    </ErrorWindow>
   );
 }
