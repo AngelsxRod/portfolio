@@ -1,0 +1,208 @@
+/* angel.os — Estudios: carpeta, archivos y hoja con sello. */
+
+.os-dir {
+  padding: 24px 24px 20px;
+}
+.os-dir h1 {
+  margin: 0 0 6px;
+  font-size: clamp(40px, 7vw, 64px);
+  line-height: 0.9;
+}
+.os-dir-hint {
+  margin: 0 0 20px;
+  color: var(--os-muted);
+  font-size: 13px;
+}
+.os-files {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.os-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: auto;
+  padding: 16px 8px;
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--os-bone);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  transition:
+    transform 0.18s cubic-bezier(0.2, 1.6, 0.4, 1),
+    background 0.12s;
+  animation: os-pop 0.45s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.os-file:hover {
+  background: var(--os-surface-2);
+  color: var(--os-bone);
+  transform: translateY(-6px) rotate(-2deg);
+}
+.os-file[aria-pressed="true"] {
+  border-color: var(--os-lime);
+  background: var(--os-surface-2);
+}
+.os-file svg {
+  width: 64px !important;
+  height: 64px !important;
+}
+.os-fname {
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.os-file[aria-pressed="true"] .os-fname {
+  background: var(--os-lime);
+  color: var(--os-bg);
+}
+.os-dir-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1.5px solid var(--os-rule);
+  color: var(--os-muted);
+  font-size: 12px;
+}
+
+.os-paper {
+  position: relative;
+  margin: 20px;
+  padding: 28px 28px 32px;
+  border-radius: 4px;
+  background: var(--os-bone);
+  color: var(--os-bg);
+  box-shadow: 6px 6px 0 var(--os-bg);
+  animation: os-paper 0.5s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.os-stamp {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border: 3px solid var(--os-stamp);
+  border-radius: 50%;
+  color: var(--os-stamp);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  transform: rotate(12deg);
+  animation: os-stamp 0.5s 0.35s cubic-bezier(0.2, 1.8, 0.4, 1) both;
+}
+.os-paper-kicker {
+  margin: 0 0 18px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.os-paper-title {
+  max-width: calc(100% - 100px);
+  margin: 0 0 16px;
+  font-size: 34px;
+  line-height: 1;
+  overflow-wrap: break-word;
+}
+.os-paper-org {
+  margin: 0 0 20px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.os-paper-text {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.os-paper-facts {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 8px 12px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1.5px dashed var(--os-bg);
+  font-size: 13px;
+}
+.os-paper-facts dt {
+  color: #4a4842;
+}
+.os-paper-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+.os-certs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.os-certs li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px dashed var(--os-bg);
+  font-size: 13px;
+}
+.os-certs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--os-bg);
+  font-weight: 700;
+}
+.os-page .os-paper :focus-visible {
+  outline-color: var(--os-stamp);
+}
+
+@keyframes os-paper {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotate(2deg);
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes os-stamp {
+  from {
+    opacity: 0;
+    transform: rotate(12deg) scale(2.2);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(12deg) scale(1);
+  }
+}
+
+@media (max-width: 820px) {
+  .os-paper {
+    margin: 14px;
+    padding: 22px 20px 24px;
+  }
+  .os-paper-title {
+    max-width: none;
+  }
+  .os-stamp {
+    position: static;
+    margin-bottom: 12px;
+  }
+}
