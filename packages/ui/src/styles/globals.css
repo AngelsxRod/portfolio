@@ -37,6 +37,18 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
+  --color-os-bg: var(--os-bg);
+  --color-os-dot: var(--os-dot);
+  --color-os-surface: var(--os-surface);
+  --color-os-surface-2: var(--os-surface-2);
+  --color-os-bone: var(--os-bone);
+  --color-os-bone-2: var(--os-bone-2);
+  --color-os-text: var(--os-text);
+  --color-os-muted: var(--os-muted);
+  --color-os-lime: var(--os-lime);
+  --color-os-orange: var(--os-orange);
+  --color-os-stamp: var(--os-stamp);
+  --color-os-rule: var(--os-rule);
 }
 
 :root {
@@ -69,6 +81,20 @@
   --folio-mark: #433075;
   --folio-footer-bg: #0d0d0d;
   --destructive: oklch(0.577 0.245 27.325);
+
+  /* angel.os — sitio público, solo oscuro e independiente del tema del panel. */
+  --os-bg: #0d0e12;
+  --os-dot: #2b2d36;
+  --os-surface: #17181f;
+  --os-surface-2: #22232c;
+  --os-bone: #f2efe8;
+  --os-bone-2: #e2dfd6;
+  --os-text: #d9d6ce;
+  --os-muted: #a9a7a0;
+  --os-lime: #c8f031;
+  --os-orange: #ff6a2b;
+  --os-stamp: #d24a12;
+  --os-rule: #34353f;
 }
 
 .dark {
@@ -100,6 +126,29 @@
   --folio-mark: #a78bfa;
   --folio-footer-bg: #120d1f;
   --destructive: oklch(0.704 0.191 22.216);
+}
+
+/* Los componentes shadcn dentro del sitio público toman la identidad angel.os. */
+.os-theme {
+  --radius: 0.5rem;
+  --background: var(--os-bg);
+  --foreground: var(--os-bone);
+  --card: var(--os-surface);
+  --card-foreground: var(--os-bone);
+  --popover: var(--os-surface);
+  --popover-foreground: var(--os-bone);
+  --primary: var(--os-lime);
+  --primary-foreground: var(--os-bg);
+  --secondary: var(--os-surface-2);
+  --secondary-foreground: var(--os-bone);
+  --muted: var(--os-surface-2);
+  --muted-foreground: var(--os-muted);
+  --accent: var(--os-surface-2);
+  --accent-foreground: var(--os-bone);
+  --border: var(--os-rule);
+  --input: var(--os-rule);
+  --ring: var(--os-orange);
+  color-scheme: dark;
 }
 
 @layer base {
