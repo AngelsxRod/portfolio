@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   desktopHeight,
   desktopReducer,
+  FOOTER_STACK,
   initialDesktop,
   STACK_GAP,
   trayWindows,
@@ -283,5 +284,94 @@ describe("elementos que no son ventanas", () => {
     const state = run(hola, note, { type: "close", id: "nota" });
     expect(trayWindows(state).map((w) => w.id)).toEqual(["hola"]);
     expect(state.windows[1]!.hidden).toBeNull();
+  });
+});
+
+describe("columna al pie", () => {
+  const register = (
+    id: string,
+    x: number,
+    width: number,
+    stack: string,
+    y = 36,
+  ) =>
+    ({
+      type: "register",
+      id,
+      title: id,
+      defaultPosition: { x, y },
+      width,
+      stack,
+    }) as const;
+  const browser = register("navegador", 40, 900, "izquierda");
+  const info = register("ficha", 980, 420, "derecha");
+  const notes = register("notas", 40, 1360, FOOTER_STACK, 500);
+  const related = register("otros", 40, 1360, FOOTER_STACK, 900);
+
+  it("empieza debajo de la columna más baja", () => {
+    const state = run(
+      browser,
+      info,
+      notes,
+      { type: "fit", width: 1440 },
+      { type: "resize", id: "navegador", height: 700 },
+      { type: "resize", id: "ficha", height: 760 },
+    );
+    expect(state.windows[0]!.position).toEqual({ x: 40, y: 36 });
+    expect(state.windows[1]!.position).toEqual({ x: 980, y: 36 });
+    expect(state.windows[2]!.position).toEqual({
+      x: 40,
+      y: 36 + 760 + STACK_GAP,
+    });
+  });
+
+  it("apila sus ventanas por su alto real", () => {
+    const state = run(
+      browser,
+      info,
+      notes,
+      related,
+      { type: "fit", width: 1440 },
+      { type: "resize", id: "navegador", height: 700 },
+      { type: "resize", id: "ficha", height: 400 },
+      { type: "resize", id: "notas", height: 300 },
+    );
+    const top = 36 + 700 + STACK_GAP;
+    expect(state.windows[2]!.position.y).toBe(top);
+    expect(state.windows[3]!.position.y).toBe(top + 300 + STACK_GAP);
+  });
+
+  it("sube cuando se oculta la columna más alta", () => {
+    const state = run(
+      browser,
+      info,
+      notes,
+      { type: "fit", width: 1440 },
+      { type: "resize", id: "navegador", height: 700 },
+      { type: "resize", id: "ficha", height: 400 },
+      { type: "minimize", id: "navegador" },
+    );
+    expect(state.windows[2]!.position.y).toBe(36 + 400 + STACK_GAP);
+  });
+
+  it("no fuerza la columna única por ser más ancha que las demás", () => {
+    const state = run(browser, info, notes, { type: "fit", width: 1440 });
+    expect(state.windows[1]!.position.x).toBe(980);
+  });
+
+  it("en columna única sigue el orden de registro", () => {
+    const state = run(
+      browser,
+      info,
+      notes,
+      { type: "fit", width: 1000 },
+      { type: "resize", id: "navegador", height: 500 },
+      { type: "resize", id: "ficha", height: 600 },
+    );
+    expect(state.windows.map((w) => w.position.y)).toEqual([
+      36,
+      36 + 500 + STACK_GAP,
+      36 + 500 + STACK_GAP + 600 + STACK_GAP,
+    ]);
   });
 });

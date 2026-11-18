@@ -88,7 +88,8 @@ function fitted(window: DesktopWindow, deskWidth: number): Point {
 
 /**
  * Coloca las ventanas que no se arrastraron: las de una columna se apilan por
- * su alto real; las sueltas vuelven a su posición por defecto ajustada.
+ * su alto real; las sueltas vuelven a su posición por defecto ajustada. La
+ * columna «pie» empieza debajo de la más baja de las demás columnas.
  */
 function layout(state: DesktopState): DesktopState {
   const single = columnsOverlap(state);
@@ -101,7 +102,7 @@ function layout(state: DesktopState): DesktopState {
     const key = column(window);
     if (key && !next.has(key)) next.set(key, window.defaultPosition.y);
   }
-  const windows = state.windows.map((window) => {
+  const place = (window: DesktopWindow): DesktopWindow => {
     if (window.moved) return window;
     const base = fitted(window, state.width);
     const key = column(window);
@@ -112,10 +113,29 @@ function layout(state: DesktopState): DesktopState {
     const y = next.get(key)!;
     if (!window.hidden) next.set(key, y + window.height + STACK_GAP);
     return { ...window, position: { x, y } };
-  });
-  return { ...state, windows };
+  };
+  const isFooter = (window: DesktopWindow) => column(window) === FOOTER_STACK;
+  const windows = state.windows.map((window) =>
+    isFooter(window) ? window : place(window),
+  );
+  // El pie arranca bajo la columna más baja (si ninguna tiene ventanas
+  // visibles, conserva su `y` por defecto).
+  const bottoms = windows
+    .filter((window) => column(window) && !isFooter(window))
+    .filter((window) => !window.hidden && !window.moved)
+    .map((window) => window.position.y + window.height + STACK_GAP);
+  if (bottoms.length > 0 && next.has(FOOTER_STACK))
+    next.set(FOOTER_STACK, Math.max(...bottoms));
+  return {
+    ...state,
+    windows: windows.map((window) =>
+      isFooter(window) ? place(window) : window,
+    ),
+  };
 }
 
+/** Columna que se coloca debajo de todas las demás, a lo ancho. */
+export const FOOTER_STACK = "pie";
 const SINGLE_STACK = "unica";
 /** Margen izquierdo de la columna única. */
 const SINGLE_X = 24;
@@ -128,7 +148,8 @@ function columnsOverlap(state: DesktopState) {
   if (state.width <= 0) return false;
   const ranges = new Map<string, [number, number]>();
   for (const window of state.windows) {
-    if (!window.stack || window.moved || window.hidden) continue;
+    if (!window.stack || window.stack === FOOTER_STACK) continue;
+    if (window.moved || window.hidden) continue;
     const { x } = fitted(window, state.width);
     const [start, end] = ranges.get(window.stack) ?? [Infinity, -Infinity];
     ranges.set(window.stack, [
