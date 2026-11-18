@@ -80,13 +80,13 @@ html:has(.os-page) {
 .os-logo:hover {
   text-decoration: underline;
 }
-.os-logo i {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid var(--os-bg);
-  border-radius: 50%;
-  background: var(--os-lime);
+.os-logo svg {
+  flex: none;
+}
+/* El punto naranja del isotipo late como lo hacía el punto lima. */
+.os-logo .os-mark-dot {
+  transform-box: fill-box;
+  transform-origin: center;
   animation: os-pulse 2s ease-in-out infinite;
 }
 .os-page .os-topbar :focus-visible {
@@ -342,12 +342,6 @@ html:has(.os-page) {
   gap: 8px;
   font-size: 15px;
   font-weight: 700;
-}
-.os-sheet-title i {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--os-lime);
 }
 .os-sheet-nav {
   display: flex;

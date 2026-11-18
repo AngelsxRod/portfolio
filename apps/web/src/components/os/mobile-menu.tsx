@@ -14,6 +14,7 @@ import {
 import { osFontClasses } from "@/lib/os/fonts";
 import { trayWindows } from "@/lib/os/desktop";
 import { activeRoute, osRoutes } from "@/lib/os/routes";
+import { BrandMark } from "@/components/os/brand-mark";
 import { DockIcon } from "@/components/os/dock-icon";
 import { useDesktop } from "@/components/os/desktop-provider";
 
@@ -45,7 +46,7 @@ export function MobileMenu() {
         className={`os-theme dark os-sheet ${osFontClasses}`}
       >
         <SheetTitle className="os-sheet-title">
-          <i aria-hidden="true" />
+          <BrandMark size={22} />
           angel.os
         </SheetTitle>
         <SheetDescription className="sr-only">

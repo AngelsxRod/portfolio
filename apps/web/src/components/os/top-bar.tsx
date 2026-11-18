@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { activeRoute } from "@/lib/os/routes";
+import { BrandMark } from "@/components/os/brand-mark";
 import { Clock } from "@/components/os/clock";
 import { MobileMenu } from "@/components/os/mobile-menu";
 
@@ -12,7 +13,7 @@ export function TopBar() {
     <header className="os-topbar">
       <div className="os-topbar-group">
         <Link className="os-logo" href="/" aria-label="angel.os, inicio">
-          <i aria-hidden="true" />
+          <BrandMark size={22} />
           angel.os
         </Link>
         {route && <span className="os-topbar-page">{route.label}</span>}
