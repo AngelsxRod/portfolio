@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** 9. Menú deslizante con pestaña.
+- **Etapa activa:** ninguna; la etapa 9 (menú deslizante con pestaña) quedó completa.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -233,15 +233,21 @@ En kaled.dev el dock lateral fijo tapa el borde izquierdo de las ventanas en pan
 
 **Pendientes:** `agent-browser` no está instalado y `resize_window` de Chrome no cambió el viewport, así que 1280, 1366, 1440, 1599 y 1600 px no se revisaron uno por uno. Los datos locales solo tienen una sección después de la introducción; falta revisar en producción las notas con varias secciones y una ficha con tecnologías.
 
-### 9. Menú deslizante con pestaña — en curso
+### 9. Menú deslizante con pestaña — completada (2026-11-17)
 
 En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que arranca oculto fuera del borde izquierdo y se desliza con una pestaña anclada a su borde derecho. Sustituye el dock siempre visible y el riel de pantallas medianas; el teléfono conserva su `Sheet`.
 
-- [ ] Panel fijo con `translateX(-100%)` cerrado y `.is-open` a `translateX(0)` con `transition: transform 0.3s ease`, sin desplazar el contenido ni bloquear clics o scroll.
-- [ ] Pestaña ☰ «Menú» con contador de ventanas ocultas, anclada con `left: 100%`, `aria-expanded` y botón de cierre interno.
-- [ ] Cierre con Escape (foco a la pestaña), clic fuera, al elegir una sección y al navegar; enlaces ocultos inaccesibles con `inert`.
-- [ ] «Ventanas» abre a la derecha sin tapar la pestaña; pista de primera visita actualizada.
-- [ ] Verificar pruebas, lint, compilación y navegador.
+- [x] Panel fijo con `translateX(-100%)` cerrado y `.is-open` a `translateX(0)` con `transition: transform 0.3s ease`, sin desplazar el contenido ni bloquear clics o scroll.
+- [x] Pestaña ☰ «Menú» con contador de ventanas ocultas, anclada con `left: 100%`, `aria-expanded` y botón de cierre interno.
+- [x] Cierre con Escape (foco a la pestaña), clic fuera, al elegir una sección y al navegar; enlaces ocultos inaccesibles con `inert`.
+- [x] «Ventanas» abre a la derecha sin tapar la pestaña; pista de primera visita actualizada.
+- [x] Verificar pruebas, lint, compilación y navegador.
+
+**Decisiones:** sustituye el riel de la etapa 8 y el dock siempre visible desde 1600 px, a pedido del usuario. Se conserva el `Sheet` del teléfono. El panel cerrado es `inert` para que sus enlaces fuera de la pantalla no reciban foco.
+
+**Verificación:** 46 pruebas web, `eslint`, `tsc` y `next build` correctos. En Chrome local a 1536 px: cerrado solo asoma la pestaña en `x: 0`; al tocarla el panel se desliza y la pestaña se mueve a `x: 116` con `aria-expanded="true"` y el foco en «Proyectos»; Escape y «‹ Cerrar» lo cierran y devuelven el foco a la pestaña; un clic fuera y elegir «Sobre mí» también lo cierran; cerrado, el panel es `inert`. Al minimizar «Vista previa», la pestaña muestra el contador y su nombre accesible pasa a «Abrir menú (1 ventana oculta)»; el panel «Ventanas» abre a 12 px a la derecha de la pestaña. Con iframes del mismo origen: a 1920 px la pestaña en el borde izquierdo y el menú cerrado; a 390 px el menú deslizante oculto, botón «Menú» visible y sin desplazamiento horizontal.
+
+**Pendientes:** no se revisó con `prefers-reduced-motion` en el navegador (la regla global ya anula las transiciones).
 
 ## Registro de entregas
 
@@ -307,6 +313,7 @@ En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que 
 | 2026-11-17 | Usabilidad angel.os          | Dock fijo, bandeja «Ventanas» plegable, títulos claros, disposición por columnas sin solapes, pista de primera visita y filtros útiles.                                                                                                                                                                                                                                                                                                                                                                        | 33 pruebas web; Chrome local en escritorio y `agent-browser` a 375 px.                                                                                                             | Revisar en producción con los textos reales tras desplegar.                                                                                         |
 | 2026-11-17 | Dock lateral y responsive    | Dock lateral fijo, menú lateral en teléfono y columna única cuando las columnas no caben.                                                                                                                                                                                                                                                                                                                                                                                                                      | 35 pruebas web; `agent-browser` a 375, 1024, 1280 y 1536 px; Chrome local.                                                                                                         | Revisar en producción tras desplegar.                                                                                                               |
 | 2026-11-17 | Pantallas medianas y detalle | Dock plegable en un riel entre 821 y 1599 px; detalle como caso de estudio con notas por secciones a todo el ancho y miniaturas de otros proyectos; columna `pie` en el apilado.                                                                                                                                                                                                                                                                                                                               | 46 pruebas web, lint y build; Chrome local a 1536 px e iframes a 390, 1024 y 1920 px.                                                                                              | Revisar en producción y a 1280–1600 px.                                                                                                             |
+| 2026-11-17 | Menú deslizante              | El dock pasa a un menú lateral oculto con pestaña «Menú» anclada que se desliza en 0,3 s en todo el escritorio; cierre con Escape, botón, clic fuera y navegación.                                                                                                                                                                                                                                                                                                                                             | 46 pruebas web, lint, tsc y build; Chrome local a 1536 px e iframes a 390 y 1920 px.                                                                                               | Revisar en producción tras desplegar.                                                                                                               |
 
 ## Reglas para futuras sesiones
 
