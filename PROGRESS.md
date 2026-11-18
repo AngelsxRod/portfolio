@@ -238,14 +238,14 @@ En kaled.dev el dock lateral fijo tapa el borde izquierdo de las ventanas en pan
 En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que arranca oculto fuera del borde izquierdo y se desliza con una pestaña anclada a su borde derecho. Sustituye el dock siempre visible y el riel de pantallas medianas; el teléfono conserva su `Sheet`.
 
 - [x] Panel fijo con `translateX(-100%)` cerrado y `.is-open` a `translateX(0)` con `transition: transform 0.3s ease`, sin desplazar el contenido ni bloquear clics o scroll.
-- [x] Pestaña ☰ «Menú» con contador de ventanas ocultas, anclada con `left: 100%`, `aria-expanded` y botón de cierre interno.
+- [x] Pestaña «Menú» con flecha › (‹ al estar abierto) y contador de ventanas ocultas, anclada con `left: 100%` y `aria-expanded`; es el único control para abrir y cerrar (se quitó el botón «‹ Cerrar» interno a pedido del usuario).
 - [x] Cierre con Escape (foco a la pestaña), clic fuera, al elegir una sección y al navegar; enlaces ocultos inaccesibles con `inert`.
 - [x] «Ventanas» abre a la derecha sin tapar la pestaña; pista de primera visita actualizada.
 - [x] Verificar pruebas, lint, compilación y navegador.
 
 **Decisiones:** sustituye el riel de la etapa 8 y el dock siempre visible desde 1600 px, a pedido del usuario. Se conserva el `Sheet` del teléfono. El panel cerrado es `inert` para que sus enlaces fuera de la pantalla no reciban foco.
 
-**Verificación:** 46 pruebas web, `eslint`, `tsc` y `next build` correctos. En Chrome local a 1536 px: cerrado solo asoma la pestaña en `x: 0`; al tocarla el panel se desliza y la pestaña se mueve a `x: 116` con `aria-expanded="true"` y el foco en «Proyectos»; Escape y «‹ Cerrar» lo cierran y devuelven el foco a la pestaña; un clic fuera y elegir «Sobre mí» también lo cierran; cerrado, el panel es `inert`. Al minimizar «Vista previa», la pestaña muestra el contador y su nombre accesible pasa a «Abrir menú (1 ventana oculta)»; el panel «Ventanas» abre a 12 px a la derecha de la pestaña. Con iframes del mismo origen: a 1920 px la pestaña en el borde izquierdo y el menú cerrado; a 390 px el menú deslizante oculto, botón «Menú» visible y sin desplazamiento horizontal.
+**Verificación:** 46 pruebas web, `eslint`, `tsc` y `next build` correctos. En Chrome local a 1536 px: cerrado solo asoma la pestaña en `x: 0`; al tocarla el panel se desliza y la pestaña se mueve a `x: 116` con `aria-expanded="true"` y el foco en «Proyectos»; Escape lo cierra y devuelve el foco a la pestaña; un clic fuera y elegir «Sobre mí» también lo cierran; cerrado, el panel es `inert`. Al minimizar «Vista previa», la pestaña muestra el contador y su nombre accesible pasa a «Abrir menú (1 ventana oculta)»; el panel «Ventanas» abre a 12 px a la derecha de la pestaña. Con iframes del mismo origen: a 1920 px la pestaña en el borde izquierdo y el menú cerrado; a 390 px el menú deslizante oculto, botón «Menú» visible y sin desplazamiento horizontal.
 
 **Pendientes:** no se revisó con `prefers-reduced-motion` en el navegador (la regla global ya anula las transiciones).
 

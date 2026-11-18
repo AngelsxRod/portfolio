@@ -33,12 +33,6 @@ export function Dock({ children }: { children?: ReactNode }) {
     setOpen(false);
   }
 
-  function close() {
-    setOpen(false);
-    // El panel deja de ser `inert` tras el render: devolver el foco después.
-    requestAnimationFrame(() => tab.current?.focus());
-  }
-
   useEffect(() => {
     if (!open) return;
     const panel = document.getElementById(DOCK_ID);
@@ -69,9 +63,6 @@ export function Dock({ children }: { children?: ReactNode }) {
       data-open={open}
     >
       <div id={DOCK_ID} className="os-dockpanel" inert={!open}>
-        <Button variant="ghost" className="os-dock-close" onClick={close}>
-          ‹ Cerrar
-        </Button>
         <nav className="os-dock" aria-label="Navegación principal">
           {osRoutes.map((route) => (
             <Link
@@ -109,11 +100,8 @@ export function Dock({ children }: { children?: ReactNode }) {
           strokeLinejoin="round"
           aria-hidden="true"
         >
-          {open ? (
-            <path d="M15 5l-7 7 7 7" />
-          ) : (
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          )}
+          {/* Flecha hacia donde se moverá el menú: › abre, ‹ cierra. */}
+          <path d={open ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
         </svg>
         <span className="os-dock-tab-label" aria-hidden="true">
           Menú
