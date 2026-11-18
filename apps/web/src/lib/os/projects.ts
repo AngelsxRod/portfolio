@@ -52,3 +52,45 @@ export function projectHost(demoUrl: string | null) {
 }
 
 export const mediaUrl = (id: string) => `/api/projects/media/${id}`;
+
+export type NotesSection = { heading: string | null; body: string };
+
+const HEADING = /^ {0,3}#{1,2}\s+(.+?)\s*#*\s*$/;
+const FENCE = /^ {0,3}(```|~~~)/;
+
+/**
+ * Divide la descripción Markdown en secciones por sus encabezados `#` y `##`
+ * (ignorando los que están dentro de bloques de código). La primera sección
+ * es la introducción: el texto previo al primer encabezado o, si no hay, la
+ * primera sección con encabezado.
+ */
+export function splitNotesSections(markdown: string): {
+  intro: NotesSection | null;
+  sections: NotesSection[];
+} {
+  const all: NotesSection[] = [];
+  let current: { heading: string | null; lines: string[] } = {
+    heading: null,
+    lines: [],
+  };
+  let fence: string | null = null;
+  const flush = () => {
+    const body = current.lines.join("\n").trim();
+    if (current.heading !== null || body)
+      all.push({ heading: current.heading, body });
+  };
+  for (const line of markdown.split(/\r?\n/)) {
+    const marker = FENCE.exec(line)?.[1];
+    if (marker) fence = fence === marker ? null : (fence ?? marker);
+    const heading = fence ? null : HEADING.exec(line)?.[1];
+    if (heading) {
+      flush();
+      current = { heading, lines: [] };
+    } else {
+      current.lines.push(line);
+    }
+  }
+  flush();
+  const [intro = null, ...sections] = all;
+  return { intro, sections };
+}

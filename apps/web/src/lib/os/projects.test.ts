@@ -5,6 +5,7 @@ import {
   projectFilters,
   projectHost,
   projectPreview,
+  splitNotesSections,
 } from "./projects";
 
 const image = (id: string) => ({
@@ -64,5 +65,51 @@ describe("projectHost", () => {
     );
     expect(projectHost("javascript:alert(1)")).toBeNull();
     expect(projectHost(null)).toBeNull();
+  });
+});
+
+describe("splitNotesSections", () => {
+  it("deja todo como introducción si no hay encabezados", () => {
+    expect(splitNotesSections("Hola\n\n- uno")).toEqual({
+      intro: { heading: null, body: "Hola\n\n- uno" },
+      sections: [],
+    });
+  });
+
+  it("usa la primera sección con encabezado como introducción", () => {
+    const result = splitNotesSections(
+      "# Sobre el proyecto\nTexto.\n\n# Qué incluye\n- a\n\n## Cómo está pensado\n- b",
+    );
+    expect(result.intro).toEqual({
+      heading: "Sobre el proyecto",
+      body: "Texto.",
+    });
+    expect(result.sections).toEqual([
+      { heading: "Qué incluye", body: "- a" },
+      { heading: "Cómo está pensado", body: "- b" },
+    ]);
+  });
+
+  it("toma el texto previo al primer encabezado como introducción", () => {
+    const result = splitNotesSections("Resumen.\n\n# Detalle\nMás.");
+    expect(result.intro).toEqual({ heading: null, body: "Resumen." });
+    expect(result.sections).toEqual([{ heading: "Detalle", body: "Más." }]);
+  });
+
+  it("ignora los encabezados dentro de bloques de código", () => {
+    const result = splitNotesSections(
+      "# Uso\n```sh\n# comentario\nnpm i\n```\nFin.",
+    );
+    expect(result.sections).toEqual([]);
+    expect(result.intro?.body).toContain("# comentario");
+  });
+
+  it("no corta en encabezados de nivel 3 o más", () => {
+    const result = splitNotesSections("# A\n### Sub\ntexto");
+    expect(result.intro).toEqual({ heading: "A", body: "### Sub\ntexto" });
+  });
+
+  it("devuelve vacío con una descripción vacía", () => {
+    expect(splitNotesSections("  ")).toEqual({ intro: null, sections: [] });
   });
 });
