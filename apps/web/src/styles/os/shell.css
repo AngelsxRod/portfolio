@@ -10,9 +10,6 @@ html:has(.os-page) {
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  /* Espacio para el dock lateral fijo: el contenido nunca queda debajo. La
-     barra superior y la cinta recuperan el ancho completo. */
-  padding-left: 100px;
   overflow-x: clip;
   background-color: var(--os-bg);
   background-image: radial-gradient(var(--os-dot) 1.2px, transparent 1.2px);
@@ -48,10 +45,6 @@ html:has(.os-page) {
 }
 
 /* Barra superior */
-.os-topbar,
-.os-ticker {
-  margin-left: -100px;
-}
 .os-topbar {
   order: 0;
   display: flex;
@@ -181,7 +174,8 @@ html:has(.os-page) {
   outline-color: var(--os-bg);
 }
 
-/* Dock lateral fijo: la navegación siempre está a la vista sin tapar el pie. */
+/* Dock lateral flotante: siempre a la vista, por encima del escritorio, sin
+   reservar espacio ni desplazar el contenido. */
 .os-dockwrap {
   position: fixed;
   top: 50%;
@@ -477,13 +471,6 @@ html:has(.os-page) {
     max-width: 22rem;
   }
   /* En el teléfono el dock pasa al menú lateral de la barra superior. */
-  .os-page {
-    padding-left: 0;
-  }
-  .os-topbar,
-  .os-ticker {
-    margin-left: 0;
-  }
   .os-dockwrap {
     display: none;
   }
