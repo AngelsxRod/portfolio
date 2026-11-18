@@ -187,6 +187,16 @@ html:has(.os-page) {
   gap: 12px;
   transform: translateY(-50%);
 }
+.os-dockpanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+/* Riel del dock plegado: solo existe en pantallas medianas. */
+.os-rail {
+  display: none;
+}
 .os-dock {
   display: flex;
   flex-direction: column;
@@ -249,6 +259,97 @@ html:has(.os-page) {
 }
 .os-page .os-dock :focus-visible {
   outline-offset: -3px;
+}
+
+/* Pantallas medianas: a este ancho el dock desplegado taparía las ventanas
+   (el escritorio de 1440 px aún no deja margen a su izquierda). Se pliega en
+   un riel compacto que flota encima, sin desplazar el contenido, y el dock se
+   despliega encima al pedirlo. */
+@media (min-width: 821px) and (max-width: 1599px) {
+  /* Desplegado, el dock ocupa el lugar del riel: solo se ve uno. */
+  .os-dockwrap[data-open="true"] .os-rail {
+    display: none;
+  }
+  .os-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .os-page .os-rail-toggle {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 12px;
+    background: var(--os-bone);
+    box-shadow: 4px 4px 0 var(--os-orange);
+    color: var(--os-bg);
+  }
+  .os-page .os-rail-toggle:hover,
+  .os-page .os-rail-toggle[aria-expanded="true"] {
+    background: var(--os-lime);
+    color: var(--os-bg);
+  }
+  .os-rail-toggle svg {
+    width: 22px;
+    height: 22px;
+  }
+  .os-rail-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: 1.5px solid var(--os-bg);
+    border-radius: 999px;
+    background: var(--os-orange);
+    color: var(--os-bg);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 17px;
+  }
+  .os-rail-current {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--os-lime);
+    color: var(--os-bg);
+  }
+  .os-rail-current svg {
+    width: 22px;
+    height: 22px;
+  }
+  .os-dockpanel {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    visibility: hidden;
+    opacity: 0;
+    transform: translate(-16px, -50%);
+    transition:
+      opacity 0.18s,
+      transform 0.22s cubic-bezier(0.2, 1.4, 0.4, 1),
+      visibility 0s 0.22s;
+  }
+  .os-dockwrap[data-open="true"] .os-dockpanel {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(0, -50%);
+    transition:
+      opacity 0.18s,
+      transform 0.22s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+}
+/* Pantallas medianas angostas: la barra superior prioriza la página y la hora. */
+@media (min-width: 821px) and (max-width: 1100px) {
+  .os-topbar-place {
+    display: none;
+  }
 }
 
 /* Menú del teléfono (oculto en escritorio) */
