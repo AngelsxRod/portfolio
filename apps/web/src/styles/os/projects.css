@@ -54,36 +54,6 @@
   flex-direction: column;
   min-width: 0;
 }
-.os-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
-  margin: 0;
-  padding: 14px;
-  list-style: none;
-}
-.os-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  border: 1.5px solid transparent;
-  border-radius: 8px;
-  color: var(--os-bone);
-  text-decoration: none;
-  transition:
-    transform 0.15s,
-    background 0.15s,
-    border-color 0.15s;
-  animation: os-pop 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) both;
-}
-.os-card:hover,
-.os-card:focus-visible {
-  border-color: var(--os-lime);
-  background: var(--os-surface-2);
-  transform: translateY(-4px);
-}
-.os-card-visual,
 .os-preview-visual {
   position: relative;
   display: flex;
@@ -92,30 +62,6 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   background: var(--os-surface-2);
-}
-.os-card-visual {
-  border: 1.5px solid var(--os-bone);
-  border-radius: 6px;
-}
-.os-card-visual img {
-  transition: transform 0.25s;
-}
-.os-card:hover .os-card-visual img {
-  transform: scale(1.04);
-}
-.os-card-typo {
-  color: var(--os-lime);
-  font-size: 72px;
-  line-height: 1;
-}
-.os-card-title {
-  font-size: 20px;
-  line-height: 1.05;
-  overflow-wrap: anywhere;
-}
-.os-card-meta {
-  color: var(--os-muted);
-  font-size: 12px;
 }
 .os-statusbar {
   display: flex;
@@ -167,14 +113,6 @@
   .os-explorer-side {
     padding: 16px 12px;
   }
-  .os-cards {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    padding: 10px;
-  }
-  .os-card-title {
-    font-size: 20px;
-    overflow-wrap: break-word;
-  }
   .os-explorer-side {
     max-width: none;
     border-right: 0;
@@ -192,10 +130,4 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-@media (max-width: 480px) {
-  .os-cards {
-    grid-template-columns: 1fr;
-  }
 }

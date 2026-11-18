@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/toggle-group";
 import {
   ALL_FILTER,
   matchesFilter,
-  mediaUrl,
   type ProjectFilter,
 } from "@/lib/os/projects";
 import { OsLinkButton } from "@/components/os/os-button";
+import { ProjectThumb, ProjectVisual } from "@/components/os/project-thumb";
 import { Window } from "@/components/os/window";
 
 export type ExplorerProject = {
@@ -24,31 +22,6 @@ export type ExplorerProject = {
   demoUrl: string | null;
   preview: { id: string; altText: string } | null;
 };
-
-function ProjectVisual({
-  project,
-  sizes,
-  alt,
-}: {
-  project: ExplorerProject;
-  sizes: string;
-  alt: string;
-}) {
-  return project.preview ? (
-    <Image
-      src={mediaUrl(project.preview.id)}
-      alt={alt}
-      fill
-      unoptimized
-      sizes={sizes}
-      className="object-cover object-top"
-    />
-  ) : (
-    <span className="os-display os-card-typo" aria-hidden="true">
-      {project.title.slice(0, 1)}
-    </span>
-  );
-}
 
 /** Explorador de `~/proyectos` con filtros y la ventana de vista previa. */
 export function ProjectExplorer({
@@ -116,29 +89,11 @@ export function ProjectExplorer({
               <ul className="os-cards">
                 {visible.map((project, index) => (
                   <li key={project.id}>
-                    <Link
-                      className="os-card"
-                      href={`/projects/${project.slug}`}
-                      onMouseEnter={() => setSelectedId(project.id)}
-                      onFocus={() => setSelectedId(project.id)}
+                    <ProjectThumb
+                      project={project}
+                      onHighlight={() => setSelectedId(project.id)}
                       style={{ animationDelay: `${index * 0.06}s` }}
-                    >
-                      <span className="os-card-visual">
-                        <ProjectVisual
-                          project={project}
-                          alt=""
-                          sizes="(max-width: 820px) 100vw, 220px"
-                        />
-                      </span>
-                      <span className="os-display os-card-title">
-                        {project.title}
-                      </span>
-                      {project.projectType && (
-                        <span className="os-card-meta">
-                          {project.projectType}
-                        </span>
-                      )}
-                    </Link>
+                    />
                   </li>
                 ))}
               </ul>
