@@ -12,9 +12,10 @@ import { useDesktop } from "@/components/os/desktop-provider";
 const DOCK_ID = "os-dock";
 
 /**
- * Dock lateral. En pantallas anchas siempre está desplegado; entre 821 y
- * 1599 px (donde taparía las ventanas) se pliega en un riel con un botón que
- * lo abre encima del escritorio. El CSS decide cuándo aplica el pliegue.
+ * Menú lateral del escritorio: arranca oculto fuera del borde izquierdo y se
+ * desliza con la pestaña anclada a su borde derecho. Flota encima del
+ * escritorio sin desplazarlo. En el teléfono lo sustituye el menú de la barra
+ * superior.
  */
 export function Dock({ children }: { children?: ReactNode }) {
   const pathname = usePathname();
@@ -23,18 +24,23 @@ export function Dock({ children }: { children?: ReactNode }) {
   const hidden = trayWindows(state).filter((window) => window.hidden).length;
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
-  const toggle = useRef<HTMLButtonElement>(null);
+  const tab = useRef<HTMLButtonElement>(null);
 
-  // Al navegar, el dock vuelve a plegarse.
+  // Al navegar, el menú vuelve a ocultarse.
   const [lastPath, setLastPath] = useState(pathname);
   if (pathname !== lastPath) {
     setLastPath(pathname);
     setOpen(false);
   }
 
+  function close() {
+    setOpen(false);
+    // El panel deja de ser `inert` tras el render: devolver el foco después.
+    requestAnimationFrame(() => tab.current?.focus());
+  }
+
   useEffect(() => {
     if (!open) return;
-    // El botón se oculta al desplegar: el foco pasa a la sección actual.
     const panel = document.getElementById(DOCK_ID);
     const target =
       panel?.querySelector<HTMLElement>('a[aria-current="page"]') ??
@@ -43,8 +49,7 @@ export function Dock({ children }: { children?: ReactNode }) {
     function onKey(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setOpen(false);
-      // El botón vuelve a mostrarse tras el render: enfocarlo entonces.
-      requestAnimationFrame(() => toggle.current?.focus());
+      requestAnimationFrame(() => tab.current?.focus());
     }
     function onPointer(event: PointerEvent) {
       if (!wrap.current?.contains(event.target as Node)) setOpen(false);
@@ -58,41 +63,15 @@ export function Dock({ children }: { children?: ReactNode }) {
   }, [open]);
 
   return (
-    <div ref={wrap} className="os-dockwrap" data-open={open}>
-      <div className="os-rail">
-        <Button
-          ref={toggle}
-          variant="ghost"
-          className="os-rail-toggle"
-          aria-expanded={open}
-          aria-controls={DOCK_ID}
-          aria-label="Abrir menú"
-          onClick={() => setOpen((value) => !value)}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-          {hidden > 0 && (
-            <span className="os-rail-badge" aria-hidden="true">
-              {hidden}
-            </span>
-          )}
+    <div
+      ref={wrap}
+      className={`os-dockwrap${open ? " is-open" : ""}`}
+      data-open={open}
+    >
+      <div id={DOCK_ID} className="os-dockpanel" inert={!open}>
+        <Button variant="ghost" className="os-dock-close" onClick={close}>
+          ‹ Cerrar
         </Button>
-        {active && (
-          <span className="os-rail-current" title={active.label}>
-            <DockIcon icon={active.icon} />
-            <span className="sr-only">Sección actual: {active.label}</span>
-          </span>
-        )}
-      </div>
-      <div id={DOCK_ID} className="os-dockpanel">
         <nav className="os-dock" aria-label="Navegación principal">
           {osRoutes.map((route) => (
             <Link
@@ -108,6 +87,43 @@ export function Dock({ children }: { children?: ReactNode }) {
         </nav>
         {children}
       </div>
+      <Button
+        ref={tab}
+        variant="ghost"
+        className="os-dock-tab"
+        aria-expanded={open}
+        aria-controls={DOCK_ID}
+        aria-label={`${open ? "Cerrar" : "Abrir"} menú${
+          hidden > 0
+            ? ` (${hidden} ${hidden === 1 ? "ventana oculta" : "ventanas ocultas"})`
+            : ""
+        }`}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          {open ? (
+            <path d="M15 5l-7 7 7 7" />
+          ) : (
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          )}
+        </svg>
+        <span className="os-dock-tab-label" aria-hidden="true">
+          Menú
+        </span>
+        {hidden > 0 && (
+          <span className="os-dock-tab-badge" aria-hidden="true">
+            {hidden}
+          </span>
+        )}
+      </Button>
     </div>
   );
 }

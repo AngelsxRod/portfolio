@@ -122,7 +122,8 @@
 .os-tray-panel {
   position: absolute;
   bottom: 0;
-  left: calc(100% + 14px);
+  /* Se abre a la derecha de la pestaña del menú, sin taparla. */
+  left: calc(100% + 26px + var(--os-tab-width));
   display: flex;
   flex-direction: column;
   gap: 10px;

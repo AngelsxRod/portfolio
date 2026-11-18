@@ -174,28 +174,99 @@ html:has(.os-page) {
   outline-color: var(--os-bg);
 }
 
-/* Dock lateral flotante: siempre a la vista, por encima del escritorio, sin
-   reservar espacio ni desplazar el contenido. */
+/* Menú lateral deslizante: arranca oculto fuera del borde izquierdo y solo
+   asoma su pestaña. Flota por encima del escritorio sin reservar espacio; el
+   contenedor no recibe clics, así nunca bloquea el escritorio ni el scroll. */
+.os-page {
+  --os-tab-width: 40px;
+}
 .os-dockwrap {
   position: fixed;
   top: 50%;
-  left: 14px;
+  left: 0;
   z-index: 900;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  transform: translateY(-50%);
+  pointer-events: none;
+  transform: translate(-100%, -50%);
+  transition: transform 0.3s ease;
+}
+.os-dockwrap.is-open {
+  transform: translate(0, -50%);
 }
 .os-dockpanel {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  padding: 0 14px;
+  pointer-events: auto;
 }
-/* Riel del dock plegado: solo existe en pantallas medianas. */
-.os-rail {
-  display: none;
+.os-page .os-dock-close {
+  width: 100%;
+  height: 36px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 10px;
+  background: var(--os-bg);
+  color: var(--os-bone);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+}
+.os-page .os-dock-close:hover {
+  background: var(--os-surface-2);
+  color: var(--os-lime);
+}
+/* Pestaña anclada al borde derecho del panel: se desliza con él. */
+.os-page .os-dock-tab {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: var(--os-tab-width);
+  height: auto;
+  padding: 14px 0;
+  border: 1.5px solid var(--os-bg);
+  border-left: 0;
+  border-radius: 0 12px 12px 0;
+  background: var(--os-bone);
+  box-shadow: 4px 4px 0 var(--os-orange);
+  color: var(--os-bg);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  font-weight: 700;
+  pointer-events: auto;
+  transform: translateY(-50%);
+}
+.os-page .os-dock-tab:hover,
+.os-page .os-dock-tab[aria-expanded="true"] {
+  background: var(--os-lime);
+  color: var(--os-bg);
+}
+.os-dock-tab svg {
+  width: 20px;
+  height: 20px;
+}
+.os-dock-tab-label {
+  letter-spacing: 0.08em;
+  writing-mode: vertical-rl;
+}
+.os-dock-tab-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border: 1.5px solid var(--os-bg);
+  border-radius: 999px;
+  background: var(--os-orange);
+  color: var(--os-bg);
+  font-size: 11px;
+  line-height: 19px;
+  text-align: center;
+}
+.os-page .os-dock-tab:focus-visible {
+  outline-color: var(--os-orange);
 }
 .os-dock {
   display: flex;
@@ -261,90 +332,6 @@ html:has(.os-page) {
   outline-offset: -3px;
 }
 
-/* Pantallas medianas: a este ancho el dock desplegado taparía las ventanas
-   (el escritorio de 1440 px aún no deja margen a su izquierda). Se pliega en
-   un riel compacto que flota encima, sin desplazar el contenido, y el dock se
-   despliega encima al pedirlo. */
-@media (min-width: 821px) and (max-width: 1599px) {
-  /* Desplegado, el dock ocupa el lugar del riel: solo se ve uno. */
-  .os-dockwrap[data-open="true"] .os-rail {
-    display: none;
-  }
-  .os-rail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-  .os-page .os-rail-toggle {
-    position: relative;
-    width: 52px;
-    height: 52px;
-    padding: 0;
-    border-radius: 12px;
-    background: var(--os-bone);
-    box-shadow: 4px 4px 0 var(--os-orange);
-    color: var(--os-bg);
-  }
-  .os-page .os-rail-toggle:hover,
-  .os-page .os-rail-toggle[aria-expanded="true"] {
-    background: var(--os-lime);
-    color: var(--os-bg);
-  }
-  .os-rail-toggle svg {
-    width: 22px;
-    height: 22px;
-  }
-  .os-rail-badge {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    min-width: 20px;
-    height: 20px;
-    padding: 0 5px;
-    border: 1.5px solid var(--os-bg);
-    border-radius: 999px;
-    background: var(--os-orange);
-    color: var(--os-bg);
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 17px;
-  }
-  .os-rail-current {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 44px;
-    border-radius: 10px;
-    background: var(--os-lime);
-    color: var(--os-bg);
-  }
-  .os-rail-current svg {
-    width: 22px;
-    height: 22px;
-  }
-  .os-dockpanel {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    visibility: hidden;
-    opacity: 0;
-    transform: translate(-16px, -50%);
-    transition:
-      opacity 0.18s,
-      transform 0.22s cubic-bezier(0.2, 1.4, 0.4, 1),
-      visibility 0s 0.22s;
-  }
-  .os-dockwrap[data-open="true"] .os-dockpanel {
-    visibility: visible;
-    opacity: 1;
-    transform: translate(0, -50%);
-    transition:
-      opacity 0.18s,
-      transform 0.22s cubic-bezier(0.2, 1.4, 0.4, 1);
-  }
-}
 /* Pantallas medianas angostas: la barra superior prioriza la página y la hora. */
 @media (min-width: 821px) and (max-width: 1100px) {
   .os-topbar-place {
