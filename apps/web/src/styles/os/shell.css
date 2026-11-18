@@ -564,3 +564,10 @@ html:has(.os-page) {
     display: none;
   }
 }
+
+/* Teléfonos estrechos: el nombre de la página tiene prioridad sobre el reloj. */
+@media (max-width: 480px) {
+  .os-topbar-clock {
+    display: none;
+  }
+}

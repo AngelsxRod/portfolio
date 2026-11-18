@@ -5,7 +5,7 @@
 }
 .os-log h1 {
   margin: 0 0 6px 12px;
-  font-size: clamp(40px, 7vw, 64px);
+  font-size: clamp(24px, 6.5vw, 64px);
   line-height: 0.9;
 }
 .os-log-hint {
@@ -204,5 +204,12 @@
   }
   .os-diff {
     padding-left: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .os-commit-org {
+    font-size: 20px;
+    overflow-wrap: break-word;
   }
 }
