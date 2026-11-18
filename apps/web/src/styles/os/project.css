@@ -153,6 +153,7 @@
   flex-direction: column;
   gap: 16px;
   padding: 22px 24px 24px;
+  container-type: inline-size;
 }
 .os-info-kicker {
   color: var(--os-orange);
@@ -160,9 +161,12 @@
 }
 .os-info h1 {
   margin: 0;
-  font-size: 52px;
-  line-height: 0.92;
-  overflow-wrap: anywhere;
+  /* Se ajusta al ancho de la ficha para partir por palabras, no por letras. */
+  font-size: clamp(32px, 12cqi, 52px);
+  line-height: 0.95;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-wrap: balance;
 }
 .os-info-summary {
   margin: 0;
@@ -207,14 +211,14 @@
 }
 
 .os-notes {
-  padding: 18px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px 32px 32px;
   color: var(--os-text);
   font-size: 14px;
   line-height: 1.65;
-  overflow-wrap: anywhere;
-}
-.os-notes > :first-child {
-  margin-top: 0;
+  overflow-wrap: break-word;
 }
 .os-notes p,
 .os-notes ul,
@@ -222,6 +226,9 @@
 .os-notes blockquote,
 .os-notes pre {
   margin: 0 0 12px;
+}
+.os-notes :is(p, ul, ol, blockquote, pre):last-child {
+  margin-bottom: 0;
 }
 .os-notes ul,
 .os-notes ol {
@@ -232,6 +239,12 @@
 }
 .os-notes ol {
   list-style: decimal;
+}
+.os-notes li + li {
+  margin-top: 6px;
+}
+.os-notes li::marker {
+  color: var(--os-lime);
 }
 .os-notes h2,
 .os-notes h3,
@@ -266,20 +279,55 @@
   padding-left: 12px;
   border-left: 3px solid var(--os-orange);
 }
-.os-related {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1.5px solid var(--os-rule);
+
+/* Introducción: a lo ancho pero con medida de lectura. */
+.os-notes-intro {
+  max-width: 72ch;
+  color: var(--os-bone);
+  font-size: 16px;
+  line-height: 1.7;
 }
-.os-related ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.os-notes-intro > h2 {
+  margin-top: 0;
+  font-size: 13px;
 }
-.os-related a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
+/* Resto de secciones: tarjetas lado a lado. */
+.os-notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+.os-notes-card {
+  padding: 18px 20px 20px;
+  border: 1.5px solid var(--os-rule);
+  border-radius: 8px;
+  background: var(--os-bg);
+}
+/* Una sola sección no se estira hasta líneas ilegibles. */
+.os-notes-card:only-child {
+  max-width: 80ch;
+}
+.os-notes-card > h2 {
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px dashed var(--os-rule);
+}
+
+.os-related .os-cards {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+.os-related li {
+  max-width: 480px;
+}
+.os-related .os-card-title {
+  font-size: 22px;
+}
+.os-related-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 16px 16px;
 }
 
 @keyframes os-swap {
@@ -296,7 +344,16 @@
   .os-url .os-muted:first-child {
     display: none;
   }
-  .os-info h1 {
-    font-size: 40px;
+  .os-notes {
+    padding: 20px 18px 22px;
+  }
+  .os-notes-intro {
+    font-size: 15px;
+  }
+  .os-notes-grid {
+    grid-template-columns: 1fr;
+  }
+  .os-related .os-cards {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }

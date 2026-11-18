@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "@/styles/os/project.css";
 import { Badge } from "@repo/ui/components/badge";
 import {
@@ -7,13 +6,18 @@ import {
   getPublicProjects,
   getRelatedProjects,
 } from "@/lib/public-projects";
-import { projectHost } from "@/lib/os/projects";
+import {
+  projectHost,
+  projectPreview,
+  splitNotesSections,
+} from "@/lib/os/projects";
 import { safeExternalUrl } from "@/lib/safe-url";
 import { Blob } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
 import { OsLinkButton } from "@/components/os/os-button";
 import { ProjectBrowser } from "@/components/os/project-browser";
 import { ProjectMarkdown } from "@/components/os/project-markdown";
+import { ProjectThumb } from "@/components/os/project-thumb";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
 
@@ -42,6 +46,7 @@ export default async function ProjectDetail({ params }: Props) {
   const demoUrl = safeExternalUrl(project.demoUrl);
   const codeUrl = safeExternalUrl(project.codeUrl);
   const host = projectHost(project.demoUrl);
+  const notes = splitNotesSections(project.description);
   const facts = (
     [
       ["tipo", project.projectType],
@@ -53,7 +58,6 @@ export default async function ProjectDetail({ params }: Props) {
   return (
     <>
       <Desktop>
-        <Blob shape="circle" style={{ left: 860, top: 600 }} />
         <Blob shape="ring" style={{ left: 1240, top: 20 }} />
 
         <ProjectBrowser
@@ -66,7 +70,7 @@ export default async function ProjectDetail({ params }: Props) {
         <Window
           id="ficha"
           title="Ficha del proyecto"
-          file={`${project.title.toLowerCase().replace(/\s+/g, "_")}.info`}
+          file="ficha.info"
           stack="derecha"
           labelledBy="project-title"
           variant="orange"
@@ -131,29 +135,71 @@ export default async function ProjectDetail({ params }: Props) {
           id="notas"
           title="De qué trata"
           file="notas.md"
-          stack="derecha"
-          defaultPosition={{ x: 990, y: 500 }}
-          width={420}
+          stack="pie"
+          defaultPosition={{ x: 40, y: 800 }}
+          width={1360}
           delay={0.24}
         >
           <article className="os-notes" aria-label="Descripción del proyecto">
-            <ProjectMarkdown>{project.description}</ProjectMarkdown>
-            {related.length > 0 && (
-              <nav className="os-related" aria-label="Otros proyectos">
-                <p className="os-info-label">otros proyectos</p>
-                <ul>
-                  {related.map((item) => (
-                    <li key={item.id}>
-                      <Link className="os-link" href={`/projects/${item.slug}`}>
-                        {item.title} →
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+            {notes.intro && (
+              <section className="os-notes-intro">
+                {notes.intro.heading && <h2>{notes.intro.heading}</h2>}
+                <ProjectMarkdown>{notes.intro.body}</ProjectMarkdown>
+              </section>
+            )}
+            {notes.sections.length > 0 && (
+              <div className="os-notes-grid">
+                {notes.sections.map((section, index) => (
+                  <section key={index} className="os-notes-card">
+                    <h2>{section.heading}</h2>
+                    <ProjectMarkdown>{section.body}</ProjectMarkdown>
+                  </section>
+                ))}
+              </div>
             )}
           </article>
         </Window>
+
+        {related.length > 0 && (
+          <Window
+            id="otros"
+            title="Otros proyectos"
+            file="~/proyectos"
+            stack="pie"
+            variant="orange"
+            defaultPosition={{ x: 40, y: 1200 }}
+            width={1360}
+            delay={0.32}
+          >
+            <nav className="os-related" aria-label="Otros proyectos">
+              <ul className="os-cards">
+                {related.map((item) => {
+                  const preview = projectPreview(item);
+                  return (
+                    <li key={item.id}>
+                      <ProjectThumb
+                        project={{
+                          slug: item.slug,
+                          title: item.title,
+                          projectType: item.projectType,
+                          preview: preview
+                            ? { id: preview.id, altText: preview.altText }
+                            : null,
+                        }}
+                        sizes="(max-width: 820px) 100vw, 420px"
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="os-related-foot">
+                <OsLinkButton href="/projects" variant="outline">
+                  ← Todos los proyectos
+                </OsLinkButton>
+              </div>
+            </nav>
+          </Window>
+        )}
       </Desktop>
       <Ticker
         items={[
