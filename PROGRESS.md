@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** ninguna; la etapa 7 (rediseño público «angel.os») quedó completa.
+- **Etapa activa:** 8. Pantallas medianas y detalle de proyecto.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -217,6 +217,17 @@ Tras revisar kaled.dev con datos reales, el diseño era poco intuitivo para pers
 - [x] Si las columnas no caben lado a lado, todo se apila en una columna (antes se encimaban a 1024 y 1280 px en proyectos y detalle).
 
 **Verificación:** 35 pruebas web (nuevas: dos columnas cuando caben y columna única cuando se pisarían). `agent-browser`: 0 solapes entre ventanas y elementos en las siete rutas a 1024, 1280 y 1536 px; a 375 px sin desbordes, dock oculto, menú lateral con la sección activa y Escape devolviendo el foco a «Menú». Chrome local a 1568 px: dock lateral, barra superior completa y panel «Ventanas» con «Restaurar todo».
+
+### 8. Pantallas medianas y detalle de proyecto — en curso
+
+En kaled.dev el dock lateral fijo tapa el borde izquierdo de las ventanas en pantallas de menos de ~1600 px (laptops de 1366, 1440 y 1536 px), y el detalle de proyecto apila ficha y notas en una columna de 420 px que deja medio escritorio vacío y corta el título a mitad de palabra.
+
+- [ ] Dock plegable entre 821 y 1599 px: riel reservado con botón ☰ y sección activa; se despliega encima y se cierra con un enlace, Escape, clic fuera o al navegar.
+- [ ] Columna «pie» en el apilado: empieza debajo de la columna más alta.
+- [ ] Notas del proyecto divididas por encabezados: introducción ancha y secciones en tarjetas.
+- [ ] Miniatura de proyecto compartida entre el explorador y «Otros proyectos».
+- [ ] Detalle como caso de estudio: navegador y ficha arriba, notas y otros proyectos a todo el ancho debajo; título de la ficha sin cortes a mitad de palabra.
+- [ ] Verificar pruebas, lint, compilación y navegador a 390, 1024, 1280, 1366, 1440, 1599, 1600 y 1920 px.
 
 ## Registro de entregas
 
