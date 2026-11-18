@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** ninguna; la etapa 9 (menú deslizante con pestaña) quedó completa.
+- **Etapa activa:** 10. Marca personal.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -248,6 +248,16 @@ En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que 
 **Verificación:** 46 pruebas web, `eslint`, `tsc` y `next build` correctos. En Chrome local a 1536 px: cerrado solo asoma la pestaña en `x: 0`; al tocarla el panel se desliza y la pestaña se mueve a `x: 116` con `aria-expanded="true"` y el foco en «Proyectos»; Escape lo cierra y devuelve el foco a la pestaña; un clic fuera y elegir «Sobre mí» también lo cierran; cerrado, el panel es `inert`. Al minimizar «Vista previa», la pestaña muestra el contador y su nombre accesible pasa a «Abrir menú (1 ventana oculta)»; el panel «Ventanas» abre a 12 px a la derecha de la pestaña. Con iframes del mismo origen: a 1920 px la pestaña en el borde izquierdo y el menú cerrado; a 390 px el menú deslizante oculto, botón «Menú» visible y sin desplazamiento horizontal.
 
 **Pendientes:** no se revisó con `prefers-reduced-motion` en el navegador (la regla global ya anula las transiciones).
+
+### 10. Marca personal — en curso
+
+Isotipo elegido entre las propuestas: **Muesca K en bloque** (bloque lima con la K vaciada y un punto naranja en el hueco entre sus brazos). Hasta ahora el sitio no tenía logo ni favicon.
+
+- [ ] Archivos de marca en `apps/web/public/brand/` (SVG a color y en un solo color, PNG de 64 a 1024 px) generados con un script reproducible.
+- [ ] Favicon (`icon.svg`), icono de Apple e imagen para compartir (Open Graph) del sitio público.
+- [ ] Logo en la barra superior y en el menú lateral del teléfono.
+- [ ] Sección «Marca» en `DESIGN.md`.
+- [ ] Verificar pruebas, lint, compilación y navegador.
 
 ## Registro de entregas
 
