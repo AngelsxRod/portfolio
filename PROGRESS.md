@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** ninguna; la etapa 8 (pantallas medianas y detalle de proyecto) quedó completa.
+- **Etapa activa:** 9. Menú deslizante con pestaña.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -232,6 +232,16 @@ En kaled.dev el dock lateral fijo tapa el borde izquierdo de las ventanas en pan
 **Verificación:** 46 pruebas web (nuevas: 5 de la columna `pie` y 6 de `splitNotesSections`), `eslint` y `next build` correctos. En Chrome local (viewport real de 1536 px): riel con ☰ y sección activa, explorador y detalle sin quedar tapados; el dock se abre encima, Escape lo cierra y devuelve el foco a «Abrir menú», un clic fuera también lo cierra y elegir «Sobre mí» navega y lo pliega. Con iframes del mismo origen: 1024 px en Trayectoria y detalle (columna única, riel, sin «Guatemala, GT»), 1920 px con dock completo y notas debajo de navegador y ficha, y 390 px con menú `Sheet`, dock oculto y sin desplazamiento horizontal.
 
 **Pendientes:** `agent-browser` no está instalado y `resize_window` de Chrome no cambió el viewport, así que 1280, 1366, 1440, 1599 y 1600 px no se revisaron uno por uno. Los datos locales solo tienen una sección después de la introducción; falta revisar en producción las notas con varias secciones y una ficha con tecnologías.
+
+### 9. Menú deslizante con pestaña — en curso
+
+En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que arranca oculto fuera del borde izquierdo y se desliza con una pestaña anclada a su borde derecho. Sustituye el dock siempre visible y el riel de pantallas medianas; el teléfono conserva su `Sheet`.
+
+- [ ] Panel fijo con `translateX(-100%)` cerrado y `.is-open` a `translateX(0)` con `transition: transform 0.3s ease`, sin desplazar el contenido ni bloquear clics o scroll.
+- [ ] Pestaña ☰ «Menú» con contador de ventanas ocultas, anclada con `left: 100%`, `aria-expanded` y botón de cierre interno.
+- [ ] Cierre con Escape (foco a la pestaña), clic fuera, al elegir una sección y al navegar; enlaces ocultos inaccesibles con `inert`.
+- [ ] «Ventanas» abre a la derecha sin tapar la pestaña; pista de primera visita actualizada.
+- [ ] Verificar pruebas, lint, compilación y navegador.
 
 ## Registro de entregas
 
