@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** 10. Marca personal.
+- **Etapa activa:** ninguna; la etapa 10 (marca personal) quedó completa.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -249,15 +249,21 @@ En todo el escritorio (≥ 821 px) el dock pasa a un menú lateral flotante que 
 
 **Pendientes:** no se revisó con `prefers-reduced-motion` en el navegador (la regla global ya anula las transiciones).
 
-### 10. Marca personal — en curso
+### 10. Marca personal — completada (2026-11-17)
 
 Isotipo elegido entre las propuestas: **Muesca K en bloque** (bloque lima con la K vaciada y un punto naranja en el hueco entre sus brazos). Hasta ahora el sitio no tenía logo ni favicon.
 
-- [ ] Archivos de marca en `apps/web/public/brand/` (SVG a color y en un solo color, PNG de 64 a 1024 px) generados con un script reproducible.
-- [ ] Favicon (`icon.svg`), icono de Apple e imagen para compartir (Open Graph) del sitio público.
-- [ ] Logo en la barra superior y en el menú lateral del teléfono.
-- [ ] Sección «Marca» en `DESIGN.md`.
-- [ ] Verificar pruebas, lint, compilación y navegador.
+- [x] Archivos de marca en `apps/web/public/brand/` (SVG a color y en un solo color, PNG de 64 a 1024 px) generados con un script reproducible.
+- [x] Favicon (`icon.svg`), icono de Apple e imagen para compartir (Open Graph) del sitio público.
+- [x] Logo en la barra superior y en el menú lateral del teléfono.
+- [x] Sección «Marca» en `DESIGN.md`.
+- [x] Verificar pruebas, lint, compilación y navegador.
+
+**Decisiones:** el usuario revisó cuatro rondas de propuestas (desde el sitio, abstractas desde A·K·R·S, concretas y variantes de la K) en una página privada y eligió «Muesca K en bloque». La fuente Syne 800 de la imagen para compartir se incluye en `apps/web/assets/fonts/` con su licencia OFL y se lee del disco, como indica la guía de `opengraph-image` de Next; `outputFileTracingIncludes` la añade a la salida `standalone`. `metadataBase` apunta a `https://kaled.dev` para que la imagen tenga URL absoluta. `sharp` es dependencia de desarrollo solo para exportar los PNG.
+
+**Verificación:** 49 pruebas web (nuevas: los SVG de `public/brand` e `icon.svg` coinciden con la geometría del componente), `eslint`, `tsc` y `next build` correctos; el build lista `/icon.svg`, `/apple-icon.png` y `opengraph-image`, y la salida `standalone` contiene la fuente. En el servidor local: `/icon.svg` responde `image/svg+xml`, la página enlaza el favicon y el icono de Apple, y la imagen para compartir responde PNG de 1200×630 con el nombre del perfil (se corrigió un desborde del título). PNG exportados revisados a la vista (bordes nítidos, transparencia y versión sobre negro). En Chrome a 1536 px el isotipo aparece en la barra superior y, en un iframe de 390 px, en el menú lateral.
+
+**Pendientes:** comprobar la vista previa al compartir un enlace real de kaled.dev tras desplegar.
 
 ## Registro de entregas
 
@@ -324,6 +330,7 @@ Isotipo elegido entre las propuestas: **Muesca K en bloque** (bloque lima con la
 | 2026-11-17 | Dock lateral y responsive    | Dock lateral fijo, menú lateral en teléfono y columna única cuando las columnas no caben.                                                                                                                                                                                                                                                                                                                                                                                                                      | 35 pruebas web; `agent-browser` a 375, 1024, 1280 y 1536 px; Chrome local.                                                                                                         | Revisar en producción tras desplegar.                                                                                                               |
 | 2026-11-17 | Pantallas medianas y detalle | Dock plegable en un riel entre 821 y 1599 px; detalle como caso de estudio con notas por secciones a todo el ancho y miniaturas de otros proyectos; columna `pie` en el apilado.                                                                                                                                                                                                                                                                                                                               | 46 pruebas web, lint y build; Chrome local a 1536 px e iframes a 390, 1024 y 1920 px.                                                                                              | Revisar en producción y a 1280–1600 px.                                                                                                             |
 | 2026-11-17 | Menú deslizante              | El dock pasa a un menú lateral oculto con pestaña «Menú» anclada que se desliza en 0,3 s en todo el escritorio; cierre con Escape, botón, clic fuera y navegación.                                                                                                                                                                                                                                                                                                                                             | 46 pruebas web, lint, tsc y build; Chrome local a 1536 px e iframes a 390 y 1920 px.                                                                                               | Revisar en producción tras desplegar.                                                                                                               |
+| 2026-11-17 | Marca personal               | Isotipo «Muesca K en bloque»: archivos SVG/PNG en `public/brand`, favicon, icono de Apple, imagen para compartir y logo en la barra superior y el menú del teléfono.                                                                                                                                                                                                                                                                                                                                           | 49 pruebas web, lint, tsc y build; servidor local y Chrome.                                                                                                                        | Probar la vista previa de un enlace real tras desplegar.                                                                                            |
 
 ## Reglas para futuras sesiones
 
