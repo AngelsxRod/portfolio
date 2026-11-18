@@ -18,6 +18,8 @@ const fontMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // Base de las URL absolutas de la imagen para compartir y los iconos.
+  metadataBase: new URL("https://kaled.dev"),
   title: "Portafolio | Proyectos",
   description: "Proyectos publicados y procesos documentados.",
 };
