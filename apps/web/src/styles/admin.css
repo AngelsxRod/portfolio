@@ -1,0 +1,22 @@
+/* Panel /admin con la marca angel.os: los colores salen de los tokens de
+   `globals.css`; aquí solo van los detalles propios (títulos en Syne, tarjetas
+   con la sombra dura de las ventanas). */
+
+.admin-shell {
+  --admin-shadow: var(--os-lime);
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+:root:not(.dark) .admin-shell {
+  --admin-shadow: #0d0e12;
+}
+
+.admin-shell h1 {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.admin-shell [data-slot="card"] {
+  border: 1.5px solid var(--foreground);
+  box-shadow: 6px 6px 0 var(--admin-shadow);
+}

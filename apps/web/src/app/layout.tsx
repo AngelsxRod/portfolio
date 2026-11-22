@@ -5,17 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { bootGateScript } from "@/lib/os/boot";
-import { JetBrains_Mono, Sora } from "next/font/google";
-
-const fontDisplay = Sora({
-  subsets: ["latin"],
-  variable: "--font-display",
-});
-
-const fontMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
+import { osFontClasses } from "@/lib/os/fonts";
 
 export const metadata: Metadata = {
   // Base de las URL absolutas de la imagen para compartir y los iconos.
@@ -30,11 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="es"
-      className={`${fontDisplay.variable} ${fontMono.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="es" className={osFontClasses} suppressHydrationWarning>
       <body>
         {/* Oculta el arranque de angel.os antes del primer pintado si ya se vio. */}
         <Script id="angel-os-boot" strategy="beforeInteractive">

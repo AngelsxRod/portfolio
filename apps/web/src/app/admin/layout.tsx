@@ -1,3 +1,5 @@
+import "@/styles/admin.css";
+
 /** Marca todo el panel (también el acceso) para aplicar su paleta propia. */
 export default function AdminRootLayout({
   children,
