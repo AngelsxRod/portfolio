@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** ninguna; la etapa 10 (marca personal) quedó completa.
+- **Etapa activa:** 11. Panel con la marca angel.os.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -264,6 +264,16 @@ Isotipo elegido entre las propuestas: **Muesca K en bloque** (bloque lima con la
 **Verificación:** 49 pruebas web (nuevas: los SVG de `public/brand` e `icon.svg` coinciden con la geometría del componente), `eslint`, `tsc` y `next build` correctos; el build lista `/icon.svg`, `/apple-icon.png` y `opengraph-image`, y la salida `standalone` contiene la fuente. En el servidor local: `/icon.svg` responde `image/svg+xml`, la página enlaza el favicon y el icono de Apple, y la imagen para compartir responde PNG de 1200×630 con el nombre del perfil (se corrigió un desborde del título). PNG exportados revisados a la vista (bordes nítidos, transparencia y versión sobre negro). En Chrome a 1536 px el isotipo aparece en la barra superior y, en un iframe de 390 px, en el menú lateral.
 
 **Pendientes:** comprobar la vista previa al compartir un enlace real de kaled.dev tras desplegar.
+
+### 11. Panel con la marca angel.os — en curso
+
+El panel `/admin` conservaba su identidad anterior (paleta morada y Sora). A pedido del usuario adopta angel.os: tema oscuro por defecto con un claro derivado (se mantiene el selector), Syne 800 en títulos y JetBrains Mono en el resto, y el logo.
+
+- [ ] Paleta de `:root` (claro hueso) y `.dark` (angel.os) en `globals.css`.
+- [ ] Syne y JetBrains Mono en el panel; Sora retirada.
+- [ ] Tarjetas con borde y sombra dura; ítem activo de la barra lateral en lima.
+- [ ] Logo en la barra lateral y en el acceso.
+- [ ] Verificar pruebas, lint, compilación y navegador en ambos temas.
 
 ## Registro de entregas
 
