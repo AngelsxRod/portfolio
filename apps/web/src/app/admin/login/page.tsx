@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
+import { BrandMark } from "@/components/os/brand-mark";
 import { hasAdminSession } from "@/lib/admin-session";
 import { LoginErrorToast } from "./login-error-toast";
 import { LoginForm } from "./login-form";
@@ -36,6 +37,7 @@ export default async function AdminLogin({
         >
           ← Volver al portafolio
         </Link>
+        <BrandMark size={48} />
         <h1 className="text-3xl font-semibold tracking-tight">
           Acceso administrativo
         </h1>

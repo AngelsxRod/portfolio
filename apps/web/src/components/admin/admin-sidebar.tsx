@@ -16,6 +16,7 @@ import {
   useSidebar,
 } from "@repo/ui/components/sidebar";
 import { ExternalLinkIcon } from "lucide-react";
+import { BrandMark } from "@/components/os/brand-mark";
 import { LogoutForm } from "@/app/admin/(protected)/logout-form";
 import {
   adminHome,
@@ -53,8 +54,9 @@ export function AdminSidebar() {
       <SidebarHeader className="px-4 py-4">
         <Link
           href="/admin"
-          className="text-base font-bold tracking-tight text-sidebar-foreground"
+          className="flex items-center gap-2.5 text-base font-bold tracking-tight text-sidebar-foreground"
         >
+          <BrandMark size={28} />
           Panel del portafolio
         </Link>
       </SidebarHeader>
