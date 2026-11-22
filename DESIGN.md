@@ -1,6 +1,6 @@
 # Dirección visual: angel.os
 
-El sitio público es un escritorio de sistema operativo propio: una barra superior con reloj, ventanas que se arrastran, un dock con las secciones, una bandeja para recuperar ventanas y una cinta que corre al pie. Cada página es una metáfora de una herramienta conocida (bloc de notas, explorador, navegador, terminal, `git log`, carpeta, correo). Es oscuro siempre y no tiene selector de tema. El panel `/admin` conserva su propia identidad (ver al final).
+El sitio público es un escritorio de sistema operativo propio: una barra superior con reloj, ventanas que se arrastran, un dock con las secciones, una bandeja para recuperar ventanas y una cinta que corre al pie. Cada página es una metáfora de una herramienta conocida (bloc de notas, explorador, navegador, terminal, `git log`, carpeta, correo). Es oscuro siempre y no tiene selector de tema. El panel `/admin` usa la misma marca con una apariencia más sobria (ver al final).
 
 La maqueta aprobada está en el lienzo de diseño «angel.os» (7 artboards `project/*.dc.html`). Sus textos y datos son de ejemplo: en la implementación todo sale del CMS.
 
@@ -86,4 +86,11 @@ Los estilos de cada página viven en `apps/web/src/styles/os/*.css` (sin capa, p
 
 ## Panel administrativo
 
-El panel no usa angel.os. Conserva la paleta anterior (Deep Purple `#433075`, Lavender `#a78bfa`, Soft White y Jet Black) con los tokens de `:root` y `.dark` de `globals.css`, Sora como `--font-display`, tema claro por defecto y selector Claro/Oscuro/Sistema en su cabecera (`ThemeToggle`, `next-themes`). Sobriedad de herramienta de trabajo: barra lateral fija agrupada (en móvil, `Sheet`), títulos de `1.875rem`, estados `Publicado`/`Borrador` siempre con texto, listados con búsqueda y filtro, formularios por secciones con barra de acciones fija y confirmación al retirar.
+El panel comparte la marca angel.os, pero como herramienta de trabajo: sin ventanas ni dock. Los colores salen de los tokens de `:root` (tema claro derivado) y `.dark` (tema por defecto) de `packages/ui/src/styles/globals.css`, que el sitio público sobrescribe con `.os-theme`.
+
+- **Oscuro (por defecto)**: los mismos valores que el sitio: fondo `--os-bg`, tarjetas `--os-surface`, texto hueso, acción principal lima con texto negro, bordes `--os-rule` y foco naranja.
+- **Claro (derivado)**: fondo hueso `#f2efe8`, tarjetas `#fbfaf6`, texto `#0d0e12`, el mismo botón lima con texto negro, grises `#5a5850` (6,2:1 sobre el fondo) y foco naranja oscuro `#d24a12` (3,9:1). El selector Claro/Oscuro/Sistema se conserva en la cabecera (`ThemeToggle`, `next-themes`).
+- **Letra**: Syne 800 en los `h1` (`--font-display`) y JetBrains Mono en todo lo demás, cargadas desde `lib/os/fonts.ts` en el layout raíz. Sora ya no se usa.
+- **Detalles** (`styles/admin.css`): las tarjetas llevan borde de 1,5 px y la sombra dura de las ventanas (lima en oscuro, negra en claro).
+- **Logo**: el isotipo junto a «Panel del portafolio» en la barra lateral y sobre el título del acceso.
+- **Estructura**: barra lateral fija agrupada (en móvil, `Sheet`), listados con búsqueda y filtro, formularios por secciones con barra de acciones fija, estados `Publicado`/`Borrador` siempre con texto y confirmación al retirar.

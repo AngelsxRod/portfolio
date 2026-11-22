@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** 11. Panel con la marca angel.os.
+- **Etapa activa:** ninguna; la etapa 11 (panel con la marca angel.os) quedó completa, con la revisión de las pantallas con sesión pendiente.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -265,15 +265,21 @@ Isotipo elegido entre las propuestas: **Muesca K en bloque** (bloque lima con la
 
 **Pendientes:** comprobar la vista previa al compartir un enlace real de kaled.dev tras desplegar.
 
-### 11. Panel con la marca angel.os — en curso
+### 11. Panel con la marca angel.os — completada (2026-11-22)
 
 El panel `/admin` conservaba su identidad anterior (paleta morada y Sora). A pedido del usuario adopta angel.os: tema oscuro por defecto con un claro derivado (se mantiene el selector), Syne 800 en títulos y JetBrains Mono en el resto, y el logo.
 
-- [ ] Paleta de `:root` (claro hueso) y `.dark` (angel.os) en `globals.css`.
-- [ ] Syne y JetBrains Mono en el panel; Sora retirada.
-- [ ] Tarjetas con borde y sombra dura; ítem activo de la barra lateral en lima.
-- [ ] Logo en la barra lateral y en el acceso.
-- [ ] Verificar pruebas, lint, compilación y navegador en ambos temas.
+- [x] Paleta de `:root` (claro hueso) y `.dark` (angel.os) en `globals.css`.
+- [x] Syne y JetBrains Mono en el panel; Sora retirada.
+- [x] Tarjetas con borde y sombra dura; ítem activo de la barra lateral en lima.
+- [x] Logo en la barra lateral y en el acceso.
+- [x] Verificar pruebas, lint, compilación y navegador en ambos temas.
+
+**Decisiones:** a pedido del usuario el panel deja su identidad morada: oscuro por defecto, claro derivado (hueso) con selector, Syne en títulos y JetBrains Mono en el resto. `--destructive` no cambió. La letra del panel y la del sitio ahora salen del mismo `osFontClasses` en el layout raíz.
+
+**Verificación:** 49 pruebas web, `eslint`, `tsc` y `next build` correctos. En Chrome local, `/admin/login` en oscuro y en claro (logo, título en Syne, tarjeta con sombra, botón lima), `/components` en claro y el detalle público sin cambios. Contrastes calculados: texto 16,8:1 (claro) y 16,8:1 (oscuro), grises 5,4 a 7,4:1, botón 14,7:1 y foco naranja 3,9:1 (claro) y 6,8:1 (oscuro).
+
+**Pendientes:** no se revisaron las pantallas con sesión (barra lateral con el logo, listados, formularios, diálogos y menú móvil) porque el proyecto solo guarda el hash de la contraseña y no hay credenciales de prueba; hay que recorrerlas iniciando sesión en ambos temas. Los bordes de los campos tienen poco contraste (1,7:1 en claro, 1,5:1 en oscuro), igual que con la paleta anterior y en el sitio público.
 
 ## Registro de entregas
 
@@ -341,6 +347,7 @@ El panel `/admin` conservaba su identidad anterior (paleta morada y Sora). A ped
 | 2026-11-17 | Pantallas medianas y detalle | Dock plegable en un riel entre 821 y 1599 px; detalle como caso de estudio con notas por secciones a todo el ancho y miniaturas de otros proyectos; columna `pie` en el apilado.                                                                                                                                                                                                                                                                                                                               | 46 pruebas web, lint y build; Chrome local a 1536 px e iframes a 390, 1024 y 1920 px.                                                                                              | Revisar en producción y a 1280–1600 px.                                                                                                             |
 | 2026-11-17 | Menú deslizante              | El dock pasa a un menú lateral oculto con pestaña «Menú» anclada que se desliza en 0,3 s en todo el escritorio; cierre con Escape, botón, clic fuera y navegación.                                                                                                                                                                                                                                                                                                                                             | 46 pruebas web, lint, tsc y build; Chrome local a 1536 px e iframes a 390 y 1920 px.                                                                                               | Revisar en producción tras desplegar.                                                                                                               |
 | 2026-11-17 | Marca personal               | Isotipo «Muesca K en bloque»: archivos SVG/PNG en `public/brand`, favicon, icono de Apple, imagen para compartir y logo en la barra superior y el menú del teléfono.                                                                                                                                                                                                                                                                                                                                           | 49 pruebas web, lint, tsc y build; servidor local y Chrome.                                                                                                                        | Probar la vista previa de un enlace real tras desplegar.                                                                                            |
+| 2026-11-22 | Panel con angel.os           | El panel adopta la marca: paleta angel.os en oscuro (por defecto) y claro derivado, Syne y JetBrains Mono, tarjetas con sombra dura y logo en la barra lateral y el acceso.                                                                                                                                                                                                                                                                                                                                    | 49 pruebas web, lint, tsc y build; Chrome en el acceso (ambos temas) y la galería.                                                                                                 | Revisar con sesión iniciada la barra lateral, listados, formularios y diálogos.                                                                     |
 
 ## Reglas para futuras sesiones
 
