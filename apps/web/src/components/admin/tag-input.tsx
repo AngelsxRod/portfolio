@@ -53,6 +53,10 @@ export function TagInput({
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    // Con un IME (japonés, chino, coreano) Enter confirma la conversión del
+    // texto en curso; agregar la etiqueta ahí la cortaría a medias. Safari
+    // reporta la composición con keyCode 229 en vez de isComposing.
+    if (event.nativeEvent.isComposing || event.keyCode === 229) return;
     if (event.key === "Enter" || event.key === ",") {
       event.preventDefault();
       add(draft);
