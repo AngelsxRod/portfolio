@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import "@/styles/os/projects.css";
 import { getPublicProjects } from "@/lib/public-projects";
 import { projectFilters, projectHost, projectPreview } from "@/lib/os/projects";

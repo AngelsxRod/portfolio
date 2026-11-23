@@ -8,7 +8,7 @@ import { Blob, StickyNote } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
 import { GitLog, type Commit, type StudyBar } from "@/components/os/git-log";
 import { Ticker } from "@/components/os/ticker";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Trayectoria | angel.os" };
