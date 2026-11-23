@@ -180,31 +180,50 @@ html:has(.os-page) {
 .os-page {
   --os-tab-width: 40px;
 }
+/* Solo contiene la pestaña: el panel es un popover y se dibuja en la capa
+   superior del navegador, por encima de todo el escritorio. */
 .os-dockwrap {
   position: fixed;
   top: 50%;
   left: 0;
   z-index: 900;
-  pointer-events: none;
-  transform: translate(-100%, -50%);
-  transition: transform 0.3s ease;
 }
-.os-dockwrap.is-open {
-  transform: translate(0, -50%);
-}
-.os-dockpanel {
-  display: flex;
+/* Popover nativo: se reinician los estilos por defecto (centrado, borde y
+   fondo) y se desliza desde el borde izquierdo. */
+.os-page .os-dockpanel {
+  position: fixed;
+  inset: auto;
+  top: 50%;
+  left: 0;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  margin: 0;
   padding: 0 14px;
-  pointer-events: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+  translate: -100% -50%;
+  /* display y overlay mantienen el panel visible mientras sale. */
+  transition-property: translate, display, overlay;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+  transition-behavior: allow-discrete;
 }
-/* Pestaña anclada al borde derecho del panel: se desliza con él. */
+.os-page .os-dockpanel:popover-open {
+  display: flex;
+  translate: 0 -50%;
+
+  @starting-style {
+    translate: -100% -50%;
+  }
+}
+/* Pestaña pegada al borde derecho del panel: se desliza a la par. */
 .os-page .os-dock-tab {
   position: absolute;
-  top: 50%;
-  left: 100%;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -222,11 +241,14 @@ html:has(.os-page) {
   font-family: var(--font-mono), monospace;
   font-size: 12px;
   font-weight: 700;
-  pointer-events: auto;
-  transform: translateY(-50%);
+  translate: 0 -50%;
+  transition: translate 0.3s ease;
+}
+.os-dockwrap:has(.os-dockpanel:popover-open) .os-dock-tab {
+  translate: var(--os-dock-width, 116px) -50%;
 }
 .os-page .os-dock-tab:hover,
-.os-page .os-dock-tab[aria-expanded="true"] {
+.os-dockwrap:has(.os-dockpanel:popover-open) .os-dock-tab {
   background: var(--os-lime);
   color: var(--os-bg);
 }
@@ -538,7 +560,8 @@ html:has(.os-page) {
     max-width: 22rem;
   }
   /* En el teléfono el dock pasa al menú lateral de la barra superior. */
-  .os-dockwrap {
+  .os-dockwrap,
+  .os-page .os-dockpanel:popover-open {
     display: none;
   }
   .os-topbar {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode, type SyntheticEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@repo/ui/components/button";
@@ -12,10 +12,11 @@ import { useDesktop } from "@/components/os/desktop-provider";
 const DOCK_ID = "os-dock";
 
 /**
- * Menú lateral del escritorio: arranca oculto fuera del borde izquierdo y se
- * desliza con la pestaña anclada a su borde derecho. Flota encima del
- * escritorio sin desplazarlo. En el teléfono lo sustituye el menú de la barra
- * superior.
+ * Menú lateral del escritorio: un popover nativo que se desliza desde el borde
+ * izquierdo, con la pestaña pegada a su borde derecho. El navegador se encarga
+ * de cerrarlo con Escape o al hacer clic fuera, de devolver el foco a la
+ * pestaña y de anunciar si está abierto. En el teléfono lo sustituye el menú
+ * de la barra superior.
  */
 export function Dock({ children }: { children?: ReactNode }) {
   const pathname = usePathname();
@@ -24,52 +25,41 @@ export function Dock({ children }: { children?: ReactNode }) {
   const hidden = trayWindows(state).filter((window) => window.hidden).length;
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
-  const tab = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
 
-  // Al navegar, el menú vuelve a ocultarse.
-  const [lastPath, setLastPath] = useState(pathname);
-  if (pathname !== lastPath) {
-    setLastPath(pathname);
-    setOpen(false);
+  function onToggle(event: SyntheticEvent<HTMLDivElement>) {
+    const isOpen = (event.nativeEvent as ToggleEvent).newState === "open";
+    setOpen(isOpen);
+    if (!isOpen) return;
+    const element = event.currentTarget;
+    // La pestaña se desplaza exactamente el ancho del panel.
+    wrap.current?.style.setProperty(
+      "--os-dock-width",
+      `${element.offsetWidth}px`,
+    );
+    const target =
+      element.querySelector<HTMLElement>('a[aria-current="page"]') ??
+      element.querySelector<HTMLElement>("a");
+    target?.focus({ preventScroll: true });
   }
 
-  useEffect(() => {
-    if (!open) return;
-    const panel = document.getElementById(DOCK_ID);
-    const target =
-      panel?.querySelector<HTMLElement>('a[aria-current="page"]') ??
-      panel?.querySelector<HTMLElement>("a");
-    target?.focus({ preventScroll: true });
-    function onKey(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      requestAnimationFrame(() => tab.current?.focus());
-    }
-    function onPointer(event: PointerEvent) {
-      if (!wrap.current?.contains(event.target as Node)) setOpen(false);
-    }
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("pointerdown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onPointer);
-    };
-  }, [open]);
-
   return (
-    <div
-      ref={wrap}
-      className={`os-dockwrap${open ? " is-open" : ""}`}
-      data-open={open}
-    >
-      <div id={DOCK_ID} className="os-dockpanel" inert={!open}>
+    <div ref={wrap} className="os-dockwrap">
+      <div
+        ref={panel}
+        id={DOCK_ID}
+        popover="auto"
+        className="os-dockpanel"
+        onToggle={onToggle}
+      >
         <nav className="os-dock" aria-label="Navegación principal">
           {osRoutes.map((route) => (
             <Link
               key={route.href}
               href={route.href}
               aria-current={route === active ? "page" : undefined}
-              onClick={() => setOpen(false)}
+              // Al navegar, el menú vuelve a ocultarse.
+              onClick={() => panel.current?.hidePopover()}
             >
               <DockIcon icon={route.icon} />
               {route.label}
@@ -79,17 +69,14 @@ export function Dock({ children }: { children?: ReactNode }) {
         {children}
       </div>
       <Button
-        ref={tab}
         variant="ghost"
         className="os-dock-tab"
-        aria-expanded={open}
-        aria-controls={DOCK_ID}
+        popoverTarget={DOCK_ID}
         aria-label={`${open ? "Cerrar" : "Abrir"} menú${
           hidden > 0
             ? ` (${hidden} ${hidden === 1 ? "ventana oculta" : "ventanas ocultas"})`
             : ""
         }`}
-        onClick={() => setOpen((value) => !value)}
       >
         <svg
           viewBox="0 0 24 24"
