@@ -33,6 +33,19 @@ html:not([data-booted]) .os-home .os-shortcuts {
   font-size: 15px;
   animation: os-line 0.05s linear forwards;
 }
+.os-boot-me {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.os-boot-me img {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 6px;
+  background: var(--os-surface-2);
+  image-rendering: pixelated;
+}
 .os-boot-ok {
   color: var(--os-lime);
 }

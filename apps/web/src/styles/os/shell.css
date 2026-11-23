@@ -98,6 +98,63 @@ html:has(.os-page) {
   transform-origin: center;
   animation: os-pulse 2s ease-in-out infinite;
 }
+/* Sesión de Kaled: mini avatar que muestra u oculta la mascota. */
+.os-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 10px 0 4px;
+  border: 1.5px solid var(--os-bg);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--os-bg);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.os-me:hover {
+  background: var(--os-bone-2);
+}
+.os-me img {
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--os-bg);
+  image-rendering: pixelated;
+  transition: transform 0.15s;
+}
+.os-me:hover img {
+  transform: rotate(-8deg) scale(1.12);
+}
+.os-me-dot {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--os-bg);
+  border-radius: 50%;
+  background: var(--os-lime);
+}
+.os-me[aria-pressed="false"] {
+  opacity: 0.65;
+}
+.os-me[aria-pressed="false"] .os-me-dot {
+  background: transparent;
+}
+@media (max-width: 1100px) {
+  .os-me-text {
+    display: none;
+  }
+  .os-me {
+    padding-right: 8px;
+  }
+}
+@media (max-width: 820px) {
+  .os-me {
+    display: none;
+  }
+}
 .os-page .os-topbar :focus-visible {
   outline-color: var(--os-bg);
 }

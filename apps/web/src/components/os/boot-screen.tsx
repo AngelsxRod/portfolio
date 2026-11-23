@@ -10,7 +10,13 @@ const BOOT_MS = 3200;
  * Secuencia de arranque de la primera visita de la sesión. Es decorativa: el
  * contenido está debajo desde el principio y la animación solo es CSS.
  */
-export function BootScreen({ projectCount }: { projectCount: number }) {
+export function BootScreen({
+  projectCount,
+  name,
+}: {
+  projectCount: number;
+  name: string;
+}) {
   useEffect(() => {
     markBootSeen(() => window.sessionStorage);
     // Al volver al inicio sin recargar, el arranque no se repite.
@@ -47,7 +53,17 @@ export function BootScreen({ projectCount }: { projectCount: number }) {
           {line}
         </span>
       ))}
-      <span className="os-boot-line" style={{ animationDelay: "2.2s" }}>
+      <span
+        className="os-boot-line os-boot-me"
+        style={{ animationDelay: "2s" }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/avatar-kaled-base.svg" alt="" width={44} height={44} />
+        <span>
+          iniciando sesión como <span className="os-boot-ok">{name}</span>
+        </span>
+      </span>
+      <span className="os-boot-line" style={{ animationDelay: "2.4s" }}>
         &gt; bienvenido <span className="os-caret" />
       </span>
     </div>

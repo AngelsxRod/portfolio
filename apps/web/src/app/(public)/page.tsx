@@ -132,7 +132,10 @@ export default async function Home() {
 
   return (
     <>
-      <BootScreen projectCount={projects.length} />
+      <BootScreen
+        projectCount={projects.length}
+        name={profile?.displayName ?? "Kaled"}
+      />
       <Desktop className="os-home">
         <Blob shape="ring" style={{ left: 24, top: 24 }} />
         <Blob shape="circle" style={{ left: 600, top: 380 }} />
