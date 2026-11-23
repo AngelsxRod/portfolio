@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
@@ -13,32 +14,45 @@ import { FieldError, FieldGroup } from "@repo/ui/components/field";
 import { ProfileAvatar } from "@/components/os/avatar";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
-import { applyServerErrors, lengthMessage, requiredText } from "@/lib/form";
+import { applyServerErrors } from "@/lib/form";
 
-const schema = z.object({
-  name: requiredText(120),
-  email: z
-    .string()
-    .trim()
-    .max(254, lengthMessage(1, 254))
-    .pipe(z.email("Introduce un correo válido.")),
-  phone: requiredText(40).refine(
-    (value) =>
-      /^\+?[0-9 ()-]+$/.test(value) &&
-      /^[0-9]{8,15}$/.test(value.replace(/[^0-9]/g, "")),
-    "Introduce un teléfono válido de entre 8 y 15 dígitos.",
-  ),
-  message: z
-    .string()
-    .trim()
-    .min(10, lengthMessage(10, 4000))
-    .max(4000, lengthMessage(10, 4000)),
-  turnstileToken: z.string().min(1, "Completa la verificación."),
-});
+type Translator = (key: string, values?: Record<string, number>) => string;
 
-type Values = z.infer<typeof schema>;
+/** Esquema del formulario con los mensajes de validación del idioma activo. */
+function createSchema(t: Translator) {
+  const length = (min: number, max: number) =>
+    t("validation.length", { min, max });
+  const requiredText = (max: number) =>
+    z.string().trim().min(1, length(1, max)).max(max, length(1, max));
+  return z.object({
+    name: requiredText(120),
+    email: z
+      .string()
+      .trim()
+      .max(254, length(1, 254))
+      .pipe(z.email(t("validation.email"))),
+    phone: requiredText(40).refine(
+      (value) =>
+        /^\+?[0-9 ()-]+$/.test(value) &&
+        /^[0-9]{8,15}$/.test(value.replace(/[^0-9]/g, "")),
+      t("validation.phone"),
+    ),
+    message: z
+      .string()
+      .trim()
+      .min(10, length(10, 4000))
+      .max(4000, length(10, 4000)),
+    turnstileToken: z.string().min(1, t("validation.verification")),
+  });
+}
+
+type Values = z.infer<ReturnType<typeof createSchema>>;
 
 export function ContactForm({ siteKey }: { siteKey: string | null }) {
+  const t = useTranslations("contactForm");
+  const mascot = useTranslations("mascot");
+  const locale = useLocale();
+  const schema = useMemo(() => createSchema(t), [t]);
   const turnstile = useRef<TurnstileInstance>(null);
   const [sent, setSent] = useState(false);
   const form = useForm<Values>({
@@ -55,11 +69,8 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
   if (!siteKey)
     return (
       <Alert>
-        <AlertTitle>El formulario no está disponible</AlertTitle>
-        <AlertDescription>
-          La verificación de seguridad aún no está configurada. Escribe
-          directamente al correo publicado en esta página.
-        </AlertDescription>
+        <AlertTitle>{t("unavailableTitle")}</AlertTitle>
+        <AlertDescription>{t("unavailableText")}</AlertDescription>
       </Alert>
     );
 
@@ -71,7 +82,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             mood="happy"
             celebrate
             size={88}
-            alt="Avatar de Kaled"
+            alt={mascot("avatarAlt")}
           />
           <svg
             className="os-plane"
@@ -87,13 +98,11 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
           </svg>
         </div>
         <p className="os-display os-sent-title">
-          Mensaje
+          {t("sentTitleTop")}
           <br />
-          en camino.
+          {t("sentTitleBottom")}
         </p>
-        <p className="os-sent-text">
-          Gracias por escribir. Responderé al correo que indicaste.
-        </p>
+        <p className="os-sent-text">{t("sentText")}</p>
         <Button
           variant="outline"
           className="os-btn os-btn-outline"
@@ -102,7 +111,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             setSent(false);
           }}
         >
-          Escribir otro
+          {t("sentAgain")}
         </Button>
       </div>
     );
@@ -125,11 +134,11 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
       applyServerErrors(form, result.fields);
       toast.error(
         response.status === 503
-          ? "El envío de mensajes aún no está disponible."
-          : (result.message ?? "No se pudo enviar el mensaje."),
+          ? t("sendUnavailable")
+          : (result.message ?? t("sendFailed")),
       );
     } catch {
-      toast.error("No se pudo conectar. Inténtalo de nuevo.");
+      toast.error(t("network"));
     }
     // Los tokens de Turnstile son de un solo uso.
     turnstile.current?.reset();
@@ -141,11 +150,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
   return (
     <form noValidate className="os-form" onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <FormField
-          control={form.control}
-          name="name"
-          label="Nombre (obligatorio)"
-        >
+        <FormField control={form.control} name="name" label={t("labelName")}>
           {({ field, control }) => (
             <Input
               {...field}
@@ -157,11 +162,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             />
           )}
         </FormField>
-        <FormField
-          control={form.control}
-          name="email"
-          label="Correo (obligatorio)"
-        >
+        <FormField control={form.control} name="email" label={t("labelEmail")}>
           {({ field, control }) => (
             <Input
               {...field}
@@ -174,11 +175,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
             />
           )}
         </FormField>
-        <FormField
-          control={form.control}
-          name="phone"
-          label="Teléfono (obligatorio)"
-        >
+        <FormField control={form.control} name="phone" label={t("labelPhone")}>
           {({ field, control }) => (
             <Input
               {...field}
@@ -194,7 +191,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
         <FormField
           control={form.control}
           name="message"
-          label="Mensaje (obligatorio)"
+          label={t("labelMessage")}
         >
           {({ field, control }) => (
             <Textarea
@@ -211,7 +208,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
           <Turnstile
             ref={turnstile}
             siteKey={siteKey}
-            options={{ language: "es", theme: "dark" }}
+            options={{ language: locale, theme: "dark" }}
             onSuccess={(token) =>
               form.setValue("turnstileToken", token, { shouldValidate: true })
             }
@@ -226,7 +223,7 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
         className="os-btn os-btn-primary os-submit"
         disabled={form.formState.isSubmitting}
       >
-        {form.formState.isSubmitting ? "Enviando…" : "Enviar mensaje ↗"}
+        {form.formState.isSubmitting ? t("sending") : t("send")}
       </Button>
     </form>
   );
