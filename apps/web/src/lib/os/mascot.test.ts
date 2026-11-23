@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import en from "../../../messages/en.json";
+import es from "../../../messages/es.json";
 import {
   MASCOT_KEY,
-  hiddenWindowsPhrase,
   mascotEnabled,
   mascotPhrases,
   mascotVisibleOn,
@@ -51,10 +52,22 @@ describe("mascota", () => {
     expect(mascotPhrases("/")).toEqual([]);
   });
 
-  it("avisa de las ventanas guardadas", () => {
-    expect(hiddenWindowsPhrase(0)).toBeNull();
-    expect(hiddenWindowsPhrase(1)).toContain("1 ventana guardada");
-    expect(hiddenWindowsPhrase(3)).toContain("3 ventanas guardadas");
+  it("cada frase existe en los mensajes de ambos idiomas", () => {
+    const paths = [
+      "/projects",
+      "/projects/x",
+      "/experiencia",
+      "/educacion",
+      "/contacto",
+    ];
+    for (const messages of [es, en]) {
+      expect(messages.mascot.hidden).toBeTruthy();
+      for (const path of paths)
+        for (const key of mascotPhrases(path))
+          expect(
+            (messages.mascot as Record<string, unknown>)[key.split(".")[0]!],
+          ).toHaveProperty(key.split(".")[1]!);
+    }
   });
 
   it("da la vuelta a la lista de frases", () => {

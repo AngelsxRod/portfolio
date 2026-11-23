@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@repo/ui/components/button";
 import {
   Collapsible,
@@ -21,6 +22,7 @@ import {
  * permite mostrarlas u ocultarlas una a una o restaurarlas todas.
  */
 export function Tray() {
+  const t = useTranslations("tray");
   const { state, dispatch } = useDesktop();
   const [open, setOpen] = useState(false);
   const windows = trayWindows(state);
@@ -37,17 +39,15 @@ export function Tray() {
           />
         }
       >
-        Ventanas
+        {t("windows")}
         {hidden > 0 && (
           <span className="os-tray-count">
-            {hidden} {hidden === 1 ? "oculta" : "ocultas"}
+            {t("hiddenBadge", { count: hidden })}
           </span>
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="os-tray-panel">
-        <p className="os-tray-help">
-          Toca una ventana para mostrarla u ocultarla.
-        </p>
+        <p className="os-tray-help">{t("help")}</p>
         <div className="os-tray-chips">
           {windows.map((window) => (
             <Button
@@ -71,7 +71,7 @@ export function Tray() {
             className="os-btn os-btn-primary os-tray-all"
             onClick={() => dispatch({ type: "restoreAll" })}
           >
-            Restaurar todo
+            {t("restoreAll")}
           </Button>
         )}
       </CollapsibleContent>

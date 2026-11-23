@@ -1,1 +1,84 @@
-{}
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About me",
+    "experience": "Experience",
+    "education": "Education",
+    "contact": "Contact",
+    "main": "Main navigation"
+  },
+  "topBar": {
+    "home": "angel.os, home",
+    "mascot": "Mascot",
+    "online": "online",
+    "away": "away",
+    "place": "Guatemala, GT"
+  },
+  "dock": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "hiddenCount": "{count, plural, one {# hidden window} other {# hidden windows}}",
+    "menu": "Menu"
+  },
+  "tray": {
+    "windows": "Windows",
+    "hiddenBadge": "{count} hidden",
+    "help": "Tap a window to show or hide it.",
+    "restoreAll": "Restore all"
+  },
+  "mobileMenu": {
+    "menu": "Menu",
+    "sections": "Site sections",
+    "showHidden": "Show {count, plural, one {# hidden window} other {# hidden windows}}"
+  },
+  "deskHint": {
+    "label": "How to use this site",
+    "text": "<strong>First time here?</strong> Open the menu with the “Menu” tab on the left. Windows can be moved by their title bar; if you close one, you can get it back under “Windows”.",
+    "dismiss": "Got it"
+  },
+  "mascot": {
+    "label": "angel.os mascot",
+    "avatarAlt": "Kaled's avatar",
+    "hidden": "You have {count, plural, one {# window} other {# windows}} saved in “Windows”.",
+    "projects": {
+      "1": "This is where my projects live.",
+      "2": "Hover over one to see its preview.",
+      "3": "Use “Open page →” to see the full project."
+    },
+    "detail": {
+      "1": "Switch tabs to see the different views.",
+      "2": "Further down there are more projects like this one."
+    },
+    "experience": {
+      "1": "Expand a job to see its achievements.",
+      "2": "The timeline sums up the whole journey."
+    },
+    "education": {
+      "1": "Studies and certificates, all in one place.",
+      "2": "Open a study to see its details."
+    },
+    "contact": {
+      "1": "Got a project? Write to me.",
+      "2": "I'll reply to the email you leave."
+    }
+  },
+  "common": {
+    "present": "present"
+  },
+  "metadata": {
+    "description": "Published projects and documented processes."
+  },
+  "experience": {
+    "noteTitle": "Shall we work together?",
+    "noteText": "Your project could be the next one on this list.",
+    "noteLink": "Let's talk →"
+  },
+  "education": {
+    "levels": {
+      "secondary": "High school",
+      "university": "University",
+      "other": "Other"
+    }
+  }
+}

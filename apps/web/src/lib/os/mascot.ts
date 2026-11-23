@@ -26,28 +26,13 @@ export function saveMascotEnabled(
   }
 }
 
+/** Claves de `mascot.*` en los mensajes, por página. */
 const phrases: Record<string, string[]> = {
-  "/projects": [
-    "Aquí viven mis proyectos.",
-    "Pasa el cursor por uno para ver su vista previa.",
-    "Con «Abrir ficha →» ves el proyecto completo.",
-  ],
-  "/projects/detail": [
-    "Cambia de pestaña para ver las distintas vistas.",
-    "Más abajo hay otros proyectos como este.",
-  ],
-  "/experiencia": [
-    "Despliega un trabajo para ver sus logros.",
-    "La línea de tiempo resume todo el recorrido.",
-  ],
-  "/educacion": [
-    "Estudios y certificados, todo en un lugar.",
-    "Abre un estudio para ver su detalle.",
-  ],
-  "/contacto": [
-    "¿Tienes un proyecto? Escríbeme.",
-    "Responderé al correo que dejes.",
-  ],
+  "/projects": ["projects.1", "projects.2", "projects.3"],
+  "/projects/detail": ["detail.1", "detail.2"],
+  "/experiencia": ["experience.1", "experience.2"],
+  "/educacion": ["education.1", "education.2"],
+  "/contacto": ["contact.1", "contact.2"],
 };
 
 /**
@@ -59,19 +44,11 @@ export function mascotVisibleOn(pathname: string) {
   return !!route && route.href !== "/" && route.href !== "/sobre-mi";
 }
 
-/** Frases de la página; la ficha de un proyecto tiene las suyas. */
+/** Claves de las frases de la página; la ficha de un proyecto tiene las suyas. */
 export function mascotPhrases(pathname: string) {
   if (pathname.startsWith("/projects/")) return phrases["/projects/detail"]!;
   const route = activeRoute(pathname);
   return (route && phrases[route.href]) || [];
-}
-
-/** Aviso sobre ventanas guardadas en «Ventanas», o `null` si no hay. */
-export function hiddenWindowsPhrase(count: number) {
-  if (count <= 0) return null;
-  return count === 1
-    ? "Tienes 1 ventana guardada en «Ventanas»."
-    : `Tienes ${count} ventanas guardadas en «Ventanas».`;
 }
 
 /** Frase `index` de la lista, dando la vuelta al llegar al final. */

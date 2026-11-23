@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import "@/styles/os/education.css";
-import { educationLevels } from "@/lib/education";
 import { formatMonth } from "@/lib/experience";
 import { getPublicCertificates } from "@/lib/public-certificates";
 import { getPublicEducation } from "@/lib/public-education";
@@ -14,9 +14,17 @@ import {
   type StudyFile,
 } from "@/components/os/study-folder";
 import { Ticker } from "@/components/os/ticker";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Estudios | angel.os" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return pageMetadata(locale, "/educacion", "education");
+}
 
 /** Nombre de archivo de presentación a partir del programa. */
 function fileName(program: string) {
@@ -32,6 +40,12 @@ function fileName(program: string) {
 }
 
 export default async function EducationPage() {
+  const [locale, t, common] = await Promise.all([
+    getLocale(),
+    getTranslations("education.levels"),
+    getTranslations("common"),
+  ]);
+  const present = common("present");
   const [education, certificates] = await Promise.all([
     getPublicEducation(),
     getPublicCertificates(),
@@ -39,10 +53,10 @@ export default async function EducationPage() {
   const studies: StudyFile[] = education.map((item) => ({
     id: item.id,
     file: fileName(item.program),
-    level: educationLevels[item.level],
+    level: t(item.level),
     program: item.program,
     institution: item.institution,
-    period: formatPeriod(item.startDate, item.endDate),
+    period: formatPeriod(item.startDate, item.endDate, locale, present),
     description: item.description,
     current: !item.endDate,
   }));
@@ -50,7 +64,7 @@ export default async function EducationPage() {
     id: item.id,
     name: item.name,
     issuer: item.issuer,
-    issued: formatMonth(item.issueDate),
+    issued: formatMonth(item.issueDate, locale),
     verificationUrl: safeExternalUrl(item.verificationUrl),
   }));
   return (

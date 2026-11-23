@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@repo/ui/components/button";
 
 const HINT_KEY = "angel-os-hint";
 
 /** Pista de uso que se muestra una sola vez por navegador. */
 export function DeskHint() {
+  const t = useTranslations("deskHint");
   const [show, setShow] = useState(false);
   useEffect(() => {
     try {
@@ -26,14 +28,10 @@ export function DeskHint() {
     }
   }
   return (
-    <aside className="os-hint" aria-label="Cómo usar este sitio">
-      <p>
-        <strong>¿Primera vez aquí?</strong> Abre el menú con la pestaña «Menú»
-        de la izquierda. Las ventanas se pueden mover desde su barra; si cierras
-        una, la recuperas en «Ventanas».
-      </p>
+    <aside className="os-hint" aria-label={t("label")}>
+      <p>{t.rich("text", { strong: (chunks) => <strong>{chunks}</strong> })}</p>
       <Button className="os-btn os-btn-primary" onClick={dismiss}>
-        Entendido
+        {t("dismiss")}
       </Button>
     </aside>
   );

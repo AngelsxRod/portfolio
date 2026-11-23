@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "@repo/ui/components/button";
 import {
   Sheet,
@@ -20,6 +20,8 @@ import { useDesktop } from "@/components/os/desktop-provider";
 
 /** Menú lateral del teléfono: navegación principal y ventanas ocultas. */
 export function MobileMenu() {
+  const t = useTranslations("mobileMenu");
+  const nav = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const active = activeRoute(usePathname());
   const { state, dispatch } = useDesktop();
@@ -39,7 +41,7 @@ export function MobileMenu() {
         >
           <path d="M4 7h16M4 12h16M4 17h16" />
         </svg>
-        Menú
+        {t("menu")}
       </SheetTrigger>
       <SheetContent
         side="left"
@@ -49,10 +51,8 @@ export function MobileMenu() {
           <BrandMark size={22} />
           angel.os
         </SheetTitle>
-        <SheetDescription className="sr-only">
-          Secciones del sitio
-        </SheetDescription>
-        <nav aria-label="Navegación principal" className="os-sheet-nav">
+        <SheetDescription className="sr-only">{t("sections")}</SheetDescription>
+        <nav aria-label={nav("main")} className="os-sheet-nav">
           {osRoutes.map((route) => (
             <Link
               key={route.href}
@@ -61,7 +61,7 @@ export function MobileMenu() {
               onClick={() => setOpen(false)}
             >
               <DockIcon icon={route.icon} />
-              {route.label}
+              {nav(route.labelKey)}
             </Link>
           ))}
         </nav>
@@ -73,8 +73,7 @@ export function MobileMenu() {
               setOpen(false);
             }}
           >
-            Mostrar {hidden}{" "}
-            {hidden === 1 ? "ventana oculta" : "ventanas ocultas"}
+            {t("showHidden", { count: hidden })}
           </Button>
         )}
       </SheetContent>

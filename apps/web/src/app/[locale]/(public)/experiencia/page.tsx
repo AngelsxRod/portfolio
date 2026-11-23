@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import "@/styles/os/experience.css";
 import { getPublicEducation } from "@/lib/public-education";
 import { getPublicExperience } from "@/lib/public-experience";
@@ -9,11 +10,25 @@ import { Desktop } from "@/components/os/desktop";
 import { GitLog, type Commit, type StudyBar } from "@/components/os/git-log";
 import { Ticker } from "@/components/os/ticker";
 import { Link } from "@/i18n/navigation";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Trayectoria | angel.os" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return pageMetadata(locale, "/experiencia", "experience");
+}
 
 export default async function ExperiencePage() {
+  const [locale, t, common] = await Promise.all([
+    getLocale(),
+    getTranslations("experience"),
+    getTranslations("common"),
+  ]);
+  const present = common("present");
   const [experience, education] = await Promise.all([
     getPublicExperience(),
     getPublicEducation(),
@@ -36,14 +51,14 @@ export default async function ExperiencePage() {
     current: !item.endDate,
     organization: item.organization,
     title: item.title,
-    period: formatPeriod(item.startDate, item.endDate),
+    period: formatPeriod(item.startDate, item.endDate, locale, present),
     description: item.description,
     achievements: item.achievements,
     bar: bars[index]!,
   }));
   const studies: StudyBar[] = education.map((item, index) => ({
     id: item.id,
-    label: `${item.institution}, ${formatPeriod(item.startDate, item.endDate)}`,
+    label: `${item.institution}, ${formatPeriod(item.startDate, item.endDate, locale, present)}`,
     bar: bars[experience.length + index]!,
   }));
 
@@ -55,13 +70,13 @@ export default async function ExperiencePage() {
         <GitLog commits={commits} studies={studies} years={years} />
         <StickyNote
           id="nota-trayectoria"
-          title="¿Trabajamos juntos?"
+          title={t("noteTitle")}
           stack="derecha"
           delay={0.3}
           defaultPosition={{ x: 980, y: 430 }}
         >
-          <p>Tu proyecto puede ser lo siguiente en esta lista.</p>
-          <Link href="/contacto">Hablemos →</Link>
+          <p>{t("noteText")}</p>
+          <Link href="/contacto">{t("noteLink")}</Link>
         </StickyNote>
       </Desktop>
       <Ticker items={experience.map((item) => item.organization)} />

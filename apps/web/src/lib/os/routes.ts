@@ -1,16 +1,21 @@
 export type OsRouteIcon =
   "home" | "projects" | "about" | "experience" | "education" | "contact";
 
-export type OsRoute = { href: string; label: string; icon: OsRouteIcon };
+/** `labelKey` es la clave de `nav.*` en los mensajes de cada idioma. */
+export type OsRoute = {
+  href: string;
+  labelKey: OsRouteIcon;
+  icon: OsRouteIcon;
+};
 
 /** Destinos del dock, en el orden en que aparecen. */
 export const osRoutes: OsRoute[] = [
-  { href: "/", label: "Inicio", icon: "home" },
-  { href: "/projects", label: "Proyectos", icon: "projects" },
-  { href: "/sobre-mi", label: "Sobre mí", icon: "about" },
-  { href: "/experiencia", label: "Trayectoria", icon: "experience" },
-  { href: "/educacion", label: "Estudios", icon: "education" },
-  { href: "/contacto", label: "Contacto", icon: "contact" },
+  { href: "/", labelKey: "home", icon: "home" },
+  { href: "/projects", labelKey: "projects", icon: "projects" },
+  { href: "/sobre-mi", labelKey: "about", icon: "about" },
+  { href: "/experiencia", labelKey: "experience", icon: "experience" },
+  { href: "/educacion", labelKey: "education", icon: "education" },
+  { href: "/contacto", labelKey: "contact", icon: "contact" },
 ];
 
 /** Ruta del dock que corresponde a una URL (`/projects/x` activa Proyectos). */

@@ -1,1 +1,84 @@
-{}
+{
+  "nav": {
+    "home": "Inicio",
+    "projects": "Proyectos",
+    "about": "Sobre mí",
+    "experience": "Trayectoria",
+    "education": "Estudios",
+    "contact": "Contacto",
+    "main": "Navegación principal"
+  },
+  "topBar": {
+    "home": "angel.os, inicio",
+    "mascot": "Mascota",
+    "online": "en línea",
+    "away": "ausente",
+    "place": "Guatemala, GT"
+  },
+  "dock": {
+    "open": "Abrir menú",
+    "close": "Cerrar menú",
+    "hiddenCount": "{count, plural, one {# ventana oculta} other {# ventanas ocultas}}",
+    "menu": "Menú"
+  },
+  "tray": {
+    "windows": "Ventanas",
+    "hiddenBadge": "{count, plural, one {# oculta} other {# ocultas}}",
+    "help": "Toca una ventana para mostrarla u ocultarla.",
+    "restoreAll": "Restaurar todo"
+  },
+  "mobileMenu": {
+    "menu": "Menú",
+    "sections": "Secciones del sitio",
+    "showHidden": "Mostrar {count, plural, one {# ventana oculta} other {# ventanas ocultas}}"
+  },
+  "deskHint": {
+    "label": "Cómo usar este sitio",
+    "text": "<strong>¿Primera vez aquí?</strong> Abre el menú con la pestaña «Menú» de la izquierda. Las ventanas se pueden mover desde su barra; si cierras una, la recuperas en «Ventanas».",
+    "dismiss": "Entendido"
+  },
+  "mascot": {
+    "label": "Mascota de angel.os",
+    "avatarAlt": "Avatar de Kaled",
+    "hidden": "Tienes {count, plural, one {# ventana guardada} other {# ventanas guardadas}} en «Ventanas».",
+    "projects": {
+      "1": "Aquí viven mis proyectos.",
+      "2": "Pasa el cursor por uno para ver su vista previa.",
+      "3": "Con «Abrir ficha →» ves el proyecto completo."
+    },
+    "detail": {
+      "1": "Cambia de pestaña para ver las distintas vistas.",
+      "2": "Más abajo hay otros proyectos como este."
+    },
+    "experience": {
+      "1": "Despliega un trabajo para ver sus logros.",
+      "2": "La línea de tiempo resume todo el recorrido."
+    },
+    "education": {
+      "1": "Estudios y certificados, todo en un lugar.",
+      "2": "Abre un estudio para ver su detalle."
+    },
+    "contact": {
+      "1": "¿Tienes un proyecto? Escríbeme.",
+      "2": "Responderé al correo que dejes."
+    }
+  },
+  "common": {
+    "present": "hoy"
+  },
+  "metadata": {
+    "description": "Proyectos publicados y procesos documentados."
+  },
+  "experience": {
+    "noteTitle": "¿Trabajamos juntos?",
+    "noteText": "Tu proyecto puede ser lo siguiente en esta lista.",
+    "noteLink": "Hablemos →"
+  },
+  "education": {
+    "levels": {
+      "secondary": "Diversificado / Bachillerato",
+      "university": "Universidad",
+      "other": "Otro"
+    }
+  }
+}

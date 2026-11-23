@@ -1,16 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { ProfileAvatar } from "@/components/os/avatar";
 import { useDesktop } from "@/components/os/desktop-provider";
 import { useMascot } from "@/components/os/mascot-provider";
-import {
-  hiddenWindowsPhrase,
-  mascotPhrases,
-  mascotVisibleOn,
-  pickPhrase,
-} from "@/lib/os/mascot";
+import { mascotPhrases, mascotVisibleOn, pickPhrase } from "@/lib/os/mascot";
 import "@/styles/os/mascot.css";
 
 /** Cuánto dura abierto el globo antes de guardarse solo. */
@@ -19,6 +15,7 @@ const BUBBLE_MS = 9000;
 const HOP_MS = 25000;
 
 function MascotBody({ pathname }: { pathname: string }) {
+  const t = useTranslations("mascot");
   const { state } = useDesktop();
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(true);
@@ -26,10 +23,11 @@ function MascotBody({ pathname }: { pathname: string }) {
   const hidden = state.windows.filter(
     (window) => window.tray && window.hidden,
   ).length;
-  const extra = hiddenWindowsPhrase(hidden);
-  const list = extra
-    ? [extra, ...mascotPhrases(pathname)]
-    : mascotPhrases(pathname);
+  // Las frases son claves de `mascot.*`; «hidden» es el aviso de ventanas guardadas.
+  const list =
+    hidden > 0
+      ? ["hidden", ...mascotPhrases(pathname)]
+      : mascotPhrases(pathname);
 
   // El globo se guarda solo para no estorbar; un clic lo vuelve a abrir.
   useEffect(() => {
@@ -58,15 +56,16 @@ function MascotBody({ pathname }: { pathname: string }) {
     }
   }, [hidden]);
 
-  const text = pickPhrase(list, index);
+  const key = pickPhrase(list, index);
+  const text = key ? t(key, { count: hidden }) : "";
   return (
-    <aside className="os-mascot" aria-label="Mascota de angel.os">
+    <aside className="os-mascot" aria-label={t("label")}>
       {open && text && <p className="os-mascot-bubble">{text}</p>}
       <span className="os-mascot-body" data-hop={hop ? "" : undefined}>
         <ProfileAvatar
           interactive
           size={84}
-          alt="Avatar de Kaled"
+          alt={t("avatarAlt")}
           mood={open ? "happy" : "idle"}
           onActivate={() => {
             setIndex((current) => (open ? current + 1 : current));

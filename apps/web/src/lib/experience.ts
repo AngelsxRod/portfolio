@@ -1,3 +1,5 @@
+import { toIntlLocale } from "@/i18n/format";
+
 export type AdminExperience = {
   id: string;
   organization: string;
@@ -37,13 +39,11 @@ export type PublicExperience = Pick<
   | "position"
 >;
 
-const formatter = new Intl.DateTimeFormat("es-GT", {
-  month: "long",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-/** Formatea AAAA-MM como «marzo de 2020». */
-export function formatMonth(value: string) {
-  return formatter.format(new Date(`${value}-01T00:00:00Z`));
+/** Formatea AAAA-MM como «marzo de 2020» (o «March 2020» en inglés). */
+export function formatMonth(value: string, locale = "es") {
+  return new Intl.DateTimeFormat(toIntlLocale(locale), {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}-01T00:00:00Z`));
 }

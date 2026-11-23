@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, type ReactNode, type SyntheticEvent } from "react";
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { Button } from "@repo/ui/components/button";
 import { trayWindows } from "@/lib/os/desktop";
 import { activeRoute, osRoutes } from "@/lib/os/routes";
@@ -19,6 +19,8 @@ const DOCK_ID = "os-dock";
  * de la barra superior.
  */
 export function Dock({ children }: { children?: ReactNode }) {
+  const t = useTranslations("dock");
+  const nav = useTranslations("nav");
   const pathname = usePathname();
   const active = activeRoute(pathname);
   const { state } = useDesktop();
@@ -52,7 +54,7 @@ export function Dock({ children }: { children?: ReactNode }) {
         className="os-dockpanel"
         onToggle={onToggle}
       >
-        <nav className="os-dock" aria-label="Navegación principal">
+        <nav className="os-dock" aria-label={nav("main")}>
           {osRoutes.map((route) => (
             <Link
               key={route.href}
@@ -62,7 +64,7 @@ export function Dock({ children }: { children?: ReactNode }) {
               onClick={() => panel.current?.hidePopover()}
             >
               <DockIcon icon={route.icon} />
-              {route.label}
+              {nav(route.labelKey)}
             </Link>
           ))}
         </nav>
@@ -72,10 +74,8 @@ export function Dock({ children }: { children?: ReactNode }) {
         variant="ghost"
         className="os-dock-tab"
         popoverTarget={DOCK_ID}
-        aria-label={`${open ? "Cerrar" : "Abrir"} menú${
-          hidden > 0
-            ? ` (${hidden} ${hidden === 1 ? "ventana oculta" : "ventanas ocultas"})`
-            : ""
+        aria-label={`${open ? t("close") : t("open")}${
+          hidden > 0 ? ` (${t("hiddenCount", { count: hidden })})` : ""
         }`}
       >
         <svg
@@ -91,7 +91,7 @@ export function Dock({ children }: { children?: ReactNode }) {
           <path d={open ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
         </svg>
         <span className="os-dock-tab-label" aria-hidden="true">
-          Menú
+          {t("menu")}
         </span>
         {hidden > 0 && (
           <span className="os-dock-tab-badge" aria-hidden="true">
