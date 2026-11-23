@@ -4,7 +4,7 @@ Este archivo registra el trabajo **verificado** del portafolio y su CMS. Actual�
 
 ## Estado actual
 
-- **Etapa activa:** ninguna; la etapa 12 (APIs web modernas en angel.os) quedó completa y verificada en escritorio, a 375 px y con movimiento reducido.
+- **Etapa activa:** 14, internacionalización del sitio público (es/en). La etapa 13 (avatar de Kaled con vida) quedó completa el 2026-11-23.
 - **Última revisión:** 2026-11-17 (rediseño «angel.os» del sitio público).
 - **Siguiente entrega:** ninguna definida. Pendientes: el archivo opcional de certificados, completar desde el panel el perfil (presentación real y título profesional) y los tipos de proyecto, y decidir si se añade un campo de contexto o empresa para filtrar proyectos (p. ej. «En Bold»).
 
@@ -314,6 +314,22 @@ A pedido del usuario, el avatar (`avatar-kaled.svg`) deja de ser una imagen fija
 **Verificación:** 62 pruebas web (13 nuevas de `avatar` y `mascot`), `tsc` y `eslint --max-warnings 0` correctos. En Chrome local a 1440 px: mascota en `/projects` y `/contacto`, clic con confeti y cambio de frase, ojos hacia el cursor, arranque con el avatar, barra superior y 404 con «?».
 
 **Pendientes:** el estado «enviado» del formulario (avatar feliz con confeti) no se probó para no mandar un correo real; la verificación en móvil se limitó a que la mascota y el botón de la barra se ocultan por CSS (< 821 px).
+
+### 14. Internacionalización del sitio público (es/en) — en curso (2026-11-23)
+
+Decisión en `docs/adr/0004-internacionalizacion.md`: solo la interfaz pública, con `next-intl` y prefijo de idioma (`/es/…`, `/en/…`). El panel, los errores de la API y el contenido del CMS siguen en español.
+
+- [ ] `next-intl` instalado y configurado en `next.config.js`.
+- [ ] `i18n/routing.ts`, `i18n/request.ts`, `i18n/navigation.ts` y `proxy.ts` con `matcher` que excluye admin, API y estáticos.
+- [ ] Rutas públicas movidas a `app/[locale]/(public)` y `<html lang>` dinámico.
+- [ ] Navegación (`lib/os/routes.ts`, `activeRoute`) con claves de traducción y prefijo.
+- [ ] Textos de `components/os/*` y páginas públicas extraídos a `messages/es.json`.
+- [ ] Mascota con claves de mensaje y plural ICU.
+- [ ] Formulario de contacto con esquema Zod localizado.
+- [ ] Fechas y períodos según el idioma.
+- [ ] `messages/en.json` completo y selector de idioma.
+- [ ] Metadata por idioma, hreflang y OG image.
+- [ ] Verificación: `pnpm check`, prueba de claves iguales entre idiomas, recorrido en Chrome (ambos idiomas, admin sin prefijo, 375 px y movimiento reducido).
 
 ## Registro de entregas
 
