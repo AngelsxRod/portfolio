@@ -1,8 +1,8 @@
-import type { CSSProperties } from "react";
+import { ViewTransition, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import "@/styles/os/project-thumb.css";
-import { mediaUrl } from "@/lib/os/projects";
+import { mediaUrl, projectTransitionName } from "@/lib/os/projects";
 
 export type ThumbProject = {
   slug: string;
@@ -65,14 +65,20 @@ export function ProjectThumb({
       onFocus={onHighlight}
       style={style}
     >
-      <span className="os-card-visual">
-        <ProjectVisual
-          project={project}
-          alt=""
-          sizes={sizes}
-          priority={priority}
-        />
-      </span>
+      <ViewTransition
+        name={projectTransitionName(project.slug)}
+        share="os-morph"
+        default="none"
+      >
+        <span className="os-card-visual">
+          <ProjectVisual
+            project={project}
+            alt=""
+            sizes={sizes}
+            priority={priority}
+          />
+        </span>
+      </ViewTransition>
       <span className="os-display os-card-title">{project.title}</span>
       {project.projectType && (
         <span className="os-card-meta">{project.projectType}</span>

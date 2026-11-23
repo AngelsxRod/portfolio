@@ -53,6 +53,13 @@ export function projectHost(demoUrl: string | null) {
 
 export const mediaUrl = (id: string) => `/api/projects/media/${id}`;
 
+/**
+ * Nombre de transición de vista compartido por la miniatura de un proyecto y
+ * su captura principal en el detalle: al navegar entre ambas, la imagen se
+ * desplaza de un sitio al otro en lugar de cortar.
+ */
+export const projectTransitionName = (slug: string) => `proyecto-${slug}`;
+
 export type NotesSection = { heading: string | null; body: string };
 
 const HEADING = /^ {0,3}#{1,2}\s+(.+?)\s*#*\s*$/;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, ViewTransition } from "react";
 import Image from "next/image";
 import { Button } from "@repo/ui/components/button";
 import {
@@ -16,7 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
-import { mediaUrl } from "@/lib/os/projects";
+import { mediaUrl, projectTransitionName } from "@/lib/os/projects";
 import { Window } from "@/components/os/window";
 
 type BrowserImage = { id: string; altText: string };
@@ -26,11 +26,13 @@ type BrowserImage = { id: string; altText: string };
  * visor a pantalla completa con teclado (flechas y Escape).
  */
 export function ProjectBrowser({
+  slug,
   title,
   host,
   demoUrl,
   images,
 }: {
+  slug: string;
   title: string;
   host: string | null;
   demoUrl: string | null;
@@ -122,18 +124,25 @@ export function ProjectBrowser({
             </TabsList>
             {images.map((image, i) => (
               <TabsContent key={image.id} value={i} className="os-shot">
-                <Image
-                  src={mediaUrl(image.id)}
-                  alt={image.altText}
-                  fill
-                  unoptimized
-                  // La primera captura es el elemento LCP del detalle: carga
-                  // de inmediato y con prioridad alta; el resto, diferido.
-                  loading={i === 0 ? "eager" : "lazy"}
-                  fetchPriority={i === 0 ? "high" : undefined}
-                  sizes="(max-width: 820px) 100vw, 900px"
-                  className="object-cover object-top"
-                />
+                <ViewTransition
+                  // Solo la primera captura continúa la miniatura del listado.
+                  name={i === 0 ? projectTransitionName(slug) : undefined}
+                  share="os-morph"
+                  default="none"
+                >
+                  <Image
+                    src={mediaUrl(image.id)}
+                    alt={image.altText}
+                    fill
+                    unoptimized
+                    // La primera captura es el elemento LCP del detalle: carga
+                    // de inmediato y con prioridad alta; el resto, diferido.
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : undefined}
+                    sizes="(max-width: 820px) 100vw, 900px"
+                    className="object-cover object-top"
+                  />
+                </ViewTransition>
                 <Button
                   ref={(element) => {
                     triggers.current[i] = element;

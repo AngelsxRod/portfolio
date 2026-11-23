@@ -61,6 +61,7 @@ export default async function ProjectDetail({ params }: Props) {
         <Blob shape="ring" style={{ left: 1240, top: 20 }} />
 
         <ProjectBrowser
+          slug={project.slug}
           title={project.title}
           host={host}
           demoUrl={demoUrl}

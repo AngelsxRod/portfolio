@@ -588,12 +588,35 @@ html:has(.os-page) {
   }
 }
 
+/* Transición entre la miniatura de un proyecto y su captura en el detalle
+   (<ViewTransition share="os-morph">). Un leve desenfoque a mitad del recorrido
+   disimula el cambio de proporción entre ambas imágenes. */
+::view-transition-group(.os-morph) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-image-pair(.os-morph) {
+  animation-name: os-morph-blur;
+}
+@keyframes os-morph-blur {
+  40% {
+    filter: blur(3px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .os-page *,
   .os-page *::before,
   .os-page *::after {
     animation: none !important;
     transition: none !important;
+  }
+  /* Los pseudo-elementos de la transición de vista viven fuera de .os-page:
+     sin movimiento, la navegación cambia de página al instante. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 
