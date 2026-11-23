@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@repo/ui/components/button";
 import { ProfileAvatar } from "@/components/os/avatar";
 import { Blob } from "@/components/os/decor";
@@ -17,7 +18,7 @@ export function ErrorWindow({
   mood = "worried",
   children,
   retry,
-  back = { href: "/", label: "Volver al inicio" },
+  back,
 }: {
   file: string;
   code: string;
@@ -27,6 +28,9 @@ export function ErrorWindow({
   retry?: () => void;
   back?: { href: string; label: string };
 }) {
+  const t = useTranslations("errors");
+  const mascot = useTranslations("mascot");
+  const backLink = back ?? { href: "/", label: t("backHome") };
   return (
     <Desktop>
       <Blob shape="ring" style={{ left: 820, top: 80 }} />
@@ -46,7 +50,7 @@ export function ErrorWindow({
             mood={mood}
             size={96}
             variant="orange"
-            alt="Avatar de Kaled"
+            alt={mascot("avatarAlt")}
             className="os-error-avatar"
           />
           <span className="os-error-code">{code}</span>
@@ -57,14 +61,14 @@ export function ErrorWindow({
           <div className="os-actions">
             {retry && (
               <Button className="os-btn os-btn-primary" onClick={retry}>
-                Intentar de nuevo
+                {t("retry")}
               </Button>
             )}
             <OsLinkButton
-              href={back.href}
+              href={backLink.href}
               variant={retry ? "outline" : "primary"}
             >
-              {back.label}
+              {backLink.label}
             </OsLinkButton>
           </div>
         </div>

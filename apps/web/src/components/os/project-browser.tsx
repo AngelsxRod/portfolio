@@ -2,6 +2,7 @@
 
 import { useRef, useState, ViewTransition } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Button } from "@repo/ui/components/button";
 import {
   Dialog,
@@ -38,6 +39,7 @@ export function ProjectBrowser({
   demoUrl: string | null;
   images: BrowserImage[];
 }) {
+  const t = useTranslations("browser");
   const [index, setIndex] = useState(0);
   const [viewerOpen, setViewerOpen] = useState(false);
   const triggers = useRef<Array<HTMLButtonElement | null>>([]);
@@ -49,7 +51,7 @@ export function ProjectBrowser({
     <Window
       id="navegador"
       stack="izquierda"
-      title={`Así se ve ${title}`}
+      title={t("windowTitle", { title })}
       file="navegador"
       defaultPosition={{ x: 40, y: 36 }}
       width={900}
@@ -60,7 +62,7 @@ export function ProjectBrowser({
             <Button
               variant="outline"
               className="os-navbtn"
-              aria-label="Captura anterior"
+              aria-label={t("prev")}
               onClick={() => step(-1)}
             >
               ←
@@ -68,14 +70,14 @@ export function ProjectBrowser({
             <Button
               variant="outline"
               className="os-navbtn"
-              aria-label="Captura siguiente"
+              aria-label={t("next")}
               onClick={() => step(1)}
             >
               →
             </Button>
           </>
         )}
-        <div className="os-url" aria-label="Dirección del sitio">
+        <div className="os-url" aria-label={t("address")}>
           <span className="os-url-dot" aria-hidden="true">
             ●
           </span>
@@ -85,7 +87,7 @@ export function ProjectBrowser({
               <span>{host}</span>
             </>
           ) : (
-            <span className="os-muted">sitio sin dirección pública</span>
+            <span className="os-muted">{t("noAddress")}</span>
           )}
         </div>
         {demoUrl && (
@@ -94,7 +96,7 @@ export function ProjectBrowser({
             href={demoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Abrir ${host ?? title} en otra pestaña`}
+            aria-label={t("openExternal", { name: host ?? title })}
           >
             ↗
           </a>
@@ -106,7 +108,7 @@ export function ProjectBrowser({
           <span className="os-display" aria-hidden="true">
             {title.slice(0, 1)}
           </span>
-          <p>Este proyecto aún no tiene capturas publicadas.</p>
+          <p>{t("empty")}</p>
         </div>
       ) : (
         <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
@@ -115,10 +117,14 @@ export function ProjectBrowser({
             onValueChange={(value) => setIndex(Number(value))}
             className="os-browser-tabs"
           >
-            <TabsList variant="line" className="os-btabs" aria-label="Capturas">
+            <TabsList
+              variant="line"
+              className="os-btabs"
+              aria-label={t("shots")}
+            >
               {images.map((image, i) => (
                 <TabsTrigger key={image.id} value={i} className="os-btab">
-                  Vista {i + 1}
+                  {t("view", { number: i + 1 })}
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -149,10 +155,10 @@ export function ProjectBrowser({
                   }}
                   variant="ghost"
                   className="os-shot-zoom"
-                  aria-label={`Ampliar captura ${i + 1} de ${count}`}
+                  aria-label={t("zoomLabel", { number: i + 1, total: count })}
                   onClick={() => setViewerOpen(true)}
                 >
-                  <span>Ampliar ↗</span>
+                  <span>{t("zoom")}</span>
                 </Button>
               </TabsContent>
             ))}
@@ -172,18 +178,17 @@ export function ProjectBrowser({
             }}
           >
             <div className="flex items-center justify-between gap-4">
-              <DialogTitle>Capturas de {title}</DialogTitle>
+              <DialogTitle>{t("viewerTitle", { title })}</DialogTitle>
               <DialogClose
                 render={
                   <Button variant="outline" className="os-btn os-btn-outline" />
                 }
               >
-                Cerrar ×
+                {t("close")}
               </DialogClose>
             </div>
             <DialogDescription className="sr-only">
-              Captura ampliada. Usa las flechas para recorrerlas y Escape para
-              cerrar.
+              {t("viewerHelp")}
             </DialogDescription>
             <div className="relative min-h-0 flex-1">
               <Image
@@ -200,20 +205,20 @@ export function ProjectBrowser({
                 <Button
                   variant="outline"
                   className="os-navbtn"
-                  aria-label="Captura anterior"
+                  aria-label={t("prev")}
                   onClick={() => step(-1)}
                 >
                   ←
                 </Button>
               )}
               <p role="status" aria-live="polite" className="text-sm">
-                Captura {index + 1} de {count}
+                {t("counter", { number: index + 1, total: count })}
               </p>
               {count > 1 && (
                 <Button
                   variant="outline"
                   className="os-navbtn"
-                  aria-label="Captura siguiente"
+                  aria-label={t("next")}
                   onClick={() => step(1)}
                 >
                   →

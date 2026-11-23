@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { markBootSeen } from "@/lib/os/boot";
 
 /** Duración del arranque (debe coincidir con `os-bootout` en home.css). */
@@ -17,6 +18,7 @@ export function BootScreen({
   projectCount: number;
   name: string;
 }) {
+  const t = useTranslations("boot");
   useEffect(() => {
     markBootSeen(() => window.sessionStorage);
     // Al volver al inicio sin recargar, el arranque no se repite.
@@ -26,19 +28,19 @@ export function BootScreen({
     return () => clearTimeout(timer);
   }, []);
   const lines = [
-    "angel.os — Guatemala, GT",
+    t("system"),
     <>
-      <span className="os-boot-ok">[ ok ]</span> cargando proyectos ............{" "}
+      <span className="os-boot-ok">[ ok ]</span> {t("loadingProjects")}{" "}
       {projectCount}
     </>,
     <>
-      <span className="os-boot-ok">[ ok ]</span> montando /sobre-mi
+      <span className="os-boot-ok">[ ok ]</span> {t("mounting")}
     </>,
     <>
-      <span className="os-boot-ok">[ ok ]</span> iniciando terminal
+      <span className="os-boot-ok">[ ok ]</span> {t("terminal")}
     </>,
     <>
-      <span className="os-boot-ok">[ ok ]</span> conectando correo
+      <span className="os-boot-ok">[ ok ]</span> {t("mail")}
     </>,
   ];
   return (
@@ -60,11 +62,11 @@ export function BootScreen({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/avatar-kaled-base.svg" alt="" width={44} height={44} />
         <span>
-          iniciando sesión como <span className="os-boot-ok">{name}</span>
+          {t("session")} <span className="os-boot-ok">{name}</span>
         </span>
       </span>
       <span className="os-boot-line" style={{ animationDelay: "2.4s" }}>
-        &gt; bienvenido <span className="os-caret" />
+        &gt; {t("welcome")} <span className="os-caret" />
       </span>
     </div>
   );

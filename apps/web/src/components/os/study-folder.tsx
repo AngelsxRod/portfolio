@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@repo/ui/components/button";
 import {
   focusLater,
@@ -65,6 +66,8 @@ export function StudyFolder({
   studies: StudyFile[];
   certificates: CertificateItem[];
 }) {
+  const t = useTranslations("studyFolder");
+  const nav = useTranslations("nav");
   const { dispatch } = useDesktop();
   const [selected, setSelected] = useState(studies[0]?.id ?? FOLDER);
   const study = studies.find((item) => item.id === selected);
@@ -75,7 +78,7 @@ export function StudyFolder({
       label: item.program,
       folder: false,
     })),
-    { id: FOLDER, file: `${FOLDER}/`, label: "Certificados", folder: true },
+    { id: FOLDER, file: `${FOLDER}/`, label: t("certificates"), folder: true },
   ];
 
   function open(id: string) {
@@ -88,7 +91,7 @@ export function StudyFolder({
     <>
       <Window
         id="estudios"
-        title="Estudios"
+        title={nav("education")}
         file="~/estudios"
         stack="izquierda"
         labelledBy="page-title"
@@ -97,11 +100,9 @@ export function StudyFolder({
       >
         <div className="os-dir">
           <h1 id="page-title" className="os-display">
-            Estudios
+            {nav("education")}
           </h1>
-          <p className="os-dir-hint">
-            Toca un estudio o la carpeta de certificados para ver el detalle.
-          </p>
+          <p className="os-dir-hint">{t("hint")}</p>
           <ul className="os-files">
             {entries.map((entry, index) => (
               <li key={entry.id}>
@@ -119,12 +120,9 @@ export function StudyFolder({
             ))}
           </ul>
           <div className="os-dir-status">
+            <span>{t("studiesCount", { count: studies.length })}</span>
             <span>
-              {studies.length} {studies.length === 1 ? "estudio" : "estudios"}
-            </span>
-            <span>
-              {certificates.length}{" "}
-              {certificates.length === 1 ? "certificado" : "certificados"}
+              {t("certificatesCount", { count: certificates.length })}
             </span>
           </div>
         </div>
@@ -132,7 +130,7 @@ export function StudyFolder({
 
       <Window
         id={VIEW_ID}
-        title="Detalle"
+        title={t("detailTitle")}
         file={entries.find((entry) => entry.id === selected)?.file}
         stack="derecha"
         variant="orange"
@@ -146,14 +144,16 @@ export function StudyFolder({
               <>
                 {study.current && (
                   <span className="os-stamp" aria-hidden="true">
-                    EN
+                    {t("stampTop")}
                     <br />
-                    CURSO
+                    {t("stampBottom")}
                   </span>
                 )}
                 <p className="os-paper-kicker">
                   {study.level.toUpperCase()}
-                  {study.current && <span className="sr-only">, en curso</span>}
+                  {study.current && (
+                    <span className="sr-only">, {t("inProgress")}</span>
+                  )}
                 </p>
                 <h3 className="os-display os-paper-title">{study.program}</h3>
                 <p className="os-paper-org">{study.institution}</p>
@@ -161,16 +161,18 @@ export function StudyFolder({
                   <p className="os-paper-text">{study.description}</p>
                 )}
                 <dl className="os-paper-facts">
-                  <dt>periodo</dt>
+                  <dt>{t("period")}</dt>
                   <dd>{study.period}</dd>
                 </dl>
               </>
             ) : (
               <>
                 <p className="os-paper-kicker">
-                  {certificates.length > 0 ? "CARPETA" : "CARPETA VACÍA"}
+                  {certificates.length > 0 ? t("folder") : t("folderEmpty")}
                 </p>
-                <h3 className="os-display os-paper-title">Certificados</h3>
+                <h3 className="os-display os-paper-title">
+                  {t("certificates")}
+                </h3>
                 {certificates.length > 0 ? (
                   <ul className="os-certs">
                     {certificates.map((certificate) => (
@@ -185,10 +187,10 @@ export function StudyFolder({
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Verificar ↗
+                            {t("verify")}
                             <span className="sr-only">
                               {" "}
-                              {certificate.name} (se abre en otra pestaña)
+                              {t("verifyNewTab", { name: certificate.name })}
                             </span>
                           </a>
                         )}
@@ -196,10 +198,7 @@ export function StudyFolder({
                     ))}
                   </ul>
                 ) : (
-                  <p className="os-paper-text">
-                    Aún no hay certificados publicados. Aparecerán aquí, con
-                    emisor y fecha, cuando se publiquen desde el panel.
-                  </p>
+                  <p className="os-paper-text">{t("emptyCertificates")}</p>
                 )}
               </>
             )}

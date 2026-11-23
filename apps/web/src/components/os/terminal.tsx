@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@repo/ui/components/button";
 import { ProfileAvatar } from "@/components/os/avatar";
@@ -32,6 +33,9 @@ export function Terminal({
   subtitle: string | null;
   bio: string | null;
 }) {
+  const t = useTranslations("terminal");
+  const nav = useTranslations("nav");
+  const home = useTranslations("home");
   const [run, setRun] = useState(0);
   return (
     <div className="os-term" key={run}>
@@ -40,7 +44,7 @@ export function Terminal({
         <div className="os-term-who">
           <ProfileAvatar
             interactive
-            alt={`Avatar de ${name}`}
+            alt={home("avatarAlt", { name })}
             size={120}
             variant="orange"
             className="os-term-avatar"
@@ -55,28 +59,28 @@ export function Terminal({
       </div>
       <Command delay={1.5}>cat bio.txt</Command>
       <p className="os-out os-term-bio" style={{ animationDelay: "2.2s" }}>
-        {bio ?? "bio.txt: el perfil aún no está publicado."}
+        {bio ?? t("noBio")}
       </p>
-      <Command delay={2.7}>ls ~/trabajo</Command>
+      <Command delay={2.7}>{t("lsCommand")}</Command>
       <ul className="os-out os-term-ls" style={{ animationDelay: "3.4s" }}>
         <li>
           <Link className="os-link" href="/projects">
-            Proyectos →
+            {nav("projects")} →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/experiencia">
-            Trayectoria →
+            {nav("experience")} →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/educacion">
-            Estudios →
+            {nav("education")} →
           </Link>
         </li>
         <li>
           <Link className="os-link" href="/contacto">
-            Contacto →
+            {nav("contact")} →
           </Link>
         </li>
       </ul>
@@ -90,7 +94,7 @@ export function Terminal({
           className="os-rerun"
           onClick={() => setRun((value) => value + 1)}
         >
-          ↻ Repetir animación
+          {t("rerun")}
         </Button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/toggle-group";
 import {
   ALL_FILTER,
@@ -31,6 +32,8 @@ export function ProjectExplorer({
   projects: ExplorerProject[];
   filters: ProjectFilter[];
 }) {
+  const t = useTranslations("explorer");
+  const nav = useTranslations("nav");
   const [filter, setFilter] = useState(ALL_FILTER);
   const [selectedId, setSelectedId] = useState(projects[0]?.id);
   const visible = projects.filter((project) => matchesFilter(project, filter));
@@ -42,7 +45,7 @@ export function ProjectExplorer({
       <Window
         id="explorador"
         stack="izquierda"
-        title="Explorador de proyectos"
+        title={t("windowTitle")}
         file="~/proyectos"
         labelledBy="page-title"
         defaultPosition={{ x: 40, y: 36 }}
@@ -51,12 +54,12 @@ export function ProjectExplorer({
         <div className="os-explorer">
           <div className="os-explorer-side">
             <h1 id="page-title" className="os-display">
-              Proyectos
+              {nav("projects")}
             </h1>
             {filters.length > 1 && (
               <>
                 <span className="os-explorer-label" id="filtros">
-                  Filtrar por tipo
+                  {t("filterLabel")}
                 </span>
                 <ToggleGroup
                   aria-labelledby="filtros"
@@ -79,10 +82,7 @@ export function ProjectExplorer({
                 </ToggleGroup>
               </>
             )}
-            <p className="os-explorer-tip">
-              Pasa el cursor por un proyecto para verlo en la vista previa, o
-              ábrelo para ver todos sus detalles.
-            </p>
+            <p className="os-explorer-tip">{t("tip")}</p>
           </div>
           <div className="os-explorer-main">
             {visible.length > 0 ? (
@@ -102,18 +102,15 @@ export function ProjectExplorer({
               </ul>
             ) : (
               <p className="os-empty">
-                <strong>Aún no hay proyectos publicados.</strong>
-                Aparecerán aquí cuando se publiquen desde el panel.
+                <strong>{t("emptyTitle")}</strong>
+                {t("emptyText")}
               </p>
             )}
             <div className="os-statusbar">
-              <span>
-                {visible.length}{" "}
-                {visible.length === 1 ? "proyecto" : "proyectos"}
-              </span>
+              <span>{t("count", { count: visible.length })}</span>
               {selected?.host && (
                 <span>
-                  sitio:{" "}
+                  {t("site")}{" "}
                   <span className="os-statusbar-strong">{selected.host}</span>
                 </span>
               )}
@@ -125,7 +122,7 @@ export function ProjectExplorer({
       {selected && (
         <Window
           id="vista-previa"
-          title="Vista previa"
+          title={t("previewTitle")}
           file="vista_previa"
           stack="derecha"
           variant="orange"
@@ -152,18 +149,18 @@ export function ProjectExplorer({
               <div className="os-actions">
                 <OsLinkButton
                   href={`/projects/${selected.slug}`}
-                  label={`Abrir ficha de ${selected.title}`}
+                  label={t("openPageLabel", { title: selected.title })}
                 >
-                  Abrir ficha →
+                  {t("openPage")}
                 </OsLinkButton>
                 {selected.demoUrl && (
                   <OsLinkButton
                     href={selected.demoUrl}
                     variant="outline"
                     external
-                    label={`Visitar el sitio de ${selected.title}`}
+                    label={t("visitLabel", { title: selected.title })}
                   >
-                    Visitar ↗
+                    {t("visit")}
                   </OsLinkButton>
                 )}
               </div>

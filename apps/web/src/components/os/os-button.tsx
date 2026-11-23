@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@repo/ui/components/button";
 
@@ -21,6 +22,7 @@ export function OsLinkButton({
   label?: string;
   children: ReactNode;
 }) {
+  const common = useTranslations("common");
   const className = buttonVariants({
     variant: variant === "primary" ? "default" : "outline",
     className: `os-btn os-btn-${variant}`,
@@ -31,11 +33,11 @@ export function OsLinkButton({
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={label ? `${label} (se abre en otra pestaña)` : undefined}
+        aria-label={label ? `${label} ${common("newTab")}` : undefined}
         className={className}
       >
         {children}
-        {!label && <span className="sr-only"> (se abre en otra pestaña)</span>}
+        {!label && <span className="sr-only"> {common("newTab")}</span>}
       </a>
     );
   return (

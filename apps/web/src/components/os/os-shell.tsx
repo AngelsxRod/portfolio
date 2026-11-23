@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import "@/styles/os/shell.css";
 import "@/styles/os/window.css";
 import { osFontClasses } from "@/lib/os/fonts";
@@ -15,10 +16,11 @@ import { Tray } from "@/components/os/tray";
  * (menú lateral desplegable en el teléfono) y cinta.
  */
 export function OsShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("shell");
   return (
     <div className={`os-theme dark os-page ${osFontClasses}`}>
       <a className="os-skip" href="#contenido">
-        Saltar al contenido
+        {t("skip")}
       </a>
       <DesktopProvider>
         <MascotProvider>

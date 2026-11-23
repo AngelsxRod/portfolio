@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   useRef,
   type CSSProperties,
@@ -55,6 +56,7 @@ export function Window({
   className,
   children,
 }: WindowProps) {
+  const t = useTranslations("window");
   const { window, dispatch } = useDesktopWindow({
     id,
     title,
@@ -139,7 +141,7 @@ export function Window({
     >
       <div
         className="os-bar"
-        title="Arrastra desde aquí para mover la ventana"
+        title={t("drag")}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
@@ -163,8 +165,8 @@ export function Window({
           <Button
             variant="ghost"
             className="os-wbtn"
-            aria-label={`Minimizar ${title}`}
-            title="Minimizar (recupérala en «Ventanas»)"
+            aria-label={t("minimizeLabel", { title })}
+            title={t("minimizeHint")}
             onClick={hide}
           >
             _
@@ -172,8 +174,8 @@ export function Window({
           <Button
             variant="ghost"
             className="os-wbtn"
-            aria-label={`Volver a colocar ${title} en su lugar`}
-            title="Volver a su lugar"
+            aria-label={t("resetLabel", { title })}
+            title={t("resetHint")}
             onClick={() => dispatch({ type: "reset", id })}
           >
             □
@@ -181,8 +183,8 @@ export function Window({
           <Button
             variant="ghost"
             className="os-wbtn"
-            aria-label={`Cerrar ${title}`}
-            title="Cerrar (recupérala en «Ventanas»)"
+            aria-label={t("closeLabel", { title })}
+            title={t("closeHint")}
             onClick={hide}
           >
             ×

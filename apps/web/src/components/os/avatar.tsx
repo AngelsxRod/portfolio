@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 import {
   INK,
   SKIN,
@@ -88,7 +89,7 @@ function makeConfetti(): Piece[] {
  * «reducir movimiento» solo conserva la expresión.
  */
 export function ProfileAvatar({
-  alt = "Avatar de Kaled",
+  alt,
   size = 128,
   variant = "lime",
   mood = "idle",
@@ -107,6 +108,8 @@ export function ProfileAvatar({
   onActivate?: () => void;
   className?: string;
 }) {
+  const t = useTranslations("mascot");
+  const label = alt ?? t("avatarAlt");
   const reduced = useReducedMotion();
   const frameRef = useRef<HTMLElement>(null);
   const faceRef = useRef<SVGSVGElement>(null);
@@ -201,7 +204,7 @@ export function ProfileAvatar({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/avatar-kaled-base.svg"
-        alt={interactive ? "" : alt}
+        alt={interactive ? "" : label}
         width={size}
         height={size}
         decoding="async"
@@ -244,7 +247,7 @@ export function ProfileAvatar({
           type="button"
           ref={frameRef as React.RefObject<HTMLButtonElement>}
           className="os-avatar-frame"
-          aria-label={`${alt}. Haz clic para saludar`}
+          aria-label={`${label}. ${t("avatarHint")}`}
           onClick={activate}
         >
           {art}

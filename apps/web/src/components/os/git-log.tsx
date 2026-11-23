@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   Accordion,
@@ -38,12 +39,15 @@ export function GitLog({
   studies: StudyBar[];
   years: number[];
 }) {
+  const t = useTranslations("gitLog");
+  const nav = useTranslations("nav");
+  const common = useTranslations("common");
   const [open, setOpen] = useState<string | null>(commits[0]?.id ?? null);
   return (
     <>
       <Window
         id="git-log"
-        title="Trayectoria"
+        title={nav("experience")}
         file="git log"
         stack="izquierda"
         labelledBy="page-title"
@@ -52,13 +56,11 @@ export function GitLog({
       >
         <div className="os-log">
           <h1 id="page-title" className="os-display">
-            Trayectoria
+            {nav("experience")}
           </h1>
           {commits.length > 0 ? (
             <>
-              <p className="os-log-hint">
-                Toca un trabajo para ver qué hice ahí.
-              </p>
+              <p className="os-log-hint">{t("hint")}</p>
               <Accordion
                 // Un solo trabajo abierto a la vez. Los detalles cerrados
                 // usan hidden="until-found": la búsqueda del navegador
@@ -83,7 +85,9 @@ export function GitLog({
                       <span className="os-commit-dot" aria-hidden="true" />
                       <span className="os-commit-main">
                         {commit.current && (
-                          <span className="os-commit-current">Actual</span>
+                          <span className="os-commit-current">
+                            {t("current")}
+                          </span>
                         )}
                         <span className="os-display os-commit-org">
                           {commit.organization}
@@ -96,9 +100,7 @@ export function GitLog({
                       {commit.description && <p>{commit.description}</p>}
                       {!commit.description &&
                         commit.achievements.length === 0 && (
-                          <p className="os-muted">
-                            Aún no hay detalles publicados de este trabajo.
-                          </p>
+                          <p className="os-muted">{t("noDetails")}</p>
                         )}
                       {commit.achievements.length > 0 && (
                         <ul>
@@ -114,8 +116,8 @@ export function GitLog({
             </>
           ) : (
             <p className="os-empty">
-              <strong>Aún no hay experiencia publicada.</strong>
-              Aparecerá aquí cuando se publique desde el panel.
+              <strong>{t("emptyTitle")}</strong>
+              {t("emptyText")}
             </p>
           )}
         </div>
@@ -124,8 +126,8 @@ export function GitLog({
       {years.length > 0 && (
         <Window
           id="linea-de-tiempo"
-          title="Línea de tiempo"
-          file={`${years[0]} → hoy`}
+          title={t("timelineTitle")}
+          file={`${years[0]} → ${common("present")}`}
           stack="derecha"
           variant="orange"
           defaultPosition={{ x: 880, y: 36 }}
@@ -143,7 +145,11 @@ export function GitLog({
               ))}
             </div>
             {commits.length > 0 && (
-              <div className="os-track" role="group" aria-label="Trabajo">
+              <div
+                className="os-track"
+                role="group"
+                aria-label={t("trackWork")}
+              >
                 {commits.map((commit, index) => (
                   <Button
                     key={commit.id}
@@ -164,7 +170,11 @@ export function GitLog({
               </div>
             )}
             {studies.length > 0 && (
-              <div className="os-track" role="group" aria-label="Estudios">
+              <div
+                className="os-track"
+                role="group"
+                aria-label={nav("education")}
+              >
                 {studies.map((study, index) => (
                   <Link
                     key={study.id}
@@ -184,7 +194,7 @@ export function GitLog({
               {commits.length > 0 && (
                 <li>
                   <span className="os-swatch os-tbar-work" aria-hidden="true" />
-                  Trabajo (toca una barra para ver el detalle)
+                  {t("legendWork")}
                 </li>
               )}
               {studies.length > 0 && (
@@ -193,7 +203,7 @@ export function GitLog({
                     className="os-swatch os-tbar-study"
                     aria-hidden="true"
                   />
-                  Estudios (te lleva a Estudios)
+                  {t("legendStudies")}
                 </li>
               )}
             </ul>
