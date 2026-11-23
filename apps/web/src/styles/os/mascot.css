@@ -1,0 +1,75 @@
+/* angel.os — Mascota: avatar fijo abajo a la derecha con globo de diálogo. */
+
+.os-mascot {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 940;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  pointer-events: none;
+  animation: os-pop 0.55s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.os-mascot > * {
+  pointer-events: auto;
+}
+/* La pista de primera visita ocupa ese rincón; la mascota espera a que se cierre. */
+.os-hint ~ .os-mascot {
+  display: none;
+}
+.os-mascot-body {
+  display: block;
+  padding: 0 6px 6px 0;
+}
+.os-mascot-body[data-hop] {
+  animation: os-mascot-hop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+
+.os-mascot-bubble {
+  position: relative;
+  max-width: 230px;
+  margin: 0 0 22px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--os-bone);
+  border-radius: 8px;
+  background: var(--os-bone);
+  box-shadow: 4px 4px 0 var(--os-orange);
+  color: var(--os-bg);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  animation: os-pop 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+/* Cola del globo, apuntando al avatar. */
+.os-mascot-bubble::after {
+  content: "";
+  position: absolute;
+  right: -9px;
+  bottom: 12px;
+  border-width: 7px 0 7px 9px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--os-bone);
+}
+
+@keyframes os-mascot-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-22px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  78% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 820px) {
+  .os-mascot {
+    display: none;
+  }
+}

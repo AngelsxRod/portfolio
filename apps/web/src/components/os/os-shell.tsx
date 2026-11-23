@@ -5,6 +5,8 @@ import { osFontClasses } from "@/lib/os/fonts";
 import { DesktopProvider } from "@/components/os/desktop-provider";
 import { DeskHint } from "@/components/os/desk-hint";
 import { Dock } from "@/components/os/dock";
+import { Mascot } from "@/components/os/mascot";
+import { MascotProvider } from "@/components/os/mascot-provider";
 import { TopBar } from "@/components/os/top-bar";
 import { Tray } from "@/components/os/tray";
 
@@ -19,12 +21,15 @@ export function OsShell({ children }: { children: ReactNode }) {
         Saltar al contenido
       </a>
       <DesktopProvider>
-        <TopBar />
-        {children}
-        <Dock>
-          <Tray />
-        </Dock>
-        <DeskHint />
+        <MascotProvider>
+          <TopBar />
+          {children}
+          <Dock>
+            <Tray />
+          </Dock>
+          <DeskHint />
+          <Mascot />
+        </MascotProvider>
       </DesktopProvider>
     </div>
   );
