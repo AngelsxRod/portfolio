@@ -15,6 +15,7 @@ import { osFontClasses } from "@/lib/os/fonts";
 import { trayWindows } from "@/lib/os/desktop";
 import { activeRoute, osRoutes } from "@/lib/os/routes";
 import { BrandMark } from "@/components/os/brand-mark";
+import { LanguageSwitcher } from "@/components/os/language-switcher";
 import { DockIcon } from "@/components/os/dock-icon";
 import { useDesktop } from "@/components/os/desktop-provider";
 
@@ -65,6 +66,7 @@ export function MobileMenu() {
             </Link>
           ))}
         </nav>
+        <LanguageSwitcher className="os-lang-sheet" />
         {hidden > 0 && (
           <Button
             className="os-btn os-btn-primary os-sheet-restore"

@@ -5,6 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { activeRoute } from "@/lib/os/routes";
 import { BrandMark } from "@/components/os/brand-mark";
 import { Clock } from "@/components/os/clock";
+import { LanguageSwitcher } from "@/components/os/language-switcher";
 import { MobileMenu } from "@/components/os/mobile-menu";
 import { useMascot } from "@/components/os/mascot-provider";
 
@@ -43,6 +44,7 @@ export function TopBar() {
           <span className="os-me-dot" aria-hidden="true" />
         </button>
         <span className="os-topbar-place">{t("place")}</span>
+        <LanguageSwitcher className="os-lang-top" />
         <Clock className="os-topbar-clock" />
         <MobileMenu />
       </div>
