@@ -29,6 +29,15 @@ html:has(.os-page) {
   letter-spacing: -0.035em;
 }
 
+/* Títulos con líneas parejas y párrafos sin palabras huérfanas al final.
+   Navegadores sin soporte simplemente usan el salto de línea habitual. */
+.os-page :is(h1, h2, h3, .os-display) {
+  text-wrap: balance;
+}
+.os-page :is(p, li, dd) {
+  text-wrap: pretty;
+}
+
 .os-skip {
   position: absolute;
   left: 1rem;
