@@ -68,7 +68,8 @@ export const STACK_GAP = 36;
 export const MIN_DESKTOP_HEIGHT = 640;
 const BOTTOM_GAP = 48;
 
-function clamp(position: Point, deskWidth: number): Point {
+/** Mantiene la barra de una ventana dentro del escritorio. */
+export function clamp(position: Point, deskWidth: number): Point {
   const maxX = deskWidth > 0 ? deskWidth - GRAB_MARGIN : Infinity;
   return {
     x: Math.round(Math.max(0, Math.min(position.x, maxX))),

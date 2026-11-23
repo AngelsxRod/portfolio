@@ -7,10 +7,11 @@ import {
   type ReactNode,
 } from "react";
 import { Button } from "@repo/ui/components/button";
-import type { Point } from "@/lib/os/desktop";
+import { clamp, type Point } from "@/lib/os/desktop";
 import {
   focusLater,
   TRAY_TOGGLE_ID,
+  useDesktop,
   useDesktopWindow,
   useMeasuredHeight,
   windowElementId,
@@ -61,8 +62,11 @@ export function Window({
     width,
     stack,
   });
+  const { state } = useDesktop();
   const ref = useRef<HTMLElement>(null);
-  const drag = useRef<{ start: Point; origin: Point } | null>(null);
+  const drag = useRef<{ start: Point; origin: Point; last: Point } | null>(
+    null,
+  );
   const titleId = `${id}-titulo`;
   useMeasuredHeight(ref, id, dispatch, !window.hidden);
 
@@ -82,24 +86,37 @@ export function Window({
     drag.current = {
       start: { x: event.clientX, y: event.clientY },
       origin: window.position,
+      last: window.position,
     };
   }
 
+  // Mientras se arrastra, la posición se escribe directo en el nodo: así cada
+  // movimiento del puntero no vuelve a renderizar el escritorio entero (mejor
+  // INP). El estado se actualiza una sola vez, al soltar.
   function onPointerMove(event: PointerEvent<HTMLDivElement>) {
     const current = drag.current;
-    if (!current) return;
-    dispatch({
-      type: "move",
-      id,
-      position: {
+    const node = ref.current;
+    if (!current || !node) return;
+    current.last = clamp(
+      {
         x: current.origin.x + event.clientX - current.start.x,
         y: current.origin.y + event.clientY - current.start.y,
       },
-    });
+      state.width,
+    );
+    node.style.left = `${current.last.x}px`;
+    node.style.top = `${current.last.y}px`;
   }
 
   function endDrag() {
+    const current = drag.current;
     drag.current = null;
+    if (
+      current &&
+      (current.last.x !== current.origin.x ||
+        current.last.y !== current.origin.y)
+    )
+      dispatch({ type: "move", id, position: current.last });
   }
 
   const style = {
