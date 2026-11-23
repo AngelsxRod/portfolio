@@ -127,7 +127,10 @@ export function ProjectBrowser({
                   alt={image.altText}
                   fill
                   unoptimized
+                  // La primera captura es el elemento LCP del detalle: carga
+                  // de inmediato y con prioridad alta; el resto, diferido.
                   loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : undefined}
                   sizes="(max-width: 820px) 100vw, 900px"
                   className="object-cover object-top"
                 />

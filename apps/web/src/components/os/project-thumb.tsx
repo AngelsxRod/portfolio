@@ -16,10 +16,13 @@ export function ProjectVisual({
   project,
   sizes,
   alt,
+  priority = false,
 }: {
   project: Pick<ThumbProject, "title" | "preview">;
   sizes: string;
   alt: string;
+  /** Imagen candidata a LCP: carga inmediata y con prioridad alta. */
+  priority?: boolean;
 }) {
   return project.preview ? (
     <Image
@@ -28,6 +31,8 @@ export function ProjectVisual({
       fill
       unoptimized
       sizes={sizes}
+      loading={priority ? "eager" : undefined}
+      fetchPriority={priority ? "high" : undefined}
       className="object-cover object-top"
     />
   ) : (
@@ -42,11 +47,13 @@ export function ProjectThumb({
   project,
   sizes = "(max-width: 820px) 100vw, 220px",
   style,
+  priority,
   onHighlight,
 }: {
   project: ThumbProject;
   sizes?: string;
   style?: CSSProperties;
+  priority?: boolean;
   /** Se llama al pasar el cursor o enfocar la tarjeta. */
   onHighlight?: () => void;
 }) {
@@ -59,7 +66,12 @@ export function ProjectThumb({
       style={style}
     >
       <span className="os-card-visual">
-        <ProjectVisual project={project} alt="" sizes={sizes} />
+        <ProjectVisual
+          project={project}
+          alt=""
+          sizes={sizes}
+          priority={priority}
+        />
       </span>
       <span className="os-display os-card-title">{project.title}</span>
       {project.projectType && (

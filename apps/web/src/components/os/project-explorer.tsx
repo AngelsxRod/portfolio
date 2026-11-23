@@ -91,6 +91,9 @@ export function ProjectExplorer({
                   <li key={project.id}>
                     <ProjectThumb
                       project={project}
+                      // Primera tarjeta: es la imagen más grande al cargar en
+                      // el teléfono, y comparte URL con la vista previa.
+                      priority={index === 0}
                       onHighlight={() => setSelectedId(project.id)}
                       style={{ animationDelay: `${index * 0.06}s` }}
                     />
@@ -136,6 +139,7 @@ export function ProjectExplorer({
                 project={selected}
                 alt={selected.preview?.altText ?? ""}
                 sizes="420px"
+                priority
               />
             </span>
             <div className="os-preview-body">
