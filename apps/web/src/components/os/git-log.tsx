@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@repo/ui/components/accordion";
 import { Button } from "@repo/ui/components/button";
 import { Window } from "@/components/os/window";
 import { focusLater } from "@/components/os/desktop-provider";
@@ -53,57 +59,58 @@ export function GitLog({
               <p className="os-log-hint">
                 Toca un trabajo para ver qué hice ahí.
               </p>
-              <ol className="os-commits">
-                {commits.map((commit) => {
-                  const expanded = open === commit.id;
-                  return (
-                    <li key={commit.id}>
-                      <Button
-                        variant="ghost"
-                        id={commitButtonId(commit.id)}
-                        className="os-commit"
-                        aria-expanded={expanded}
-                        aria-controls={`${commitButtonId(commit.id)}-cambios`}
-                        onClick={() => setOpen(expanded ? null : commit.id)}
-                      >
-                        <span className="os-commit-dot" aria-hidden="true" />
-                        <span className="os-commit-main">
-                          {commit.current && (
-                            <span className="os-commit-current">Actual</span>
-                          )}
-                          <span className="os-display os-commit-org">
-                            {commit.organization}
-                          </span>
-                          <span className="os-commit-title">
-                            {commit.title}
-                          </span>
-                        </span>
-                        <span className="os-commit-date">{commit.period}</span>
-                      </Button>
-                      <div
-                        id={`${commitButtonId(commit.id)}-cambios`}
-                        hidden={!expanded}
-                        className="os-diff"
-                      >
-                        {commit.description && <p>{commit.description}</p>}
-                        {!commit.description &&
-                          commit.achievements.length === 0 && (
-                            <p className="os-muted">
-                              Aún no hay detalles publicados de este trabajo.
-                            </p>
-                          )}
-                        {commit.achievements.length > 0 && (
-                          <ul>
-                            {commit.achievements.map((achievement) => (
-                              <li key={achievement}>+ {achievement}</li>
-                            ))}
-                          </ul>
+              <Accordion
+                // Un solo trabajo abierto a la vez. Los detalles cerrados
+                // usan hidden="until-found": la búsqueda del navegador
+                // (Ctrl+F) los encuentra y los despliega.
+                value={open ? [open] : []}
+                onValueChange={(value) => setOpen(value[0] ?? null)}
+                hiddenUntilFound
+                className="os-commits"
+                render={<ol />}
+              >
+                {commits.map((commit) => (
+                  <AccordionItem
+                    key={commit.id}
+                    value={commit.id}
+                    className="border-0"
+                    render={<li />}
+                  >
+                    <AccordionTrigger
+                      id={commitButtonId(commit.id)}
+                      className="os-commit"
+                    >
+                      <span className="os-commit-dot" aria-hidden="true" />
+                      <span className="os-commit-main">
+                        {commit.current && (
+                          <span className="os-commit-current">Actual</span>
                         )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
+                        <span className="os-display os-commit-org">
+                          {commit.organization}
+                        </span>
+                        <span className="os-commit-title">{commit.title}</span>
+                      </span>
+                      <span className="os-commit-date">{commit.period}</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="os-diff">
+                      {commit.description && <p>{commit.description}</p>}
+                      {!commit.description &&
+                        commit.achievements.length === 0 && (
+                          <p className="os-muted">
+                            Aún no hay detalles publicados de este trabajo.
+                          </p>
+                        )}
+                      {commit.achievements.length > 0 && (
+                        <ul>
+                          {commit.achievements.map((achievement) => (
+                            <li key={achievement}>+ {achievement}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </>
           ) : (
             <p className="os-empty">
