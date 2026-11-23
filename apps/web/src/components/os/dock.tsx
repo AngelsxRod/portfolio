@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, type ReactNode, type SyntheticEvent } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { Button } from "@repo/ui/components/button";
 import { trayWindows } from "@/lib/os/desktop";
 import { activeRoute, osRoutes } from "@/lib/os/routes";

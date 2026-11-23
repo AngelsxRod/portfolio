@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { ProfileAvatar } from "@/components/os/avatar";
 import { useDesktop } from "@/components/os/desktop-provider";
 import { useMascot } from "@/components/os/mascot-provider";

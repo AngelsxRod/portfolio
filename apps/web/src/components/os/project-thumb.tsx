@@ -1,6 +1,6 @@
 import { ViewTransition, type CSSProperties } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import "@/styles/os/project-thumb.css";
 import { mediaUrl, projectTransitionName } from "@/lib/os/projects";
 

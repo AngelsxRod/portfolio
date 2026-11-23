@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { activeRoute } from "@/lib/os/routes";
 import { BrandMark } from "@/components/os/brand-mark";
 import { Clock } from "@/components/os/clock";
