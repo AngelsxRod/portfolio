@@ -151,6 +151,7 @@ export default async function Home() {
             <div className="os-hello-head">
               <span className="os-hello-kicker">// hola, soy</span>
               <ProfileAvatar
+                interactive
                 alt={`Avatar de ${profile?.displayName ?? "Kaled"}`}
                 size={128}
                 className="os-hello-avatar"

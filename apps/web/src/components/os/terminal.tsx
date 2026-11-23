@@ -39,6 +39,7 @@ export function Terminal({
       <div className="os-out" style={{ animationDelay: "1s" }}>
         <div className="os-term-who">
           <ProfileAvatar
+            interactive
             alt={`Avatar de ${name}`}
             size={120}
             variant="orange"

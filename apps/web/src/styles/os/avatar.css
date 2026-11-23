@@ -1,4 +1,4 @@
-/* angel.os — Avatar de Kaled: marco plano con sombra sólida y rebote lento. */
+/* angel.os — Avatar de Kaled: marco plano, ojos que miran, parpadeo y confeti. */
 
 .os-avatar {
   --os-avatar-shadow: var(--os-lime);
@@ -7,6 +7,16 @@
   flex: none;
   width: var(--os-avatar-size, 128px);
   aspect-ratio: 1;
+}
+.os-avatar-orange {
+  --os-avatar-shadow: var(--os-orange);
+}
+.os-avatar-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
   overflow: hidden;
   border: 1.5px solid var(--os-bone);
   border-radius: 8px;
@@ -14,23 +24,70 @@
   background-image: radial-gradient(var(--os-dot) 1px, transparent 1.5px);
   background-size: 12px 12px;
   box-shadow: 6px 6px 0 var(--os-avatar-shadow);
+  color: inherit;
+  font: inherit;
   transform: rotate(var(--os-avatar-tilt, 0deg));
   transition: transform 0.2s;
 }
-.os-avatar-orange {
-  --os-avatar-shadow: var(--os-orange);
-}
-.os-avatar:hover {
+.os-avatar-frame:hover {
   transform: rotate(0deg) scale(1.04);
 }
-.os-avatar img {
+button.os-avatar-frame {
+  cursor: pointer;
+}
+button.os-avatar-frame:active {
+  transform: rotate(0deg) scale(0.95);
+}
+
+.os-avatar-art {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
   margin-top: 6%;
-  image-rendering: pixelated;
   animation: os-avatar-bob 3.2s ease-in-out infinite;
 }
+.os-avatar-art[data-jump] {
+  animation: os-avatar-jump 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.os-avatar-art img,
+.os-avatar-face {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.os-avatar-art img {
+  image-rendering: pixelated;
+}
+.os-avatar-face {
+  pointer-events: none;
+}
+
+/* Pupilas: se desplazan en píxeles enteros del dibujo (unidades del viewBox). */
+.os-pupil-left {
+  transform: translate(var(--lx, 0px), var(--ly, 0px));
+}
+.os-pupil-right {
+  transform: translate(var(--rx, 0px), var(--ry, 0px));
+}
+.os-pupil {
+  transition: transform 0.09s steps(2);
+}
+.os-lid {
+  transform-box: fill-box;
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 0.06s steps(2);
+}
+.os-avatar-face[data-blink] .os-lid {
+  transform: scaleY(1);
+}
+.os-avatar-face[data-mood="happy"] .os-lid {
+  transform: scaleY(0.4);
+}
+
 @keyframes os-avatar-bob {
   0%,
   100% {
@@ -38,5 +95,50 @@
   }
   50% {
     transform: translateY(-3%);
+  }
+}
+@keyframes os-avatar-jump {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  25% {
+    transform: translateY(8%) scale(1.06, 0.92);
+  }
+  60% {
+    transform: translateY(-16%) scale(0.96, 1.06);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* Confeti: vive fuera del marco recortado para poder salir de él. */
+.os-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.os-confetti span {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  background: var(--c);
+  animation: os-confetti 0.95s ease-out both;
+}
+@keyframes os-confetti {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), calc(var(--dy) + 36px)) rotate(var(--rot));
   }
 }
