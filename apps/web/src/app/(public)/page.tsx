@@ -8,6 +8,7 @@ import { getPublicSkills } from "@/lib/public-skills";
 import { mediaUrl, projectPreview } from "@/lib/os/projects";
 import { safeExternalUrl } from "@/lib/safe-url";
 import { BootScreen } from "@/components/os/boot-screen";
+import { ProfileAvatar } from "@/components/os/avatar";
 import { Blob, StickyNote } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
 import { DesktopItem } from "@/components/os/desktop-item";
@@ -147,7 +148,14 @@ export default async function Home() {
           width={660}
         >
           <div className="os-hello">
-            <span className="os-hello-kicker">// hola, soy</span>
+            <div className="os-hello-head">
+              <span className="os-hello-kicker">// hola, soy</span>
+              <ProfileAvatar
+                alt={`Avatar de ${profile?.displayName ?? "Kaled"}`}
+                size={128}
+                className="os-hello-avatar"
+              />
+            </div>
             <h1
               id="hero-title"
               className="os-display"
