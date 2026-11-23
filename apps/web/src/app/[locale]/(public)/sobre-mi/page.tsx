@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import "@/styles/os/about.css";
 import { getPublicProfile } from "@/lib/public-profile";
 import { getPublicSkills } from "@/lib/public-skills";
@@ -7,11 +8,23 @@ import { Desktop } from "@/components/os/desktop";
 import { Terminal } from "@/components/os/terminal";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Sobre mí | angel.os" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return pageMetadata(locale, "/sobre-mi", "about");
+}
 
 export default async function AboutPage() {
+  const [t, nav] = await Promise.all([
+    getTranslations("about"),
+    getTranslations("nav"),
+  ]);
   const [profile, skills] = await Promise.all([
     getPublicProfile(),
     getPublicSkills(),
@@ -28,7 +41,7 @@ export default async function AboutPage() {
 
         <Window
           id="terminal"
-          title="Sobre mí"
+          title={nav("about")}
           file="terminal"
           stack="izquierda"
           labelledBy="page-title"
@@ -36,7 +49,7 @@ export default async function AboutPage() {
           width={820}
         >
           <Terminal
-            name={profile?.displayName ?? "Sobre mí"}
+            name={profile?.displayName ?? nav("about")}
             subtitle={subtitle}
             bio={profile?.presentation ?? null}
           />
@@ -44,7 +57,7 @@ export default async function AboutPage() {
 
         <Window
           id="paquetes"
-          title="Habilidades"
+          title={t("skillsTitle")}
           file="paquetes_instalados"
           stack="derecha"
           variant="orange"
@@ -71,8 +84,8 @@ export default async function AboutPage() {
             </div>
           ) : (
             <p className="os-empty">
-              <strong>Aún no hay habilidades publicadas.</strong>
-              Aparecerán aquí cuando se publiquen desde el panel.
+              <strong>{t("emptyTitle")}</strong>
+              {t("emptyText")}
             </p>
           )}
         </Window>

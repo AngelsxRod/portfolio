@@ -61,13 +61,16 @@
     "contact": {
       "1": "Got a project? Write to me.",
       "2": "I'll reply to the email you leave."
-    }
+    },
+    "avatarHint": "Click to say hi"
   },
   "common": {
-    "present": "present"
+    "present": "present",
+    "newTab": "(opens in a new tab)"
   },
   "metadata": {
-    "description": "Published projects and documented processes."
+    "description": "Published projects and documented processes.",
+    "ogFallback": "Web development portfolio"
   },
   "experience": {
     "noteTitle": "Shall we work together?",
@@ -80,5 +83,194 @@
       "university": "University",
       "other": "Other"
     }
+  },
+  "home": {
+    "heroTitle": "Introduction",
+    "kicker": "// hi, I'm",
+    "avatarAlt": "{name}'s avatar",
+    "fallbackIntro": "Published projects and a direct way to reach me.",
+    "openProjects": "Open projects →",
+    "writeMe": "Write to me",
+    "recentTitle": "Recent projects",
+    "seeAll": "{count, plural, one {See the project →} other {See all # projects →}}",
+    "contactTitle": "Contact details",
+    "facts": {
+      "name": "name",
+      "profile": "profile",
+      "location": "location",
+      "projects": "projects",
+      "projectsValue": "{count} online",
+      "email": "email"
+    },
+    "noteTitle": "Got a project?",
+    "noteText": "Tell me what your business needs.",
+    "noteLink": "Write to me →",
+    "shortcuts": "Shortcuts"
+  },
+  "about": {
+    "skillsTitle": "Skills",
+    "emptyTitle": "No skills published yet.",
+    "emptyText": "They will appear here once they are published from the admin panel."
+  },
+  "contact": {
+    "windowTitle": "Write to me",
+    "heading": "Let's talk",
+    "to": "To:",
+    "allRequired": "all fields are required",
+    "channelsTitle": "Other channels",
+    "channelEmail": "email",
+    "channelLocation": "location",
+    "noteTitle": "Tip",
+    "noteText": "Tell me what business you have, what you need and by when. With that I'll send you a proposal.",
+    "tickerAsk": "What does your business need?",
+    "tickerSites": "Websites",
+    "tickerLanding": "Landing pages",
+    "tickerSystems": "Custom-built systems"
+  },
+  "projects": {
+    "noteTitle": "Liked one?",
+    "noteText": "I can build something like this for your business.",
+    "noteLink": "Write to me →",
+    "tickerCount": "{count, plural, one {# site online} other {# sites online}}"
+  },
+  "project": {
+    "infoTitle": "Project details",
+    "kicker": "project {position} of {total}",
+    "factType": "type",
+    "factYear": "year",
+    "factRole": "role",
+    "technologies": "technologies",
+    "openSite": "Open site ↗",
+    "viewCode": "View code ↗",
+    "allProjects": "← All projects",
+    "notesTitle": "What it's about",
+    "notesLabel": "Project description",
+    "otherTitle": "Other projects",
+    "notFoundCode": "404: project not found",
+    "notFoundTitle": "Project unavailable",
+    "notFoundText": "There is no published project at this address."
+  },
+  "errors": {
+    "backHome": "Back to home",
+    "retry": "Try again",
+    "loadCode": "error: content could not be loaded",
+    "loadTitle": "Content unavailable",
+    "loadText": "The content didn't arrive from the server. Check your connection and try again.",
+    "notFoundCode": "404: route not found",
+    "notFoundTitle": "This page doesn't exist",
+    "notFoundText": "The address doesn't match any page on the site. Check the link or go back home."
+  },
+  "boot": {
+    "system": "angel.os — Guatemala, GT",
+    "loadingProjects": "loading projects ............",
+    "mounting": "mounting /sobre-mi",
+    "terminal": "starting terminal",
+    "mail": "connecting mail",
+    "session": "signing in as",
+    "welcome": "welcome"
+  },
+  "terminal": {
+    "noBio": "bio.txt: the profile hasn't been published yet.",
+    "lsCommand": "ls ~/work",
+    "rerun": "↻ Replay animation"
+  },
+  "explorer": {
+    "windowTitle": "Project explorer",
+    "filterLabel": "Filter by type",
+    "filterAll": "All",
+    "tip": "Hover over a project to see it in the preview, or open it to see all its details.",
+    "emptyTitle": "No projects published yet.",
+    "emptyText": "They will appear here once they are published from the admin panel.",
+    "count": "{count, plural, one {# project} other {# projects}}",
+    "site": "site:",
+    "previewTitle": "Preview",
+    "openPage": "Open page →",
+    "openPageLabel": "Open the page for {title}",
+    "visit": "Visit ↗",
+    "visitLabel": "Visit the website of {title}"
+  },
+  "browser": {
+    "windowTitle": "How {title} looks",
+    "prev": "Previous screenshot",
+    "next": "Next screenshot",
+    "address": "Site address",
+    "noAddress": "site without a public address",
+    "openExternal": "Open {name} in a new tab",
+    "empty": "This project has no published screenshots yet.",
+    "shots": "Screenshots",
+    "view": "View {number}",
+    "zoomLabel": "Enlarge screenshot {number} of {total}",
+    "zoom": "Enlarge ↗",
+    "viewerTitle": "Screenshots of {title}",
+    "close": "Close ×",
+    "viewerHelp": "Enlarged screenshot. Use the arrow keys to browse and Escape to close.",
+    "counter": "Screenshot {number} of {total}"
+  },
+  "gitLog": {
+    "hint": "Tap a job to see what I did there.",
+    "current": "Current",
+    "noDetails": "There are no published details for this job yet.",
+    "emptyTitle": "No experience published yet.",
+    "emptyText": "It will appear here once it is published from the admin panel.",
+    "timelineTitle": "Timeline",
+    "trackWork": "Work",
+    "legendWork": "Work (tap a bar to see the details)",
+    "legendStudies": "Education (takes you to Education)"
+  },
+  "studyFolder": {
+    "hint": "Tap a study or the certificates folder to see the details.",
+    "certificates": "Certificates",
+    "studiesCount": "{count, plural, one {# study} other {# studies}}",
+    "certificatesCount": "{count, plural, one {# certificate} other {# certificates}}",
+    "detailTitle": "Details",
+    "stampTop": "IN",
+    "stampBottom": "PROGRESS",
+    "inProgress": "in progress",
+    "period": "period",
+    "folder": "FOLDER",
+    "folderEmpty": "EMPTY FOLDER",
+    "verify": "Verify ↗",
+    "verifyNewTab": "{name} (opens in a new tab)",
+    "emptyCertificates": "No certificates published yet. They will appear here, with issuer and date, once they are published from the admin panel."
+  },
+  "contactForm": {
+    "unavailableTitle": "The form is not available",
+    "unavailableText": "The security check isn't configured yet. Write directly to the email published on this page.",
+    "sentTitleTop": "Message",
+    "sentTitleBottom": "on its way.",
+    "sentText": "Thanks for writing. I'll reply to the email you provided.",
+    "sentAgain": "Write another",
+    "sendUnavailable": "Sending messages isn't available yet.",
+    "sendFailed": "The message could not be sent.",
+    "network": "Could not connect. Please try again.",
+    "labelName": "Name (required)",
+    "labelEmail": "Email (required)",
+    "labelPhone": "Phone (required)",
+    "labelMessage": "Message (required)",
+    "sending": "Sending…",
+    "send": "Send message ↗",
+    "validation": {
+      "length": "Use between {min} and {max} characters.",
+      "email": "Enter a valid email address.",
+      "phone": "Enter a valid phone number with 8 to 15 digits.",
+      "verification": "Complete the verification."
+    }
+  },
+  "window": {
+    "drag": "Drag from here to move the window",
+    "minimizeLabel": "Minimize {title}",
+    "minimizeHint": "Minimize (get it back under “Windows”)",
+    "resetLabel": "Put {title} back in its place",
+    "resetHint": "Back to its place",
+    "closeLabel": "Close {title}",
+    "closeHint": "Close (get it back under “Windows”)"
+  },
+  "shell": {
+    "skip": "Skip to content"
+  },
+  "language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
   }
 }

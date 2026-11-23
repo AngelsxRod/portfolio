@@ -61,13 +61,16 @@
     "contact": {
       "1": "¿Tienes un proyecto? Escríbeme.",
       "2": "Responderé al correo que dejes."
-    }
+    },
+    "avatarHint": "Haz clic para saludar"
   },
   "common": {
-    "present": "hoy"
+    "present": "hoy",
+    "newTab": "(se abre en otra pestaña)"
   },
   "metadata": {
-    "description": "Proyectos publicados y procesos documentados."
+    "description": "Proyectos publicados y procesos documentados.",
+    "ogFallback": "Portafolio de desarrollo web"
   },
   "experience": {
     "noteTitle": "¿Trabajamos juntos?",
@@ -80,5 +83,194 @@
       "university": "Universidad",
       "other": "Otro"
     }
+  },
+  "home": {
+    "heroTitle": "Presentación",
+    "kicker": "// hola, soy",
+    "avatarAlt": "Avatar de {name}",
+    "fallbackIntro": "Proyectos publicados y una forma directa de escribirme.",
+    "openProjects": "Abrir proyectos →",
+    "writeMe": "Escribirme",
+    "recentTitle": "Proyectos recientes",
+    "seeAll": "{count, plural, one {Ver el proyecto →} other {Ver los # proyectos →}}",
+    "contactTitle": "Datos de contacto",
+    "facts": {
+      "name": "nombre",
+      "profile": "perfil",
+      "location": "ubicación",
+      "projects": "proyectos",
+      "projectsValue": "{count} en línea",
+      "email": "correo"
+    },
+    "noteTitle": "¿Tienes un proyecto?",
+    "noteText": "Cuéntame qué necesita tu negocio.",
+    "noteLink": "Escribirme →",
+    "shortcuts": "Accesos directos"
+  },
+  "about": {
+    "skillsTitle": "Habilidades",
+    "emptyTitle": "Aún no hay habilidades publicadas.",
+    "emptyText": "Aparecerán aquí cuando se publiquen desde el panel."
+  },
+  "contact": {
+    "windowTitle": "Escríbeme",
+    "heading": "Hablemos",
+    "to": "Para:",
+    "allRequired": "todos los campos son obligatorios",
+    "channelsTitle": "Otros canales",
+    "channelEmail": "correo",
+    "channelLocation": "ubicación",
+    "noteTitle": "Tip",
+    "noteText": "Cuéntame qué negocio tienes, qué necesitas y para cuándo. Con eso te mando una propuesta.",
+    "tickerAsk": "¿Qué necesita tu negocio?",
+    "tickerSites": "Sitios web",
+    "tickerLanding": "Landing pages",
+    "tickerSystems": "Sistemas a la medida"
+  },
+  "projects": {
+    "noteTitle": "¿Te gustó alguno?",
+    "noteText": "Puedo hacer algo así para tu negocio.",
+    "noteLink": "Escríbeme →",
+    "tickerCount": "{count, plural, one {# sitio en línea} other {# sitios en línea}}"
+  },
+  "project": {
+    "infoTitle": "Ficha del proyecto",
+    "kicker": "proyecto {position} de {total}",
+    "factType": "tipo",
+    "factYear": "año",
+    "factRole": "rol",
+    "technologies": "tecnologías",
+    "openSite": "Abrir sitio ↗",
+    "viewCode": "Ver código ↗",
+    "allProjects": "← Todos los proyectos",
+    "notesTitle": "De qué trata",
+    "notesLabel": "Descripción del proyecto",
+    "otherTitle": "Otros proyectos",
+    "notFoundCode": "404: proyecto no encontrado",
+    "notFoundTitle": "Proyecto no disponible",
+    "notFoundText": "No existe un proyecto publicado con esta dirección."
+  },
+  "errors": {
+    "backHome": "Volver al inicio",
+    "retry": "Intentar de nuevo",
+    "loadCode": "error: no se pudo cargar el contenido",
+    "loadTitle": "Contenido no disponible",
+    "loadText": "El contenido no llegó desde el servidor. Comprueba la conexión e inténtalo de nuevo.",
+    "notFoundCode": "404: ruta no encontrada",
+    "notFoundTitle": "Esta página no existe",
+    "notFoundText": "La dirección no corresponde a ninguna página del sitio. Revisa el enlace o vuelve al inicio."
+  },
+  "boot": {
+    "system": "angel.os — Guatemala, GT",
+    "loadingProjects": "cargando proyectos ............",
+    "mounting": "montando /sobre-mi",
+    "terminal": "iniciando terminal",
+    "mail": "conectando correo",
+    "session": "iniciando sesión como",
+    "welcome": "bienvenido"
+  },
+  "terminal": {
+    "noBio": "bio.txt: el perfil aún no está publicado.",
+    "lsCommand": "ls ~/trabajo",
+    "rerun": "↻ Repetir animación"
+  },
+  "explorer": {
+    "windowTitle": "Explorador de proyectos",
+    "filterLabel": "Filtrar por tipo",
+    "filterAll": "Todos",
+    "tip": "Pasa el cursor por un proyecto para verlo en la vista previa, o ábrelo para ver todos sus detalles.",
+    "emptyTitle": "Aún no hay proyectos publicados.",
+    "emptyText": "Aparecerán aquí cuando se publiquen desde el panel.",
+    "count": "{count, plural, one {# proyecto} other {# proyectos}}",
+    "site": "sitio:",
+    "previewTitle": "Vista previa",
+    "openPage": "Abrir ficha →",
+    "openPageLabel": "Abrir ficha de {title}",
+    "visit": "Visitar ↗",
+    "visitLabel": "Visitar el sitio de {title}"
+  },
+  "browser": {
+    "windowTitle": "Así se ve {title}",
+    "prev": "Captura anterior",
+    "next": "Captura siguiente",
+    "address": "Dirección del sitio",
+    "noAddress": "sitio sin dirección pública",
+    "openExternal": "Abrir {name} en otra pestaña",
+    "empty": "Este proyecto aún no tiene capturas publicadas.",
+    "shots": "Capturas",
+    "view": "Vista {number}",
+    "zoomLabel": "Ampliar captura {number} de {total}",
+    "zoom": "Ampliar ↗",
+    "viewerTitle": "Capturas de {title}",
+    "close": "Cerrar ×",
+    "viewerHelp": "Captura ampliada. Usa las flechas para recorrerlas y Escape para cerrar.",
+    "counter": "Captura {number} de {total}"
+  },
+  "gitLog": {
+    "hint": "Toca un trabajo para ver qué hice ahí.",
+    "current": "Actual",
+    "noDetails": "Aún no hay detalles publicados de este trabajo.",
+    "emptyTitle": "Aún no hay experiencia publicada.",
+    "emptyText": "Aparecerá aquí cuando se publique desde el panel.",
+    "timelineTitle": "Línea de tiempo",
+    "trackWork": "Trabajo",
+    "legendWork": "Trabajo (toca una barra para ver el detalle)",
+    "legendStudies": "Estudios (te lleva a Estudios)"
+  },
+  "studyFolder": {
+    "hint": "Toca un estudio o la carpeta de certificados para ver el detalle.",
+    "certificates": "Certificados",
+    "studiesCount": "{count, plural, one {# estudio} other {# estudios}}",
+    "certificatesCount": "{count, plural, one {# certificado} other {# certificados}}",
+    "detailTitle": "Detalle",
+    "stampTop": "EN",
+    "stampBottom": "CURSO",
+    "inProgress": "en curso",
+    "period": "periodo",
+    "folder": "CARPETA",
+    "folderEmpty": "CARPETA VACÍA",
+    "verify": "Verificar ↗",
+    "verifyNewTab": "{name} (se abre en otra pestaña)",
+    "emptyCertificates": "Aún no hay certificados publicados. Aparecerán aquí, con emisor y fecha, cuando se publiquen desde el panel."
+  },
+  "contactForm": {
+    "unavailableTitle": "El formulario no está disponible",
+    "unavailableText": "La verificación de seguridad aún no está configurada. Escribe directamente al correo publicado en esta página.",
+    "sentTitleTop": "Mensaje",
+    "sentTitleBottom": "en camino.",
+    "sentText": "Gracias por escribir. Responderé al correo que indicaste.",
+    "sentAgain": "Escribir otro",
+    "sendUnavailable": "El envío de mensajes aún no está disponible.",
+    "sendFailed": "No se pudo enviar el mensaje.",
+    "network": "No se pudo conectar. Inténtalo de nuevo.",
+    "labelName": "Nombre (obligatorio)",
+    "labelEmail": "Correo (obligatorio)",
+    "labelPhone": "Teléfono (obligatorio)",
+    "labelMessage": "Mensaje (obligatorio)",
+    "sending": "Enviando…",
+    "send": "Enviar mensaje ↗",
+    "validation": {
+      "length": "Usa entre {min} y {max} caracteres.",
+      "email": "Introduce un correo válido.",
+      "phone": "Introduce un teléfono válido de entre 8 y 15 dígitos.",
+      "verification": "Completa la verificación."
+    }
+  },
+  "window": {
+    "drag": "Arrastra desde aquí para mover la ventana",
+    "minimizeLabel": "Minimizar {title}",
+    "minimizeHint": "Minimizar (recupérala en «Ventanas»)",
+    "resetLabel": "Volver a colocar {title} en su lugar",
+    "resetHint": "Volver a su lugar",
+    "closeLabel": "Cerrar {title}",
+    "closeHint": "Cerrar (recupérala en «Ventanas»)"
+  },
+  "shell": {
+    "skip": "Saltar al contenido"
+  },
+  "language": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English"
   }
 }

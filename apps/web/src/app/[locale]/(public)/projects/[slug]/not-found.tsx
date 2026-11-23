@@ -1,14 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import { ErrorWindow } from "@/components/os/error-window";
 
-export default function ProjectNotFound() {
+export default async function ProjectNotFound() {
+  const t = await getTranslations("project");
   return (
     <ErrorWindow
       file="404.log"
-      code="404: proyecto no encontrado"
-      title="Proyecto no disponible"
-      back={{ href: "/projects", label: "← Ver proyectos" }}
+      code={t("notFoundCode")}
+      title={t("notFoundTitle")}
+      back={{ href: "/projects", label: t("allProjects") }}
     >
-      No existe un proyecto publicado con esta dirección.
+      {t("notFoundText")}
     </ErrorWindow>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import "@/styles/os/project.css";
 import { Badge } from "@repo/ui/components/badge";
 import {
@@ -20,19 +21,24 @@ import { ProjectMarkdown } from "@/components/os/project-markdown";
 import { ProjectThumb } from "@/components/os/project-thumb";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ locale: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const project = await getPublicProject(slug);
-  return { title: `${project.title} | angel.os`, description: project.summary };
+  return pageMetadata(locale, `/projects/${slug}`, "projects", {
+    title: `${project.title} | angel.os`,
+    description: project.summary,
+  });
 }
 
 export default async function ProjectDetail({ params }: Props) {
   const { slug } = await params;
+  const t = await getTranslations("project");
   const [project, all, related] = await Promise.all([
     getPublicProject(slug),
     getPublicProjects(),
@@ -49,9 +55,9 @@ export default async function ProjectDetail({ params }: Props) {
   const notes = splitNotesSections(project.description);
   const facts = (
     [
-      ["tipo", project.projectType],
-      ["año", project.projectYear],
-      ["rol", project.projectRole],
+      [t("factType"), project.projectType],
+      [t("factYear"), project.projectYear],
+      [t("factRole"), project.projectRole],
     ] satisfies [string, string | null][]
   ).filter((fact): fact is [string, string] => Boolean(fact[1]));
 
@@ -70,7 +76,7 @@ export default async function ProjectDetail({ params }: Props) {
 
         <Window
           id="ficha"
-          title="Ficha del proyecto"
+          title={t("infoTitle")}
           file="ficha.info"
           stack="derecha"
           labelledBy="project-title"
@@ -82,8 +88,10 @@ export default async function ProjectDetail({ params }: Props) {
           <div className="os-info">
             {position >= 0 && (
               <span className="os-info-kicker">
-                proyecto {String(position + 1).padStart(2, "0")} de{" "}
-                {String(all.length).padStart(2, "0")}
+                {t("kicker", {
+                  position: String(position + 1).padStart(2, "0"),
+                  total: String(all.length).padStart(2, "0"),
+                })}
               </span>
             )}
             <h1 id="project-title" className="os-display">
@@ -102,7 +110,7 @@ export default async function ProjectDetail({ params }: Props) {
             )}
             {project.technologies.length > 0 && (
               <div>
-                <h2 className="os-info-label">tecnologías</h2>
+                <h2 className="os-info-label">{t("technologies")}</h2>
                 <ul className="os-tech">
                   {project.technologies.map((technology) => (
                     <li key={technology}>
@@ -117,16 +125,16 @@ export default async function ProjectDetail({ params }: Props) {
             <div className="os-actions">
               {demoUrl && (
                 <OsLinkButton href={demoUrl} external>
-                  Abrir sitio ↗
+                  {t("openSite")}
                 </OsLinkButton>
               )}
               {codeUrl && (
                 <OsLinkButton href={codeUrl} variant="outline" external>
-                  Ver código ↗
+                  {t("viewCode")}
                 </OsLinkButton>
               )}
               <OsLinkButton href="/projects" variant="outline">
-                ← Todos los proyectos
+                {t("allProjects")}
               </OsLinkButton>
             </div>
           </div>
@@ -134,14 +142,14 @@ export default async function ProjectDetail({ params }: Props) {
 
         <Window
           id="notas"
-          title="De qué trata"
+          title={t("notesTitle")}
           file="notas.md"
           stack="pie"
           defaultPosition={{ x: 40, y: 800 }}
           width={1360}
           delay={0.24}
         >
-          <article className="os-notes" aria-label="Descripción del proyecto">
+          <article className="os-notes" aria-label={t("notesLabel")}>
             {notes.intro && (
               <section className="os-notes-intro">
                 {notes.intro.heading && <h2>{notes.intro.heading}</h2>}
@@ -164,7 +172,7 @@ export default async function ProjectDetail({ params }: Props) {
         {related.length > 0 && (
           <Window
             id="otros"
-            title="Otros proyectos"
+            title={t("otherTitle")}
             file="~/proyectos"
             stack="pie"
             variant="orange"
@@ -172,7 +180,7 @@ export default async function ProjectDetail({ params }: Props) {
             width={1360}
             delay={0.32}
           >
-            <nav className="os-related" aria-label="Otros proyectos">
+            <nav className="os-related" aria-label={t("otherTitle")}>
               <ul className="os-cards">
                 {related.map((item) => {
                   const preview = projectPreview(item);
@@ -195,7 +203,7 @@ export default async function ProjectDetail({ params }: Props) {
               </ul>
               <div className="os-related-foot">
                 <OsLinkButton href="/projects" variant="outline">
-                  ← Todos los proyectos
+                  {t("allProjects")}
                 </OsLinkButton>
               </div>
             </nav>

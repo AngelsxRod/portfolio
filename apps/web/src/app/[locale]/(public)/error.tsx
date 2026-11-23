@@ -1,17 +1,18 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ErrorWindow } from "@/components/os/error-window";
 
 export default function PublicError({ reset }: { reset: () => void }) {
+  const t = useTranslations("errors");
   return (
     <ErrorWindow
       file="error.log"
-      code="error: no se pudo cargar el contenido"
-      title="Contenido no disponible"
+      code={t("loadCode")}
+      title={t("loadTitle")}
       retry={reset}
     >
-      El contenido no llegó desde el servidor. Comprueba la conexión e inténtalo
-      de nuevo.
+      {t("loadText")}
     </ErrorWindow>
   );
 }

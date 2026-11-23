@@ -1,10 +1,12 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { getTranslations } from "next-intl/server";
 import { BRAND_COLORS, markSvg } from "@/lib/os/brand";
 import { getPublicProfile } from "@/lib/public-profile";
 
-export const alt = "angel.os, portafolio de desarrollo web";
+// Neutro en idioma: la imagen es la misma marca en todos los idiomas.
+export const alt = "angel.os · kaled.dev";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -12,7 +14,7 @@ const { ink, bone, lime, orange } = BRAND_COLORS;
 const mark = `data:image/svg+xml;utf8,${encodeURIComponent(markSvg())}`;
 
 /** Nombre y título del perfil publicado; sin él, un texto genérico. */
-async function subtitle() {
+async function subtitle(locale: string) {
   try {
     const profile = await getPublicProfile();
     if (profile)
@@ -22,13 +24,19 @@ async function subtitle() {
   } catch {
     // La imagen para compartir no debe fallar si la API no responde.
   }
-  return "Portafolio de desarrollo web";
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  return t("ogFallback");
 }
 
-export default async function OpenGraphImage() {
+export default async function OpenGraphImage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const [syne, text] = await Promise.all([
     readFile(join(process.cwd(), "assets/fonts/syne-latin-800-normal.woff")),
-    subtitle(),
+    subtitle(locale),
   ]);
   return new ImageResponse(
     <div

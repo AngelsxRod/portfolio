@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import "@/styles/os/home.css";
 import { getPublicProfile } from "@/lib/public-profile";
@@ -15,9 +16,17 @@ import { DesktopItem } from "@/components/os/desktop-item";
 import { OsLinkButton } from "@/components/os/os-button";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Inicio | angel.os" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return pageMetadata(locale, "/", "home");
+}
 
 const shortcutIcons = {
   folder: (
@@ -69,6 +78,11 @@ const shortcutIcons = {
 };
 
 export default async function Home() {
+  const [t, nav, common] = await Promise.all([
+    getTranslations("home"),
+    getTranslations("nav"),
+    getTranslations("common"),
+  ]);
   const [profile, projects, skills] = await Promise.all([
     getPublicProfile(),
     getPublicProjects(),
@@ -92,19 +106,19 @@ export default async function Home() {
   const heroSize = Math.min(104, Math.floor(580 / (0.9 * longestWord)));
   const facts: [string, React.ReactNode][] = [];
   if (profile) {
-    facts.push(["nombre", profile.displayName]);
-    if (profile.headline) facts.push(["perfil", profile.headline]);
-    if (profile.location) facts.push(["ubicación", profile.location]);
+    facts.push([t("facts.name"), profile.displayName]);
+    if (profile.headline) facts.push([t("facts.profile"), profile.headline]);
+    if (profile.location) facts.push([t("facts.location"), profile.location]);
   }
   facts.push([
-    "proyectos",
+    t("facts.projects"),
     <span key="count" className="os-fact-strong">
-      {projects.length} en línea
+      {t("facts.projectsValue", { count: projects.length })}
     </span>,
   ]);
   if (profile?.email)
     facts.push([
-      "correo",
+      t("facts.email"),
       <a key="mail" className="os-link" href={`mailto:${profile.email}`}>
         {profile.email}
       </a>,
@@ -120,13 +134,13 @@ export default async function Home() {
         rel="noopener noreferrer"
       >
         {new URL(link.url).host.replace(/^www\./, "")} ↗
-        <span className="sr-only"> (se abre en otra pestaña)</span>
+        <span className="sr-only"> {common("newTab")}</span>
       </a>,
     ]);
   const shortcuts = [
-    { href: "/projects", label: "Proyectos", icon: shortcutIcons.folder },
-    { href: "/sobre-mi", label: "Sobre mí", icon: shortcutIcons.text },
-    { href: "/contacto", label: "Contacto", icon: shortcutIcons.mail },
+    { href: "/projects", label: nav("projects"), icon: shortcutIcons.folder },
+    { href: "/sobre-mi", label: nav("about"), icon: shortcutIcons.text },
+    { href: "/contacto", label: nav("contact"), icon: shortcutIcons.mail },
   ];
   const external = links[0];
 
@@ -143,7 +157,7 @@ export default async function Home() {
 
         <Window
           id="hola"
-          title="Presentación"
+          title={t("heroTitle")}
           file="hola.txt"
           stack="izquierda"
           labelledBy="hero-title"
@@ -152,10 +166,10 @@ export default async function Home() {
         >
           <div className="os-hello">
             <div className="os-hello-head">
-              <span className="os-hello-kicker">// hola, soy</span>
+              <span className="os-hello-kicker">{t("kicker")}</span>
               <ProfileAvatar
                 interactive
-                alt={`Avatar de ${profile?.displayName ?? "Kaled"}`}
+                alt={t("avatarAlt", { name: profile?.displayName ?? "Kaled" })}
                 size={128}
                 className="os-hello-avatar"
               />
@@ -181,12 +195,12 @@ export default async function Home() {
             {profile ? (
               <p>{profile.presentation}</p>
             ) : (
-              <p>Proyectos publicados y una forma directa de escribirme.</p>
+              <p>{t("fallbackIntro")}</p>
             )}
             <div className="os-actions">
-              <OsLinkButton href="/projects">Abrir proyectos →</OsLinkButton>
+              <OsLinkButton href="/projects">{t("openProjects")}</OsLinkButton>
               <OsLinkButton href="/contacto" variant="outline">
-                Escribirme
+                {t("writeMe")}
               </OsLinkButton>
             </div>
           </div>
@@ -195,7 +209,7 @@ export default async function Home() {
         {recent.length > 0 && (
           <Window
             id="recientes"
-            title="Proyectos recientes"
+            title={t("recentTitle")}
             file="proyectos_recientes/"
             stack="derecha"
             defaultPosition={{ x: 790, y: 36 }}
@@ -234,7 +248,7 @@ export default async function Home() {
               ))}
               <li>
                 <Link className="os-link os-recent-more" href="/projects">
-                  Ver los {projects.length} proyectos →
+                  {t("seeAll", { count: projects.length })}
                 </Link>
               </li>
             </ul>
@@ -243,7 +257,7 @@ export default async function Home() {
 
         <Window
           id="sistema"
-          title="Datos de contacto"
+          title={t("contactTitle")}
           file="sistema.info"
           stack="derecha"
           variant="orange"
@@ -263,19 +277,19 @@ export default async function Home() {
 
         <StickyNote
           id="nota-contacto"
-          title="¿Tienes un proyecto?"
+          title={t("noteTitle")}
           tilt={-4}
           stack="izquierda"
           delay={0.45}
           defaultPosition={{ x: 96, y: 860 }}
         >
-          <p>Cuéntame qué necesita tu negocio.</p>
-          <Link href="/contacto">Escribirme →</Link>
+          <p>{t("noteText")}</p>
+          <Link href="/contacto">{t("noteLink")}</Link>
         </StickyNote>
 
         <DesktopItem
           id="accesos"
-          label="Accesos directos"
+          label={t("shortcuts")}
           as="nav"
           stack="izquierda"
           defaultPosition={{ x: 64, y: 760 }}
@@ -300,7 +314,7 @@ export default async function Home() {
                 >
                   {shortcutIcons.link}
                   {external.label} ↗
-                  <span className="sr-only"> (se abre en otra pestaña)</span>
+                  <span className="sr-only"> {common("newTab")}</span>
                 </a>
               </li>
             )}

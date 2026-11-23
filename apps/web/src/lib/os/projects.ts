@@ -13,6 +13,7 @@ export type ProjectFilter = { value: string; label: string; count: number };
  */
 export function projectFilters(
   projects: Pick<PublishedProject, "projectType">[],
+  allLabel = "Todos",
 ): ProjectFilter[] {
   const counts = new Map<string, number>();
   for (const project of projects) {
@@ -20,7 +21,7 @@ export function projectFilters(
     if (type) counts.set(type, (counts.get(type) ?? 0) + 1);
   }
   return [
-    { value: ALL_FILTER, label: "Todos", count: projects.length },
+    { value: ALL_FILTER, label: allLabel, count: projects.length },
     ...[...counts]
       .filter(([, count]) => count >= MIN_FILTER_SIZE)
       .map(([type, count]) => ({ value: type, label: type, count })),

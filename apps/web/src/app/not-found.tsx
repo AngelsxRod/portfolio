@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { ErrorWindow } from "@/components/os/error-window";
 import { OsShell } from "@/components/os/os-shell";
 
-export const metadata: Metadata = { title: "Página no encontrada | angel.os" };
+export const metadata: Metadata = { title: "angel.os" };
 
-export default function NotFound() {
+/** 404 global (fuera de un idioma): usa el idioma predeterminado. */
+export default async function NotFound() {
+  const t = await getTranslations("errors");
   return (
-    <OsShell>
-      <ErrorWindow
-        file="404.log"
-        code="404: ruta no encontrada"
-        title="Esta página no existe"
-        mood="confused"
-      >
-        La dirección no corresponde a ninguna página del sitio. Revisa el enlace
-        o vuelve al inicio.
-      </ErrorWindow>
-    </OsShell>
+    <NextIntlClientProvider>
+      <OsShell>
+        <ErrorWindow
+          file="404.log"
+          code={t("notFoundCode")}
+          title={t("notFoundTitle")}
+          mood="confused"
+        >
+          {t("notFoundText")}
+        </ErrorWindow>
+      </OsShell>
+    </NextIntlClientProvider>
   );
 }

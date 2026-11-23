@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import "@/styles/os/contact.css";
 import { getPublicProfile } from "@/lib/public-profile";
 import { safeExternalUrl } from "@/lib/safe-url";
@@ -8,11 +9,23 @@ import { Blob, StickyNote } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
 import { Ticker } from "@/components/os/ticker";
 import { Window } from "@/components/os/window";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Contacto | angel.os" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return pageMetadata(locale, "/contacto", "contact");
+}
 
 export default async function ContactPage() {
+  const [t, common] = await Promise.all([
+    getTranslations("contact"),
+    getTranslations("common"),
+  ]);
   const profile = await getPublicProfile();
   const links = (profile?.links ?? []).flatMap((link) => {
     const url = safeExternalUrl(link.url);
@@ -30,7 +43,7 @@ export default async function ContactPage() {
 
         <Window
           id="mensaje"
-          title="Escríbeme"
+          title={t("windowTitle")}
           file="nuevo_mensaje.eml"
           stack="izquierda"
           labelledBy="page-title"
@@ -39,15 +52,16 @@ export default async function ContactPage() {
         >
           <div className="os-mail">
             <h1 id="page-title" className="os-display">
-              Hablemos<span>.</span>
+              {t("heading")}
+              <span>.</span>
             </h1>
             <p className="os-mail-to">
               {profile?.email && (
                 <>
-                  Para: <span>{profile.email}</span> ·{" "}
+                  {t("to")} <span>{profile.email}</span> ·{" "}
                 </>
               )}
-              todos los campos son obligatorios
+              {t("allRequired")}
             </p>
             <ContactForm siteKey={process.env.TURNSTILE_SITE_KEY || null} />
           </div>
@@ -56,7 +70,7 @@ export default async function ContactPage() {
         {hasChannels && (
           <Window
             id="canales"
-            title="Otros canales"
+            title={t("channelsTitle")}
             file="otros_canales"
             stack="derecha"
             variant="orange"
@@ -69,7 +83,9 @@ export default async function ContactPage() {
                 <li>
                   <a href={`mailto:${profile.email}`}>
                     <span>
-                      <span className="os-channel-label">correo</span>
+                      <span className="os-channel-label">
+                        {t("channelEmail")}
+                      </span>
                       <span className="os-channel-value">{profile.email}</span>
                     </span>
                     <span className="os-channel-arrow" aria-hidden="true">
@@ -93,7 +109,7 @@ export default async function ContactPage() {
                     <span className="os-channel-arrow" aria-hidden="true">
                       ↗
                     </span>
-                    <span className="sr-only"> (se abre en otra pestaña)</span>
+                    <span className="sr-only"> {common("newTab")}</span>
                   </a>
                 </li>
               ))}
@@ -101,7 +117,9 @@ export default async function ContactPage() {
                 <li>
                   <span className="os-channel-static">
                     <span>
-                      <span className="os-channel-label">ubicación</span>
+                      <span className="os-channel-label">
+                        {t("channelLocation")}
+                      </span>
                       <span className="os-channel-value">
                         {profile.location} ·{" "}
                         <Clock className="os-channel-clock" />
@@ -116,24 +134,21 @@ export default async function ContactPage() {
 
         <StickyNote
           id="nota-contacto"
-          title="Tip"
+          title={t("noteTitle")}
           tilt={3}
           stack="derecha"
           delay={0.3}
           defaultPosition={{ x: 900, y: 420 }}
         >
-          <p>
-            Cuéntame qué negocio tienes, qué necesitas y para cuándo. Con eso te
-            mando una propuesta.
-          </p>
+          <p>{t("noteText")}</p>
         </StickyNote>
       </Desktop>
       <Ticker
         items={[
-          "¿Qué necesita tu negocio?",
-          "Sitios web",
-          "Landing pages",
-          "Sistemas a la medida",
+          t("tickerAsk"),
+          t("tickerSites"),
+          t("tickerLanding"),
+          t("tickerSystems"),
           ...(profile?.email ? [profile.email] : []),
         ]}
       />
