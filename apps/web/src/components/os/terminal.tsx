@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@repo/ui/components/button";
+import { ProfileAvatar } from "@/components/os/avatar";
 
 const prompt = "angel@os:~$ ";
 
@@ -36,10 +37,20 @@ export function Terminal({
     <div className="os-term" key={run}>
       <Command delay={0.3}>whoami</Command>
       <div className="os-out" style={{ animationDelay: "1s" }}>
-        <h1 id="page-title" className="os-display">
-          {name}
-        </h1>
-        {subtitle && <span className="os-muted">{subtitle}</span>}
+        <div className="os-term-who">
+          <ProfileAvatar
+            alt={`Avatar de ${name}`}
+            size={120}
+            variant="orange"
+            className="os-term-avatar"
+          />
+          <div>
+            <h1 id="page-title" className="os-display">
+              {name}
+            </h1>
+            {subtitle && <span className="os-muted">{subtitle}</span>}
+          </div>
+        </div>
       </div>
       <Command delay={1.5}>cat bio.txt</Command>
       <p className="os-out os-term-bio" style={{ animationDelay: "2.2s" }}>

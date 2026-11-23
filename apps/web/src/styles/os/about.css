@@ -21,6 +21,25 @@
   opacity: 0;
   animation: os-line 0.2s ease forwards;
 }
+.os-term-who {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 10px 6px 18px;
+}
+.os-term-who > div {
+  min-width: 0;
+}
+.os-term-avatar {
+  --os-avatar-tilt: -3deg;
+}
+@media (max-width: 560px) {
+  .os-term-who {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+}
 .os-term h1 {
   margin: 6px 0 0;
   color: var(--os-bone);
