@@ -2,9 +2,11 @@
 
 import type { ReactNode } from "react";
 import { Button } from "@repo/ui/components/button";
+import { ProfileAvatar } from "@/components/os/avatar";
 import { Blob } from "@/components/os/decor";
 import { Desktop } from "@/components/os/desktop";
 import { OsLinkButton } from "@/components/os/os-button";
+import type { AvatarMood } from "@/lib/os/avatar";
 import { Window } from "@/components/os/window";
 
 /** Ventana de error de angel.os para errores, 404 y contenido no disponible. */
@@ -12,6 +14,7 @@ export function ErrorWindow({
   file,
   code,
   title,
+  mood = "worried",
   children,
   retry,
   back = { href: "/", label: "Volver al inicio" },
@@ -19,6 +22,7 @@ export function ErrorWindow({
   file: string;
   code: string;
   title: string;
+  mood?: AvatarMood;
   children: ReactNode;
   retry?: () => void;
   back?: { href: string; label: string };
@@ -37,6 +41,14 @@ export function ErrorWindow({
         width={620}
       >
         <div className="os-error">
+          <ProfileAvatar
+            interactive
+            mood={mood}
+            size={96}
+            variant="orange"
+            alt="Avatar de Kaled"
+            className="os-error-avatar"
+          />
           <span className="os-error-code">{code}</span>
           <h1 id="page-title" className="os-display">
             {title}

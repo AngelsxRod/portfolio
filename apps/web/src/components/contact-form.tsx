@@ -10,6 +10,7 @@ import { Input } from "@repo/ui/components/input";
 import { Textarea } from "@repo/ui/components/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { FieldError, FieldGroup } from "@repo/ui/components/field";
+import { ProfileAvatar } from "@/components/os/avatar";
 import { toast } from "@repo/ui/components/sonner";
 import { FormField } from "@/components/form-field";
 import { applyServerErrors, lengthMessage, requiredText } from "@/lib/form";
@@ -65,18 +66,26 @@ export function ContactForm({ siteKey }: { siteKey: string | null }) {
   if (sent)
     return (
       <div className="os-sent" role="status">
-        <svg
-          className="os-plane"
-          viewBox="0 0 64 64"
-          fill="none"
-          stroke="var(--os-lime)"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M6 30L58 8 46 56 30 38z" />
-          <path d="M58 8L30 38v16l8-10" />
-        </svg>
+        <div className="os-sent-row">
+          <ProfileAvatar
+            mood="happy"
+            celebrate
+            size={88}
+            alt="Avatar de Kaled"
+          />
+          <svg
+            className="os-plane"
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="var(--os-lime)"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 30L58 8 46 56 30 38z" />
+            <path d="M58 8L30 38v16l8-10" />
+          </svg>
+        </div>
         <p className="os-display os-sent-title">
           Mensaje
           <br />

@@ -93,6 +93,7 @@ export function ProfileAvatar({
   variant = "lime",
   mood = "idle",
   interactive = false,
+  celebrate = false,
   onActivate,
   className,
 }: {
@@ -101,6 +102,8 @@ export function ProfileAvatar({
   variant?: "lime" | "orange";
   mood?: AvatarMood;
   interactive?: boolean;
+  /** Suelta confeti una vez al montarse (p. ej. al enviar el formulario). */
+  celebrate?: boolean;
   onActivate?: () => void;
   className?: string;
 }) {
@@ -171,6 +174,13 @@ export function ProfileAvatar({
     const pending = timers.current;
     return () => pending.forEach((timer) => window.clearTimeout(timer));
   }, []);
+
+  useEffect(() => {
+    if (!celebrate || reduced) return;
+    setPieces(makeConfetti());
+    const timer = window.setTimeout(() => setPieces([]), 1100);
+    return () => window.clearTimeout(timer);
+  }, [celebrate, reduced]);
 
   function activate() {
     onActivate?.();

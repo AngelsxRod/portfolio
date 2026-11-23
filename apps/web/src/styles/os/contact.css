@@ -78,6 +78,11 @@ textarea.os-input {
   padding: 24px 0 12px;
   animation: os-pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1) both;
 }
+.os-sent-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
 .os-plane {
   width: 72px;
   height: 72px;

@@ -11,6 +11,7 @@ export default function NotFound() {
         file="404.log"
         code="404: ruta no encontrada"
         title="Esta página no existe"
+        mood="confused"
       >
         La dirección no corresponde a ninguna página del sitio. Revisa el enlace
         o vuelve al inicio.

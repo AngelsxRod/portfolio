@@ -195,10 +195,20 @@
 
 /* Ventana de error */
 .os-error {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
   padding: 28px 32px 32px;
+}
+.os-error-avatar {
+  --os-avatar-tilt: 4deg;
+  align-self: flex-end;
+  margin: 0 4px -92px 0;
+}
+.os-error-avatar ~ h1,
+.os-error-avatar ~ .os-error-code {
+  max-width: calc(100% - 120px);
 }
 .os-error-code {
   color: var(--os-orange);
